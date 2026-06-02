@@ -31,32 +31,32 @@ const automations = [
 
 export default function Automations() {
   return (
-    <section id="esempi" className="py-24 px-6">
+    <section id="esempi" className="py-24 px-6 bg-[#faf8ff]">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Esempi di automazioni reali</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Esempi di automazioni reali</h2>
+          <p className="text-gray-500 text-lg max-w-2xl mx-auto">
             Workflow concreti, con impatto misurabile in ore risparmiate ogni mese.
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           {automations.map((a) => (
-            <div key={a.title} className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-              <div className="text-xs font-medium text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-full px-3 py-1 inline-block mb-4">
+            <div key={a.title} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              <div className="text-xs font-medium text-violet-700 bg-violet-100 border border-violet-200 rounded-full px-3 py-1 inline-block mb-4">
                 {a.tag}
               </div>
-              <h3 className="text-lg font-semibold mb-5">{a.title}</h3>
+              <h3 className="text-lg font-semibold mb-5 text-[#1a1a2e]">{a.title}</h3>
 
               <div className="space-y-3 mb-5">
                 <div className="flex gap-3">
-                  <span className="text-red-400 text-xs font-semibold uppercase tracking-wide w-12 shrink-0 pt-0.5">Prima</span>
-                  <p className="text-slate-400 text-sm leading-relaxed">{a.before}</p>
+                  <span className="text-red-500 text-xs font-semibold uppercase tracking-wide w-12 shrink-0 pt-0.5">Prima</span>
+                  <p className="text-gray-500 text-sm leading-relaxed">{a.before}</p>
                 </div>
-                <div className="h-px bg-slate-800" />
+                <div className="h-px bg-gray-100" />
                 <div className="flex gap-3">
-                  <span className="text-green-400 text-xs font-semibold uppercase tracking-wide w-12 shrink-0 pt-0.5">Dopo</span>
-                  <p className="text-slate-300 text-sm leading-relaxed">{a.after}</p>
+                  <span className="text-green-600 text-xs font-semibold uppercase tracking-wide w-12 shrink-0 pt-0.5">Dopo</span>
+                  <p className="text-gray-700 text-sm leading-relaxed">{a.after}</p>
                 </div>
               </div>
 
@@ -64,7 +64,7 @@ export default function Automations() {
                 {a.tools.map((t) => (
                   <span
                     key={t}
-                    className="text-xs text-slate-400 bg-slate-800 border border-slate-700 rounded px-2 py-1"
+                    className="text-xs text-gray-500 bg-gray-100 border border-gray-200 rounded px-2 py-1"
                   >
                     {t}
                   </span>

@@ -52,13 +52,13 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="servizi" className="py-24 px-6">
+    <section id="servizi" className="py-24 px-6 bg-[#faf8ff]">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">
             Scegli il piano giusto per il tuo studio
           </h2>
-          <p className="text-slate-400 text-lg">Prezzi fissi. Nessun canone nascosto. Consegna garantita.</p>
+          <p className="text-gray-500 text-lg">Prezzi fissi. Nessun canone nascosto. Consegna garantita.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -67,29 +67,29 @@ export default function Services() {
               key={s.name}
               className={`rounded-xl p-6 flex flex-col ${
                 s.highlighted
-                  ? 'bg-violet-500/10 border-2 border-violet-500/50'
-                  : 'bg-slate-900 border border-slate-800'
+                  ? 'bg-white border-2 border-violet-500 shadow-lg shadow-violet-100'
+                  : 'bg-white border border-gray-200 shadow-sm'
               }`}
             >
               {s.highlighted && (
-                <div className="text-xs font-semibold text-violet-400 uppercase tracking-widest mb-4">
+                <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-4">
                   Più scelto
                 </div>
               )}
               <div className="mb-6">
-                <p className="text-sm text-slate-400 mb-1">{s.name}</p>
-                <h3 className="text-xl font-bold mb-3">{s.tagline}</h3>
+                <p className="text-sm text-gray-400 mb-1">{s.name}</p>
+                <h3 className="text-xl font-bold mb-3 text-[#1a1a2e]">{s.tagline}</h3>
                 <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-4xl font-bold">€{s.price}</span>
-                  <span className="text-slate-400 text-sm">{s.period}</span>
+                  <span className="text-4xl font-bold text-[#1a1a2e]">€{s.price}</span>
+                  <span className="text-gray-400 text-sm">{s.period}</span>
                 </div>
-                <p className="text-slate-400 text-sm leading-relaxed">{s.description}</p>
+                <p className="text-gray-500 text-sm leading-relaxed">{s.description}</p>
               </div>
 
               <ul className="flex-1 space-y-3 mb-8">
                 {s.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-slate-300">
-                    <span className="text-violet-400 mt-0.5 shrink-0">✓</span>
+                  <li key={f} className="flex items-start gap-3 text-sm text-gray-600">
+                    <span className="text-violet-500 mt-0.5 shrink-0">✓</span>
                     <span>{f}</span>
                   </li>
                 ))}
@@ -100,7 +100,7 @@ export default function Services() {
                 className={`text-center py-3 rounded-lg font-semibold text-sm transition-colors ${
                   s.highlighted
                     ? 'bg-violet-600 hover:bg-violet-500 text-white'
-                    : 'border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white'
+                    : 'border border-gray-300 hover:border-violet-400 text-gray-600 hover:text-violet-700'
                 }`}
               >
                 {s.cta}

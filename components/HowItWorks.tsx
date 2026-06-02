@@ -21,19 +21,19 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="come-funziona" className="py-24 px-6 bg-slate-900/40">
+    <section id="come-funziona" className="py-24 px-6 bg-[#f3f0ff]">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Come funziona</h2>
-          <p className="text-slate-400 text-lg">Tre step. Nessuna complessità tecnica da parte tua.</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Come funziona</h2>
+          <p className="text-gray-500 text-lg">Tre step. Nessuna complessità tecnica da parte tua.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-10">
           {steps.map((step) => (
             <div key={step.number}>
-              <div className="text-6xl font-bold text-slate-800 mb-4 leading-none">{step.number}</div>
-              <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
-              <p className="text-slate-400 leading-relaxed text-sm">{step.description}</p>
+              <div className="text-6xl font-bold text-violet-200 mb-4 leading-none">{step.number}</div>
+              <h3 className="text-xl font-semibold mb-3 text-[#1a1a2e]">{step.title}</h3>
+              <p className="text-gray-500 leading-relaxed text-sm">{step.description}</p>
             </div>
           ))}
         </div>

@@ -33,22 +33,22 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null)
 
   return (
-    <section id="faq" className="py-24 px-6 bg-slate-900/40">
+    <section id="faq" className="py-24 px-6 bg-[#f3f0ff]">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Domande frequenti</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Domande frequenti</h2>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+            <div key={i} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
               <button
                 className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
                 onClick={() => setOpen(open === i ? null : i)}
               >
-                <span className="font-medium text-sm md:text-base">{faq.q}</span>
+                <span className="font-medium text-sm md:text-base text-[#1a1a2e]">{faq.q}</span>
                 <span
-                  className={`text-violet-400 text-xl shrink-0 transition-transform duration-200 ${
+                  className={`text-violet-600 text-xl shrink-0 transition-transform duration-200 ${
                     open === i ? 'rotate-45' : ''
                   }`}
                 >
@@ -56,7 +56,7 @@ export default function FAQ() {
                 </span>
               </button>
               {open === i && (
-                <div className="px-6 pb-5 text-slate-400 text-sm leading-relaxed border-t border-slate-800 pt-4">
+                <div className="px-6 pb-5 text-gray-500 text-sm leading-relaxed border-t border-gray-100 pt-4">
                   {faq.a}
                 </div>
               )}
