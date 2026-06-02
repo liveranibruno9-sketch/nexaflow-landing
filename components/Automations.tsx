@@ -43,7 +43,7 @@ export default function Automations() {
         <div className="grid md:grid-cols-2 gap-6">
           {automations.map((a) => (
             <div key={a.title} className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-              <div className="text-xs font-medium text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-full px-3 py-1 inline-block mb-4">
+              <div className="text-xs font-medium text-violet-400 bg-violet-500/10 border border-violet-500/20 rounded-full px-3 py-1 inline-block mb-4">
                 {a.tag}
               </div>
               <h3 className="text-lg font-semibold mb-5">{a.title}</h3>

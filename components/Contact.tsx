@@ -40,7 +40,7 @@ export default function Contact() {
         </div>
 
         {submitted ? (
-          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-10 text-center">
+          <div className="bg-violet-500/10 border border-violet-500/30 rounded-xl p-10 text-center">
             <div className="text-5xl mb-4">✓</div>
             <h3 className="text-xl font-semibold mb-2">Messaggio ricevuto</h3>
             <p className="text-slate-400">Ti rispondo entro 24 ore per fissare la call.</p>
@@ -53,7 +53,7 @@ export default function Contact() {
                 <input
                   name="nome"
                   required
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors text-sm"
                   placeholder="Mario Rossi"
                 />
               </div>
@@ -63,7 +63,7 @@ export default function Contact() {
                   name="email"
                   type="email"
                   required
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors text-sm"
                   placeholder="mario@studio.it"
                 />
               </div>
@@ -73,7 +73,7 @@ export default function Contact() {
               <label className="block text-sm font-medium text-slate-300 mb-2">Tipo di studio</label>
               <select
                 name="tipo_studio"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors text-sm"
               >
                 <option value="">Seleziona...</option>
                 <option>Studio commercialista</option>
@@ -91,7 +91,7 @@ export default function Contact() {
               <textarea
                 name="messaggio"
                 rows={4}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors text-sm resize-none"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors text-sm resize-none"
                 placeholder="Es: ogni mese devo raccogliere documenti da 30 clienti, ci perdo 3–4 ore di reminder manuali..."
               />
             </div>
@@ -108,14 +108,14 @@ export default function Contact() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 text-slate-950 font-semibold py-4 rounded-lg transition-colors text-sm"
+              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-semibold py-4 rounded-lg transition-colors text-sm shadow-lg shadow-violet-900/30"
             >
               {loading ? 'Invio in corso...' : 'Invia e prenota la call gratuita'}
             </button>
 
             <p className="text-center text-xs text-slate-500">
               Oppure scrivimi direttamente a{' '}
-              <a href="mailto:liveranibruno9@gmail.com" className="text-cyan-400 hover:underline">
+              <a href="mailto:liveranibruno9@gmail.com" className="text-violet-400 hover:underline">
                 liveranibruno9@gmail.com
               </a>
               {' '}· Risposta entro 24 ore

@@ -48,7 +48,7 @@ export default function FAQ() {
               >
                 <span className="font-medium text-sm md:text-base">{faq.q}</span>
                 <span
-                  className={`text-cyan-400 text-xl shrink-0 transition-transform duration-200 ${
+                  className={`text-violet-400 text-xl shrink-0 transition-transform duration-200 ${
                     open === i ? 'rotate-45' : ''
                   }`}
                 >

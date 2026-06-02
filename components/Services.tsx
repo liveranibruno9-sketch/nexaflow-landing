@@ -67,12 +67,12 @@ export default function Services() {
               key={s.name}
               className={`rounded-xl p-6 flex flex-col ${
                 s.highlighted
-                  ? 'bg-cyan-500/10 border-2 border-cyan-500/50'
+                  ? 'bg-violet-500/10 border-2 border-violet-500/50'
                   : 'bg-slate-900 border border-slate-800'
               }`}
             >
               {s.highlighted && (
-                <div className="text-xs font-semibold text-cyan-400 uppercase tracking-widest mb-4">
+                <div className="text-xs font-semibold text-violet-400 uppercase tracking-widest mb-4">
                   Più scelto
                 </div>
               )}
@@ -89,7 +89,7 @@ export default function Services() {
               <ul className="flex-1 space-y-3 mb-8">
                 {s.features.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-slate-300">
-                    <span className="text-cyan-400 mt-0.5 shrink-0">✓</span>
+                    <span className="text-violet-400 mt-0.5 shrink-0">✓</span>
                     <span>{f}</span>
                   </li>
                 ))}
@@ -99,7 +99,7 @@ export default function Services() {
                 href="#contatti"
                 className={`text-center py-3 rounded-lg font-semibold text-sm transition-colors ${
                   s.highlighted
-                    ? 'bg-cyan-500 hover:bg-cyan-400 text-slate-950'
+                    ? 'bg-violet-600 hover:bg-violet-500 text-white'
                     : 'border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white'
                 }`}
               >

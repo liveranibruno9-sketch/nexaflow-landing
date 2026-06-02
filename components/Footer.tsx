@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500">
         <div>
           <span className="text-white font-bold">
-            Nexa<span className="text-cyan-400">flow</span>
+            Nexa<span className="text-violet-400">flow</span>
           </span>
           <span className="ml-2">— Automazione B2B per studi professionali</span>
         </div>
