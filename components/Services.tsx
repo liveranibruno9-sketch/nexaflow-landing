@@ -52,7 +52,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="servizi" className="py-24 px-6 bg-[#faf8ff]">
+    <section id="servizi" className="py-24 px-6 bg-white">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">
@@ -61,50 +61,56 @@ export default function Services() {
           <p className="text-gray-500 text-lg">Prezzi fissi. Nessun canone nascosto. Consegna garantita.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 items-start">
           {services.map((s) => (
             <div
               key={s.name}
-              className={`rounded-xl p-6 flex flex-col ${
+              className={`rounded-2xl flex flex-col overflow-hidden ${
                 s.highlighted
-                  ? 'bg-white border-2 border-violet-500 shadow-lg shadow-violet-100'
-                  : 'bg-white border border-gray-200 shadow-sm'
+                  ? 'ring-2 ring-violet-500 shadow-xl shadow-violet-100 relative'
+                  : 'border border-gray-200 shadow-sm bg-white'
               }`}
             >
               {s.highlighted && (
-                <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-4">
-                  Più scelto
-                </div>
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-b from-violet-50/60 to-white pointer-events-none rounded-2xl" />
+                  <div className="relative bg-violet-600 text-white text-xs font-semibold uppercase tracking-widest text-center py-2.5 px-4">
+                    Più scelto
+                  </div>
+                </>
               )}
-              <div className="mb-6">
-                <p className="text-sm text-gray-400 mb-1">{s.name}</p>
-                <h3 className="text-xl font-bold mb-3 text-[#1a1a2e]">{s.tagline}</h3>
-                <div className="flex items-baseline gap-1 mb-3">
-                  <span className="text-4xl font-bold text-[#1a1a2e]">€{s.price}</span>
-                  <span className="text-gray-400 text-sm">{s.period}</span>
+
+              <div className={`p-6 flex flex-col flex-1 ${s.highlighted ? 'relative' : ''}`}>
+                <div className="mb-6">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{s.name}</p>
+                  <h3 className="text-xl font-bold mb-3 text-[#1a1a2e]">{s.tagline}</h3>
+                  <div className="flex items-baseline gap-1 mb-3">
+                    <span className="text-4xl font-bold text-[#1a1a2e]">€{s.price}</span>
+                    <span className="text-gray-400 text-sm">{s.period}</span>
+                  </div>
+                  <p className="text-gray-500 text-sm leading-relaxed">{s.description}</p>
                 </div>
-                <p className="text-gray-500 text-sm leading-relaxed">{s.description}</p>
+
+                <ul className="flex-1 space-y-3 mb-8">
+                  {s.features.map((f) => (
+                    <li key={f} className="flex items-start gap-3 text-sm text-gray-600">
+                      <span className="text-violet-500 mt-0.5 shrink-0 font-bold">✓</span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href="#contatti"
+                  className={`text-center py-3.5 rounded-xl font-semibold text-sm transition-all ${
+                    s.highlighted
+                      ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-md shadow-violet-200 hover:-translate-y-0.5'
+                      : 'border border-gray-200 hover:border-violet-400 text-gray-600 hover:text-violet-700 hover:bg-violet-50'
+                  }`}
+                >
+                  {s.cta}
+                </a>
               </div>
-
-              <ul className="flex-1 space-y-3 mb-8">
-                {s.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-gray-600">
-                    <span className="text-violet-500 mt-0.5 shrink-0">✓</span>
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <a
-                href="#contatti"
-                className={`text-center py-3 rounded-lg font-semibold text-sm transition-colors ${
-                  s.highlighted
-                    ? 'bg-violet-600 hover:bg-violet-500 text-white'
-                    : 'border border-gray-300 hover:border-violet-400 text-gray-600 hover:text-violet-700'
-                }`}
-              >
-                {s.cta}
-              </a>
             </div>
           ))}
         </div>
