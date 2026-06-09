@@ -29,7 +29,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contatti" className="py-24 px-6 bg-[#faf8ff]">
+    <section id="contatti" className="py-24 px-6 bg-white">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Inizia con una call gratuita</h2>
@@ -40,20 +40,27 @@ export default function Contact() {
         </div>
 
         {submitted ? (
-          <div className="bg-violet-50 border border-violet-200 rounded-xl p-10 text-center">
-            <div className="text-5xl mb-4">✓</div>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-10 text-center">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-5">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
             <h3 className="text-xl font-semibold mb-2 text-[#1a1a2e]">Messaggio ricevuto</h3>
             <p className="text-gray-500">Ti rispondo entro 24 ore per fissare la call.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-8 space-y-5 shadow-sm">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white border border-gray-200 rounded-2xl p-8 space-y-5 shadow-sm"
+          >
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
                 <input
                   name="nome"
                   required
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] placeholder-gray-400 focus:outline-none focus:border-violet-500 transition-colors text-sm"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] placeholder-gray-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm"
                   placeholder="Mario Rossi"
                 />
               </div>
@@ -63,7 +70,7 @@ export default function Contact() {
                   name="email"
                   type="email"
                   required
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] placeholder-gray-400 focus:outline-none focus:border-violet-500 transition-colors text-sm"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] placeholder-gray-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm"
                   placeholder="mario@studio.it"
                 />
               </div>
@@ -73,7 +80,7 @@ export default function Contact() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Tipo di studio</label>
               <select
                 name="tipo_studio"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] focus:outline-none focus:border-violet-500 transition-colors text-sm"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm"
               >
                 <option value="">Seleziona...</option>
                 <option>Studio commercialista</option>
@@ -91,35 +98,24 @@ export default function Contact() {
               <textarea
                 name="messaggio"
                 rows={4}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-[#1a1a2e] placeholder-gray-400 focus:outline-none focus:border-violet-500 transition-colors text-sm resize-none"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] placeholder-gray-400 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm resize-none"
                 placeholder="Es: ogni mese devo raccogliere documenti da 30 clienti, ci perdo 3–4 ore di reminder manuali..."
               />
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm">
-                Errore nell&apos;invio. Scrivi direttamente a{' '}
-                <a href="mailto:liveranibruno9@gmail.com" className="underline">
-                  liveranibruno9@gmail.com
-                </a>
+              <p className="text-red-500 text-sm text-center">
+                Errore nell&apos;invio. Riprova o contattaci tramite i link in fondo alla pagina.
               </p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-semibold py-4 rounded-lg transition-colors text-sm shadow-lg shadow-violet-200"
+              className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-semibold py-4 rounded-xl transition-all text-sm shadow-lg shadow-violet-100 hover:-translate-y-0.5"
             >
               {loading ? 'Invio in corso...' : 'Invia e prenota la call gratuita'}
             </button>
-
-            <p className="text-center text-xs text-gray-400">
-              Oppure scrivimi direttamente a{' '}
-              <a href="mailto:liveranibruno9@gmail.com" className="text-violet-600 hover:underline">
-                liveranibruno9@gmail.com
-              </a>
-              {' '}· Risposta entro 24 ore
-            </p>
           </form>
         )}
       </div>
