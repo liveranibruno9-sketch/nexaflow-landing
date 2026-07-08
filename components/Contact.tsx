@@ -34,8 +34,8 @@ export default function Contact() {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Inizia con una call gratuita</h2>
           <p className="text-gray-500 text-lg">
-            30 minuti. Analizziamo i tuoi processi e identifichiamo le automazioni con più impatto.
-            Nessun impegno.
+            30 minuti. Analizziamo i tuoi processi e ti dico cosa automatizzerei per primo.
+            Nessun impegno — e se vuoi, candidati a uno dei 2 posti pilota del mese.
           </p>
         </div>
 
@@ -76,24 +76,39 @@ export default function Contact() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Tipo di studio</label>
-              <select
-                name="tipo_studio"
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm"
-              >
-                <option value="">Seleziona...</option>
-                <option>Studio commercialista</option>
-                <option>Studio legale</option>
-                <option>Agenzia di marketing / comunicazione</option>
-                <option>Studio di consulenza</option>
-                <option>Altro</option>
-              </select>
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tipo di studio</label>
+                <select
+                  name="tipo_studio"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm"
+                >
+                  <option value="">Seleziona...</option>
+                  <option>Studio commercialista</option>
+                  <option>Studio legale</option>
+                  <option>Studio notarile</option>
+                  <option>Studio medico / odontoiatrico</option>
+                  <option>Agenzia di marketing / comunicazione</option>
+                  <option>Studio di consulenza</option>
+                  <option>Altro</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mi interessa</label>
+                <select
+                  name="interesse"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-[#1a1a2e] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 transition-colors text-sm"
+                >
+                  <option>Call gratuita di 30 minuti</option>
+                  <option>Posto pilota Agente Email (2/mese)</option>
+                  <option>Non so ancora — ditemi voi</option>
+                </select>
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Descrivi il processo che vuoi automatizzare
+                Descrivi il processo che vuoi automatizzare <span className="text-gray-400 font-normal">(opzionale)</span>
               </label>
               <textarea
                 name="messaggio"
@@ -114,8 +129,14 @@ export default function Contact() {
               disabled={loading}
               className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white font-semibold py-4 rounded-xl transition-all text-sm shadow-lg shadow-violet-100 hover:-translate-y-0.5"
             >
-              {loading ? 'Invio in corso...' : 'Invia e prenota la call gratuita'}
+              {loading ? 'Invio in corso...' : 'Invia — ti rispondo entro 24 ore'}
             </button>
+
+            <p className="text-xs text-gray-400 text-center">
+              Inviando accetti la{' '}
+              <a href="/privacy" className="underline hover:text-gray-600">privacy policy</a>.
+              Nessuna newsletter, nessuno spam: uso questi dati solo per risponderti.
+            </p>
           </form>
         )}
       </div>

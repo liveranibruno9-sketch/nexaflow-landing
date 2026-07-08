@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 
 const links = [
+  ['#agente-email', 'Agente Email'],
   ['#servizi', 'Servizi'],
   ['#come-funziona', 'Come funziona'],
   ['#esempi', 'Esempi'],
@@ -45,7 +46,7 @@ export default function Navbar() {
             href="#contatti"
             className="hidden md:block bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2 rounded-lg text-sm transition-colors"
           >
-            Prenota una call
+            Richiedi una call
           </a>
           <button
             className="md:hidden text-gray-300 hover:text-white p-1"
@@ -88,7 +89,7 @@ export default function Navbar() {
               className="block bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-3 rounded-lg text-sm text-center"
               onClick={() => setOpen(false)}
             >
-              Prenota una call gratuita
+              Richiedi una call gratuita
             </a>
           </div>
         </div>

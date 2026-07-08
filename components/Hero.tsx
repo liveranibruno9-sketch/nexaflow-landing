@@ -52,7 +52,7 @@ export default function Hero() {
         <div className="flex justify-center mb-8">
           <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 text-violet-400 text-sm font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse inline-block" />
-            Automazione B2B · Studi professionali italiani
+            Agenti AI · Automazione B2B · Studi professionali italiani
           </div>
         </div>
 
@@ -65,17 +65,17 @@ export default function Hero() {
         </h1>
 
         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed text-center">
-          Nexaflow costruisce workflow automatici su misura per commercialisti, avvocati e agenzie.
-          Configuri una volta — il sistema lavora sempre.
+          Nexaflow costruisce agenti AI e automazioni su misura per commercialisti, avvocati,
+          notai, studi medici e agenzie. Tu supervisioni — il sistema esegue.
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-5">
           <a
             href="#contatti"
             className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-8 py-4 rounded-lg transition-all text-base shadow-lg shadow-violet-900/50 hover:-translate-y-0.5 text-center"
           >
-            Prenota una call gratuita
+            Richiedi una call gratuita
           </a>
           <a
             href="#esempi"
@@ -85,26 +85,37 @@ export default function Hero() {
           </a>
         </div>
 
+        {/* Pilot strip */}
+        <div className="flex justify-center mb-14">
+          <a
+            href="#agente-email"
+            className="inline-flex items-center gap-2 text-sm text-violet-300 hover:text-violet-200 bg-violet-500/[0.07] hover:bg-violet-500/[0.12] border border-violet-500/20 rounded-full px-4 py-2 transition-colors"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
+            Questo mese: 2 posti pilota — setup gratuito, 30 giorni di prova →
+          </a>
+        </div>
+
         {/* Workflow visualization */}
         <div className="max-w-3xl mx-auto">
           <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 md:p-6">
             <div className="flex items-stretch gap-2 md:gap-3">
-              <WorkflowNode icon="📧" label="Email cliente" sub="Trigger" color="violet" />
+              <WorkflowNode icon="📧" label="Email in arrivo" sub="Trigger" color="violet" />
               <Arrow />
-              <WorkflowNode icon="🤖" label="Claude AI" sub="Analizza" color="blue" />
+              <WorkflowNode icon="🤖" label="Agente AI" sub="Classifica + bozza" color="blue" />
               <Arrow />
-              <WorkflowNode icon="📁" label="Drive + CRM" sub="Aggiorna" color="slate" />
+              <WorkflowNode icon="📋" label="Digest mattutino" sub="Solo le urgenze" color="slate" />
               <Arrow />
-              <WorkflowNode icon="✅" label="Notifica" sub="Completato" color="green" />
+              <WorkflowNode icon="✅" label="Tu approvi" sub="1 click" color="green" />
             </div>
             <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
-                Workflow attivo — gira in automatico
+                Esempio: Agente Email — presidia la casella dello studio
               </div>
               <div className="flex items-center gap-4 text-xs text-gray-600">
-                <span>47 esecuzioni oggi</span>
-                <span className="text-green-500/80">0 errori</span>
+                <span>Attivo 24/7</span>
+                <span className="text-green-500/80">Supervisione umana</span>
               </div>
             </div>
           </div>

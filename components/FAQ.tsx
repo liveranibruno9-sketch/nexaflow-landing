@@ -4,6 +4,14 @@ import { useState } from 'react'
 
 const faqs = [
   {
+    q: "Che differenza c'è tra un workflow e un agente AI?",
+    a: "Un workflow esegue sempre gli stessi passi (es: nuovo cliente → crea cartella → invia email di benvenuto). Un agente AI valuta e decide caso per caso: legge un'email, capisce se è urgente, prepara una bozza di risposta adeguata. Nexaflow costruisce entrambi — spesso la soluzione giusta per uno studio è una combinazione dei due.",
+  },
+  {
+    q: 'Come funziona il progetto pilota?',
+    a: "Ogni mese prendo 2 studi in pilota per l'Agente Email: setup gratuito e 30 giorni di prova, in cambio di un feedback onesto a fine periodo. Se non ti libera ore reali, finisce lì — nessun costo, nessun vincolo. Se funziona, prosegue a €290/mese, disdicibile quando vuoi.",
+  },
+  {
     q: 'Devo sapere programmare o avere competenze tecniche?',
     a: 'No. Costruiamo noi tutto e ti consegniamo il sistema funzionante. Forniamo documentazione e training di 1 ora per il team. Non devi toccare una riga di codice.',
   },

@@ -42,6 +42,18 @@ const problems = [
       'Ogni mese copi gli stessi dati, compili gli stessi fogli, mandi le stesse email. Ore di lavoro che potrebbero non esistere.',
     cost: '2–3 ore/mese solo per i report',
   },
+  {
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+      </svg>
+    ),
+    title: 'Una casella email che comanda',
+    description:
+      'Ogni mattina decine di email: urgenze vere mescolate a routine. Le smisti a mano, una per una, prima ancora di iniziare a lavorare.',
+    cost: '1–2 ore/giorno di smistamento',
+  },
 ]
 
 export default function Problem() {
@@ -58,7 +70,7 @@ export default function Problem() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {problems.map((p) => (
             <div
               key={p.title}
