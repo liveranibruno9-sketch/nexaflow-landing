@@ -58,7 +58,10 @@ export default function Services() {
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">
             Scegli il piano giusto per il tuo studio
           </h2>
-          <p className="text-gray-500 text-lg">Prezzi fissi. Nessun canone nascosto. Consegna garantita.</p>
+          <p className="text-gray-500 text-lg">
+            Prezzi fissi. Nessun canone nascosto. E una garanzia semplice: se ciò che consegno non
+            fa quello che abbiamo concordato in fase di audit, lo correggo gratis o ti rimborso.
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6 items-start">

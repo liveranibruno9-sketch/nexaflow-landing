@@ -31,6 +31,22 @@ const automations = [
     saving: '1–2 ore risparmiate/giorno',
     tools: ['Gmail', 'Slack', 'Claude AI'],
   },
+  {
+    title: 'Fascicolo pre-atto completo da solo',
+    tag: 'Studio notarile',
+    before: 'Documenti richiesti alle parti uno a uno — identità, visure, planimetrie — con solleciti manuali per settimane',
+    after: 'Lista inviata automaticamente alle parti, solleciti automatici su ciò che manca, avviso quando il fascicolo è pronto per la redazione',
+    saving: 'Fascicoli pronti in giorni',
+    tools: ['Gmail', 'Google Drive', 'Claude AI'],
+  },
+  {
+    title: 'Agenda piena, meno no-show',
+    tag: 'Studio medico / odontoiatrico',
+    before: 'Disdette all’ultimo minuto, anamnesi compilate in sala d’attesa, richiami periodici dimenticati',
+    after: 'Conferme automatiche via WhatsApp/email, anamnesi compilata prima della visita, recall periodici gestiti dall’assistente AI',
+    saving: 'Meno buchi in agenda',
+    tools: ['WhatsApp', 'Gmail', 'Calendar'],
+  },
 ]
 
 export default function Automations() {
@@ -38,9 +54,9 @@ export default function Automations() {
     <section id="esempi" className="py-24 px-6 bg-white">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Esempi di automazioni reali</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1a1a2e]">Esempi di agenti e automazioni reali</h2>
           <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-            Workflow concreti, con impatto misurabile in ore risparmiate ogni mese.
+            Sistemi concreti, con impatto misurabile in ore risparmiate ogni mese.
           </p>
         </div>
 

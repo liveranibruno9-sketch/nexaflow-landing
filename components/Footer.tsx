@@ -7,10 +7,11 @@ export default function Footer() {
             <div className="text-xl font-bold text-white mb-1">
               Nexa<span className="text-violet-400">flow</span>
             </div>
-            <p className="text-gray-500 text-sm">Automazione B2B per studi professionali italiani</p>
+            <p className="text-gray-500 text-sm">Agenti AI e automazione B2B per studi professionali italiani</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-sm text-gray-500">
+            <a href="#agente-email" className="hover:text-white transition-colors">Agente Email</a>
             <a href="#servizi" className="hover:text-white transition-colors">Servizi</a>
             <a href="#come-funziona" className="hover:text-white transition-colors">Come funziona</a>
             <a href="#esempi" className="hover:text-white transition-colors">Esempi</a>
@@ -37,9 +38,12 @@ export default function Footer() {
 
         <div className="pt-6 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600">
           <span>© 2026 Nexaflow. Tutti i diritti riservati.</span>
-          <a href="mailto:info@nexaflow.it" className="hover:text-gray-400 transition-colors">
-            info@nexaflow.it
-          </a>
+          <div className="flex items-center gap-5">
+            <a href="/privacy" className="hover:text-gray-400 transition-colors">Privacy Policy</a>
+            <a href="mailto:nexaflow.automation.b2b@gmail.com" className="hover:text-gray-400 transition-colors">
+              nexaflow.automation.b2b@gmail.com
+            </a>
+          </div>
         </div>
       </div>
     </footer>
