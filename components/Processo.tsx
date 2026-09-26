@@ -21,7 +21,7 @@ export default function Processo() {
               <h3 className="mt-6 text-s1 font-medium tracking-[-0.02em]">{p.titolo}</h3>
               <p className="mt-4 text-s-1 leading-relaxed text-[var(--slate)]">{p.testo}</p>
 
-              <p className="mt-auto border-t border-[var(--bordo)] pt-5 text-s-2 leading-relaxed text-[var(--slate-2)]">
+              <p className="mt-auto border-t border-[var(--bordo)] pt-5 text-s-2 leading-relaxed text-[var(--slate)]">
                 {p.dettaglio}
               </p>
             </li>

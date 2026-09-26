@@ -248,13 +248,13 @@ export const MODULI: Modulo[] = [
 export const PERDITE = [
   {
     n: '01',
-    titolo: 'Le chiamate che nessuno ha risposto',
+    titolo: 'Le chiamate perse diventano pazienti di un altro dentista',
     testo:
-      'Segreteria occupata, pausa pranzo, dopo le sette. Il paziente non richiama: chiama un altro studio. Nessun report dello studio registra quella chiamata.',
-    valore: 3,
-    prefisso: '',
-    suffisso: ' su 3',
-    datoNota: 'chiamate senza risposta in una giornata feriale, su uno studio reale che abbiamo verificato',
+      'Quando la segreteria è occupata, in pausa o lo studio è chiuso, chi cerca un dentista non lascia un messaggio: chiama il numero successivo. Una chiamata persa non compare in nessun report dello studio, ma è un nuovo paziente che si è seduto su un’altra poltrona.',
+    valore: 1500,
+    prefisso: 'da ',
+    suffisso: ' €',
+    datoNota: 'il preventivo minimo di un impianto singolo: basta una chiamata senza risposta per perderlo',
   },
   {
     n: '02',

@@ -17,10 +17,13 @@ export default function Carosello({
   children,
   etichetta,
   className = '',
+  largo = false,
 }: {
   children: React.ReactNode
   etichetta: string
   className?: string
+  /** schede piu larghe, per contenuti con piu testo */
+  largo?: boolean
 }) {
   const pista = useRef<HTMLDivElement>(null)
   const [aSinistra, setASinistra] = useState(true)
@@ -61,7 +64,7 @@ export default function Carosello({
     <div className={className}>
       <div
         ref={pista}
-        className="carosello -mx-[clamp(1.25rem,4vw,3rem)] px-[clamp(1.25rem,4vw,3rem)]"
+        className={`carosello ${largo ? 'carosello--largo' : ''} -mx-[clamp(1.25rem,4vw,3rem)] px-[clamp(1.25rem,4vw,3rem)]`}
         role="group"
         aria-label={etichetta}
         tabIndex={0}
@@ -91,23 +94,11 @@ export default function Carosello({
           </button>
         </div>
 
-        <div
-          className="h-[2px] flex-1 overflow-hidden rounded-full"
-          style={{ background: 'color-mix(in srgb, #ffffff 14%, transparent)' }}
-          aria-hidden="true"
-        >
-          <div
-            className="h-full rounded-full transition-[width] duration-200 ease-out"
-            style={{
-              width: `${Math.max(12, avanzamento * 100)}%`,
-              background: 'var(--blu-2)',
-            }}
-          />
+        <div className="car-barra" aria-hidden="true">
+          <div className="car-barra__fill" style={{ width: `${Math.max(12, avanzamento * 100)}%` }} />
         </div>
 
-        <span className="shrink-0 text-s-2 text-[color-mix(in_srgb,#FAF6EF_42%,transparent)]">
-          {aDestra ? 'fine' : 'scorri'}
-        </span>
+        <span className="car-stato">{aDestra ? 'fine' : 'scorri'}</span>
       </div>
     </div>
   )
