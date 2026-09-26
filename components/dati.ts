@@ -251,7 +251,9 @@ export const PERDITE = [
     titolo: 'Le chiamate che nessuno ha risposto',
     testo:
       'Segreteria occupata, pausa pranzo, dopo le sette. Il paziente non richiama: chiama un altro studio. Nessun report dello studio registra quella chiamata.',
-    dato: '3 su 3',
+    valore: 3,
+    prefisso: '',
+    suffisso: ' su 3',
     datoNota: 'chiamate senza risposta in una giornata feriale, su uno studio reale che abbiamo verificato',
   },
   {
@@ -259,7 +261,9 @@ export const PERDITE = [
     titolo: 'I preventivi che si sono spenti da soli',
     testo:
       '“Ci penso.” Poi nessuno richiama. Un impianto vale fra 1.500 e 3.000 euro, un piano di ortodonzia fra 3.000 e 6.000. Restano aperti per mesi.',
-    dato: '90 giorni',
+    valore: 90,
+    prefisso: '',
+    suffisso: ' giorni',
     datoNota: 'il tempo oltre il quale un preventivo non richiamato non torna quasi mai',
   },
   {
@@ -267,7 +271,9 @@ export const PERDITE = [
     titolo: 'I pazienti che dovevano tornare',
     testo:
       'Chi fa igiene ogni sei mesi e sparisce. Chi manca da due anni. Sono già nel gestionale, si sono già fidati una volta, e nessuno li richiama.',
-    dato: '80–120 €',
+    valore: 120,
+    prefisso: 'fino a ',
+    suffisso: ' €',
     datoNota: 'una seduta di igiene, più le cure che spesso ne nascono',
   },
   {
@@ -275,7 +281,9 @@ export const PERDITE = [
     titolo: 'La poltrona ferma',
     testo:
       'In sanità il no-show europeo si aggira intorno al 19%. Il promemoria lo manda già il gestionale: quello che manca è riempire il posto che si è liberato.',
-    dato: '80–200 €',
+    valore: 200,
+    prefisso: 'fino a ',
+    suffisso: ' €',
     datoNota: 'per ogni ora di poltrona ferma, ripetuto ogni settimana',
   },
 ]

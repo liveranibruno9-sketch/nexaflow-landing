@@ -52,11 +52,11 @@ function Scudo() {
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" className="mt-0.5 shrink-0">
       <path
         d="M11 2.5 L18 5.2 v5.3 c0 4.2 -2.9 8 -7 9 -4.1 -1 -7 -4.8 -7 -9 V5.2 z"
-        stroke="var(--jade-2)"
+        stroke="var(--blu-2)"
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
-      <path d="M7.8 11.2 l2.3 2.3 l4.3 -4.6" stroke="var(--jade-2)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7.8 11.2 l2.3 2.3 l4.3 -4.6" stroke="var(--blu-2)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }

@@ -13,7 +13,7 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
     corpo: (
       <p>
         Bruno Liverani, Faenza (RA). Contatto:{' '}
-        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--jade)]">
+        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu)]">
           {CONTATTO.email}
         </a>
       </p>
@@ -60,7 +60,7 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
           href="https://formspree.io/legal/privacy-policy/"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-[var(--jade)]"
+          className="underline underline-offset-2 hover:text-[var(--blu)]"
         >
           termini privacy
         </a>
@@ -85,7 +85,7 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
       <p>
         Può chiedere in qualsiasi momento accesso, rettifica o cancellazione dei suoi dati, oppure opporsi al
         trattamento, scrivendo a{' '}
-        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--jade)]">
+        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu)]">
           {CONTATTO.email}
         </a>
         . Ha inoltre diritto di proporre reclamo al Garante per la protezione dei dati personali.
@@ -109,7 +109,7 @@ export default function Privacy() {
   return (
     <main className="min-h-screen bg-[var(--paper)]">
       <div className="wrap max-w-3xl py-20 sm:py-28">
-        <a href="/" className="text-s-1 text-[var(--jade)] transition-colors hover:text-[var(--jade-dark)]">
+        <a href="/" className="text-s-1 text-[var(--blu)] transition-colors hover:text-[var(--blu-3)]">
           ← Torna al sito
         </a>
 

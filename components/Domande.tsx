@@ -17,9 +17,9 @@ export default function Domande() {
           <div className="rivela">
             {FAQ.map((f, i) => (
               <details key={f.d} className="group border-b border-[var(--bordo)] first:border-t">
-                <summary className="flex items-start justify-between gap-6 py-6 text-s1 font-medium tracking-[-0.02em] transition-colors hover:text-[var(--jade)]">
+                <summary className="flex items-start justify-between gap-6 py-6 text-s1 font-medium tracking-[-0.02em] transition-colors hover:text-[var(--blu)]">
                   <span className="flex gap-5">
-                    <span className="num mt-1.5 text-s-2 text-[var(--brass)]">{`0${i + 1}`}</span>
+                    <span className="num mt-1.5 text-s-2 text-[var(--arancio)]">{`0${i + 1}`}</span>
                     <span className="max-w-[34ch]">{f.d}</span>
                   </span>
                   <span

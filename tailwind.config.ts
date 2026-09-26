@@ -8,13 +8,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: { DEFAULT: '#0A1628', 2: '#122239', 3: '#1B3050' },
-        paper: { DEFAULT: '#F7F4EF', 2: '#FFFFFF', 3: '#EFEAE1' },
-        slate2: { DEFAULT: '#5A6B84', light: '#8E9CB2' },
-        jade: { DEFAULT: '#1F8A78', light: '#5FBFAE', dark: '#0E5F52' },
-        brass: '#B8925A',
+        // Palette semantica: blu = quello che recuperi, arancio = quello che perdi,
+        // lime = il dato misurato. Vedi app/globals.css.
+        ink: { DEFAULT: '#080D18', 2: '#111A2E', 3: '#1B2740' },
+        paper: { DEFAULT: '#FAF6EF', 2: '#FFFFFF', 3: '#F1EBE0' },
+        slate2: { DEFAULT: '#5A6478', light: '#98A2B8', soft: '#C8CEDB' },
+        blu: { DEFAULT: '#2563FF', light: '#7DA2FF', dark: '#1441B8', tenue: '#E8EEFF' },
+        arancio: { DEFAULT: '#FF5A1F', ink: '#C63A0C', tenue: '#FFE9DF' },
+        lime: '#C9F24D',
         ok: '#1FA971',
-        ko: '#E0574B',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -31,7 +33,7 @@ const config: Config = {
         s5: 'var(--step-5)',
         s6: 'var(--step-6)',
       },
-      borderRadius: { xl2: '20px', xl3: '28px' },
+      borderRadius: { xl2: '22px', xl3: '30px' },
       transitionTimingFunction: { soft: 'cubic-bezier(0.16, 1, 0.3, 1)' },
     },
   },

@@ -1,53 +1,86 @@
 import { PERDITE } from './dati'
+import Contatore from './Contatore'
 
 /**
- * Le quattro perdite, in pila sticky.
- * Ogni card si ferma sotto la precedente, si rimpicciolisce e sfuma quando
- * esce: e la gerarchia di profondita che rende leggibile un elenco lungo
- * senza costringere a scorrere quattro schermate piatte.
+ * Le quattro perdite, in scorrimento orizzontale.
+ *
+ * Su schermo largo la sezione si blocca e la fascia scorre lateralmente
+ * mentre la pagina scende: e il momento di movimento piu forte del sito, e
+ * sta qui perche e la sezione che deve far sentire il problema.
+ *
+ * Titolo e fascia stanno dentro lo stesso viewport bloccato e vengono
+ * centrati insieme: tenendo il titolo fuori restava un vuoto verticale fra
+ * le due cose.
+ *
+ * Senza supporto alle scroll-driven animations, su mobile, o con
+ * `prefers-reduced-motion`, la stessa fascia resta un carosello che si scorre
+ * a mano con la barra visibile. Nessun contenuto e raggiungibile solo tramite
+ * animazione.
+ *
+ * Il colore qui e tutto caldo: in questo sito l'arancio significa "quello che
+ * stai perdendo".
  */
 export default function Perdite() {
   return (
-    <section id="perdite" className="sezione">
-      <div className="wrap">
-        <div className="max-w-3xl">
-          <span className="occhiello rivela">Dove se ne vanno i soldi</span>
-          <div className="filetto mt-5" />
-          <h2 className="serif rivela mt-7 text-s4">
-            Nessuna di queste perdite compare in un bilancio. Succedono e basta.
-          </h2>
-          <p className="rivela rit-1 misura mt-6 text-s0 text-[var(--slate)]">
-            Non sono problemi di qualità dello studio. Sono buchi nel percorso fra il momento in cui un paziente
-            ha bisogno di lei e il momento in cui si siede sulla poltrona.
-          </p>
-        </div>
+    <section id="perdite">
+      <div className="orizz pt-[var(--sezione)] lg:pt-0">
+        <div className="orizz__vp">
+          <div className="wrap">
+            <div className="max-w-3xl">
+              <span className="occhiello rivela">Dove se ne vanno i soldi</span>
+              <div className="filetto filetto-caldo mt-5" />
 
-        <div className="pila mt-16 md:mt-24">
-          {PERDITE.map((p) => (
-            <article
-              key={p.n}
-              className="strato card overflow-hidden p-7 shadow-[0_24px_60px_-40px_rgba(10,22,40,.5)] sm:p-10"
-            >
-              <div className="grid gap-8 md:grid-cols-[auto_1fr_auto] md:items-start md:gap-12">
-                <span className="num serif text-s3 text-[var(--brass)]">{p.n}</span>
+              <h2 className="serif mt-7 text-s4">
+                <span className="riga">
+                  <span>Nessuna di queste perdite</span>
+                </span>
+                <span className="riga">
+                  <span>compare in un bilancio.</span>
+                </span>
+              </h2>
 
+              <p className="rivela rit-1 misura mt-6 text-s0 text-[var(--slate)]">
+                Non sono problemi di qualità dello studio. Sono buchi nel percorso fra il momento in cui un
+                paziente ha bisogno di lei e il momento in cui si siede sulla poltrona.
+              </p>
+            </div>
+          </div>
+
+          <div className="orizz__track" role="group" aria-label="Le quattro perdite" tabIndex={0}>
+            {PERDITE.map((p) => (
+              <article key={p.n} className="orizz__pannello card flex flex-col justify-between p-7 sm:p-9">
                 <div>
-                  <h3 className="text-s2 font-medium tracking-[-0.02em]">{p.titolo}</h3>
-                  <p className="misura mt-4 text-s0 text-[var(--slate)]">{p.testo}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="num text-s-2 font-medium tracking-[0.16em] text-[var(--slate-2)]">
+                      {p.n}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: 'var(--arancio)' }}
+                    />
+                  </div>
+
+                  <h3 className="mt-7 text-s2 font-medium tracking-[-0.025em]">{p.titolo}</h3>
+                  <p className="mt-4 text-s-1 leading-relaxed text-[var(--slate)]">{p.testo}</p>
                 </div>
 
-                <div className="shrink-0 border-t border-[var(--bordo)] pt-5 md:w-56 md:border-l md:border-t-0 md:pl-8 md:pt-0">
-                  <div className="num serif text-s3 leading-none">{p.dato}</div>
-                  <p className="mt-3 text-s-1 leading-snug text-[var(--slate)]">{p.datoNota}</p>
+                <div className="mt-9 border-t border-[var(--bordo)] pt-6">
+                  <div className="serif text-s4 leading-none" style={{ color: 'var(--arancio-ink)' }}>
+                    <Contatore a={p.valore} prefisso={p.prefisso} suffisso={p.suffisso} />
+                  </div>
+                  <p className="mt-3 text-s-2 leading-snug text-[var(--slate)]">{p.datoNota}</p>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <p className="rivela mx-auto mt-16 max-w-2xl text-center text-s-1 text-[var(--slate)]">
-          I riferimenti sopra vengono dalla letteratura di settore e da verifiche fatte su studi reali.
-          Sul suo studio non valgono finché non li misuriamo: è esattamente quello che fa la verifica gratuita.
+      <div className="wrap pb-[var(--sezione)] pt-10">
+        <p className="max-w-2xl text-s-2 text-[var(--slate)]">
+          I riferimenti vengono dalla letteratura di settore e da verifiche fatte su studi reali. Sul suo
+          studio non valgono finché non li misuriamo: è esattamente quello che fa la verifica gratuita.
         </p>
       </div>
     </section>

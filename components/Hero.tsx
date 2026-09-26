@@ -6,22 +6,36 @@ const PROVE = [
   { ora: '—', cosa: 'Profilo Google', esito: '34 recensioni, ultima a maggio', ko: false },
 ]
 
+/**
+ * Titolo costruito sulla regola delle due frasi ricavata dai tre player
+ * americani analizzati: due proposizioni brevi separate da un punto, sette
+ * parole in tutto, nessuna subordinata.
+ * Ogni riga sale da dietro una maschera, una dopo l'altra.
+ */
+const RIGHE = ['Perde fatturato', 'ogni settimana.']
+
 export default function Hero() {
   return (
-    <section id="top" className="scuro grana relative overflow-hidden">
-      <div className="wrap relative grid items-center gap-14 pb-[clamp(5rem,10vw,9rem)] pt-[clamp(8rem,16vw,12rem)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
+    <section id="top" className="scuro grana alone relative overflow-hidden">
+      <div className="wrap relative grid items-center gap-14 pb-[clamp(5rem,10vw,8rem)] pt-[clamp(8rem,16vw,12rem)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
         <div>
           <span className="occhiello rivela">Studi dentistici privati · Romagna</span>
           <div className="filetto mt-5" />
 
-          <h1 className="serif rivela mt-7 text-s6">
-            Il fatturato che il suo studio perde ogni settimana{' '}
-            <em className="not-italic text-[var(--jade-2)]">ha un numero.</em>
+          <h1 className="serif mt-7 text-s5">
+            {RIGHE.map((r) => (
+              <span className="riga" key={r}>
+                <span>{r}</span>
+              </span>
+            ))}
+            <span className="riga">
+              <span className="text-[var(--blu-2)]">Le mostro quanto.</span>
+            </span>
           </h1>
 
-          <p className="rivela rit-1 misura mt-7 text-s1 leading-[1.5]">
-            Chiamate a cui nessuno ha risposto, preventivi fermi da mesi, poltrone vuote.
-            Prima lo misuro sul suo studio. Poi lo recuperiamo, e lo contiamo insieme ogni mese.
+          <p className="rivela rit-1 misura mt-8 text-s1 leading-[1.5]">
+            Chiamate senza risposta, preventivi fermi da mesi, poltrone vuote. Prima lo misuro sul suo
+            studio. Poi lo recuperiamo, e lo contiamo insieme ogni mese.
           </p>
 
           <div className="rivela rit-2 mt-10 flex flex-col gap-3 sm:flex-row">
@@ -34,7 +48,7 @@ export default function Hero() {
             </a>
           </div>
 
-          <p className="rivela rit-3 mt-7 !text-s-1 !text-[color-mix(in_srgb,#F7F4EF_52%,transparent)]">
+          <p className="rivela rit-3 mt-7 !text-s-1 !text-[color-mix(in_srgb,#FAF6EF_50%,transparent)]">
             Trenta minuti di lavoro, nessun impegno, nessun accesso ai suoi dati.
           </p>
         </div>
@@ -42,10 +56,10 @@ export default function Hero() {
         {/* Il pannello della verifica: mostra il prodotto d’ingresso reale,
             non un mockup generico di dashboard. */}
         <div className="rivela-scala rit-1">
-          <div className="rounded-xl3 border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#122239_92%,transparent)] p-6 shadow-[0_40px_90px_-40px_rgba(0,0,0,.8)] sm:p-8">
+          <div className="rounded-xl3 border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#111A2E_92%,transparent)] p-6 shadow-[0_44px_100px_-44px_rgba(0,0,0,.85)] sm:p-8">
             <div className="flex items-baseline justify-between gap-4">
               <span className="occhiello">Verifica gratuita</span>
-              <span className="num text-s-2 text-[color-mix(in_srgb,#F7F4EF_45%,transparent)]">esempio reale</span>
+              <span className="num text-s-2 text-[color-mix(in_srgb,#FAF6EF_45%,transparent)]">esempio reale</span>
             </div>
 
             <h2 className="serif mt-4 text-s2 text-[var(--paper)]">
@@ -58,25 +72,30 @@ export default function Hero() {
                   key={i}
                   className="flex items-center gap-4 border-t border-[var(--bordo-scuro)] py-3.5 first:border-t-0 first:pt-0"
                 >
-                  <span className="num w-12 shrink-0 text-s-2 text-[color-mix(in_srgb,#F7F4EF_45%,transparent)]">
+                  <span className="num w-12 shrink-0 text-s-2 text-[color-mix(in_srgb,#FAF6EF_45%,transparent)]">
                     {p.ora}
                   </span>
                   <span className="w-[6.5rem] shrink-0 text-s-1 text-[var(--paper)]">{p.cosa}</span>
-                  <span className="flex-1 text-s-1 text-[color-mix(in_srgb,#F7F4EF_62%,transparent)]">
+                  <span className="flex-1 text-s-1 text-[color-mix(in_srgb,#FAF6EF_62%,transparent)]">
                     {p.esito}
                   </span>
                   <span
                     aria-hidden="true"
                     className="h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ background: p.ko ? 'var(--red)' : 'var(--brass)' }}
+                    style={{ background: p.ko ? 'var(--arancio)' : 'var(--slate-2)' }}
                   />
                 </li>
               ))}
             </ul>
 
-            <div className="mt-7 rounded-2xl border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#ffffff_4%,transparent)] p-4">
-              <p className="!text-s-1 !text-[color-mix(in_srgb,#F7F4EF_68%,transparent)]">
-                Questi sono <strong className="font-medium text-[var(--jade-2)]">dati misurati</strong>, con
+            <div className="mt-7 flex items-start gap-3 rounded-2xl border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#ffffff_4%,transparent)] p-4">
+              <span
+                aria-hidden="true"
+                className="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                style={{ background: 'var(--lime)' }}
+              />
+              <p className="!text-s-1 !text-[color-mix(in_srgb,#FAF6EF_70%,transparent)]">
+                Questi sono <strong className="font-medium text-[var(--lime)]">dati misurati</strong>, con
                 l’ora dell’osservazione. Le stime stanno in una sezione separata del report, e portano scritto
                 che sono stime.
               </p>
@@ -84,7 +103,6 @@ export default function Hero() {
           </div>
         </div>
       </div>
-
     </section>
   )
 }

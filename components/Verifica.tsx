@@ -34,18 +34,18 @@ export default function Verifica() {
                 'Risposta entro due giorni lavorativi',
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3.5">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,#1F8A78_22%,transparent)]">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,#2563FF_22%,transparent)]">
                     <svg width="11" height="9" viewBox="0 0 11 9" fill="none" aria-hidden="true">
                       <path
                         d="M1 4.6 L4 7.5 L10 1.2"
-                        stroke="var(--jade-2)"
+                        stroke="var(--blu-2)"
                         strokeWidth="1.8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
                     </svg>
                   </span>
-                  <span className="!text-s-1 !text-[color-mix(in_srgb,#F7F4EF_74%,transparent)]">{t}</span>
+                  <span className="!text-s-1 !text-[color-mix(in_srgb,#FAF6EF_74%,transparent)]">{t}</span>
                 </li>
               ))}
             </ul>
@@ -55,14 +55,14 @@ export default function Verifica() {
             <form
               action={CONTATTO.formspree}
               method="POST"
-              className="rounded-xl3 border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#122239_92%,transparent)] p-6 sm:p-8"
+              className="rounded-xl3 border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#111A2E_92%,transparent)] p-6 sm:p-8"
             >
               <div className="grid gap-5 sm:grid-cols-2">
                 {CAMPI.map((c) => (
                   <div key={c.id} className={c.id === 'studio' || c.id === 'gestionale' ? 'sm:col-span-2' : ''}>
-                    <label htmlFor={c.id} className="occhiello !text-[color-mix(in_srgb,#F7F4EF_48%,transparent)]">
+                    <label htmlFor={c.id} className="occhiello !text-[color-mix(in_srgb,#FAF6EF_48%,transparent)]">
                       {c.label}
-                      {c.required ? <span className="text-[var(--jade-2)]"> *</span> : null}
+                      {c.required ? <span className="text-[var(--blu-2)]"> *</span> : null}
                     </label>
                     <input
                       id={c.id}
@@ -70,7 +70,7 @@ export default function Verifica() {
                       type={c.type}
                       required={c.required}
                       autoComplete={c.auto}
-                      className="mt-2 w-full rounded-xl border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#ffffff_5%,transparent)] px-4 py-3 text-s0 text-[var(--paper)] outline-none transition-colors placeholder:text-[color-mix(in_srgb,#F7F4EF_30%,transparent)] focus:border-[var(--jade-2)]"
+                      className="mt-2 w-full rounded-xl border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#ffffff_5%,transparent)] px-4 py-3 text-s0 text-[var(--paper)] outline-none transition-colors placeholder:text-[color-mix(in_srgb,#FAF6EF_30%,transparent)] focus:border-[var(--blu-2)]"
                     />
                   </div>
                 ))}
@@ -85,12 +85,12 @@ export default function Verifica() {
                   type="checkbox"
                   name="consenso"
                   required
-                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--jade)]"
+                  className="mt-1 h-4 w-4 shrink-0 accent-[var(--blu)]"
                 />
-                <span className="!text-s-2 leading-relaxed !text-[color-mix(in_srgb,#F7F4EF_58%,transparent)]">
+                <span className="!text-s-2 leading-relaxed !text-[color-mix(in_srgb,#FAF6EF_58%,transparent)]">
                   Acconsento al trattamento dei dati per essere ricontattato su questa richiesta, come descritto
                   nella{' '}
-                  <a href="/privacy" className="underline underline-offset-2 hover:text-[var(--jade-2)]">
+                  <a href="/privacy" className="underline underline-offset-2 hover:text-[var(--blu-2)]">
                     privacy policy
                   </a>
                   .
@@ -101,9 +101,9 @@ export default function Verifica() {
                 Richiedi la verifica gratuita
               </button>
 
-              <p className="mt-5 !text-s-2 !text-[color-mix(in_srgb,#F7F4EF_40%,transparent)]">
+              <p className="mt-5 !text-s-2 !text-[color-mix(in_srgb,#FAF6EF_40%,transparent)]">
                 Oppure scriva direttamente a{' '}
-                <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--jade-2)]">
+                <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu-2)]">
                   {CONTATTO.email}
                 </a>
               </p>

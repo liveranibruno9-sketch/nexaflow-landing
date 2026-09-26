@@ -12,12 +12,12 @@ export default function Footer() {
                 <rect width="28" height="28" rx="8" fill="var(--ink)" />
                 <path
                   d="M8 19.5 L14 8 L20 19.5"
-                  stroke="var(--jade-2)"
+                  stroke="var(--blu-2)"
                   strokeWidth="1.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                <path d="M10.6 15 H17.4" stroke="var(--brass)" strokeWidth="1.6" strokeLinecap="round" />
+                <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.6" strokeLinecap="round" />
               </svg>
               <span className="text-s0 font-medium tracking-[-0.02em]">Agenti Studio</span>
             </div>

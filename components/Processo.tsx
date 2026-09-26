@@ -14,14 +14,14 @@ export default function Processo() {
           {PASSI.map((p, i) => (
             <li key={p.n} className={`card rivela flex flex-col p-7 sm:p-8 ${i === 1 ? 'rit-1' : i === 2 ? 'rit-2' : ''}`}>
               <div className="flex items-baseline justify-between gap-4">
-                <span className="num serif text-s3 text-[var(--brass)]">{p.n}</span>
+                <span className="num serif text-s3 text-[var(--arancio)]">{p.n}</span>
                 <span className="chip">{p.durata}</span>
               </div>
 
               <h3 className="mt-6 text-s1 font-medium tracking-[-0.02em]">{p.titolo}</h3>
               <p className="mt-4 text-s-1 leading-relaxed text-[var(--slate)]">{p.testo}</p>
 
-              <p className="mt-auto border-t border-[var(--bordo)] pt-5 text-s-2 leading-relaxed text-[var(--slate2-light,var(--slate))]">
+              <p className="mt-auto border-t border-[var(--bordo)] pt-5 text-s-2 leading-relaxed text-[var(--slate-2)]">
                 {p.dettaglio}
               </p>
             </li>
@@ -57,7 +57,7 @@ export default function Processo() {
                   key={t}
                   className="flex items-start gap-4 rounded-2xl border border-[var(--bordo)] bg-[var(--paper)] p-4"
                 >
-                  <span className="num mt-0.5 text-s-2 text-[var(--brass)]">{`0${i + 1}`}</span>
+                  <span className="num mt-0.5 text-s-2 text-[var(--arancio)]">{`0${i + 1}`}</span>
                   <span>
                     <span className="block text-s-1 font-medium">{t}</span>
                     <span className="block text-s-2 text-[var(--slate)]">{s}</span>

@@ -8,9 +8,9 @@ export default function Fondatore() {
             <div className="relative overflow-hidden bg-[var(--ink)] p-8 sm:p-12">
               <div className="grana absolute inset-0" aria-hidden="true" />
               <div className="relative">
-                <span className="occhiello !text-[var(--jade-2)]">Chi c’è dietro</span>
+                <span className="occhiello !text-[var(--blu-2)]">Chi c’è dietro</span>
                 <h2 className="serif mt-5 text-s3 text-[var(--paper)]">Bruno Liverani</h2>
-                <p className="mt-4 !text-s-1 !text-[color-mix(in_srgb,#F7F4EF_65%,transparent)]">
+                <p className="mt-4 !text-s-1 !text-[color-mix(in_srgb,#FAF6EF_65%,transparent)]">
                   Faenza. Costruisco e gestisco personalmente i sistemi: non c’è un reparto assistenza da
                   chiamare, c’è il mio numero.
                 </p>
@@ -22,7 +22,7 @@ export default function Fondatore() {
                     ['Chi risponde', 'Io. Tempi di intervento scritti nel contratto.'],
                   ].map(([k, v]) => (
                     <div key={k} className="border-t border-[var(--bordo-scuro)] pt-4">
-                      <dt className="occhiello !text-[color-mix(in_srgb,#F7F4EF_40%,transparent)]">{k}</dt>
+                      <dt className="occhiello !text-[color-mix(in_srgb,#FAF6EF_40%,transparent)]">{k}</dt>
                       <dd className="mt-1.5 text-s-1 text-[var(--paper)]">{v}</dd>
                     </div>
                   ))}

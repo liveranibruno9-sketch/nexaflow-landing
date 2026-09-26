@@ -32,7 +32,7 @@ export default function Nav() {
     <>
       {/* barra di progresso della lettura, CSS puro */}
       <div className="fixed inset-x-0 top-0 z-[60] h-[2px] bg-transparent">
-        <div className="barra-progresso h-full w-full origin-left bg-[var(--jade)]" />
+        <div className="barra-progresso h-full w-full origin-left bg-[var(--blu)]" />
       </div>
 
       <header
@@ -47,7 +47,7 @@ export default function Nav() {
           <div
             className={`flex items-center justify-between rounded-full px-4 py-2.5 transition-all duration-500 ease-soft sm:px-5 ${
               staccato
-                ? 'border border-[var(--bordo)] bg-[color-mix(in_srgb,#F7F4EF_78%,transparent)] text-[var(--ink)] shadow-[0_8px_30px_-16px_rgba(10,22,40,.4)] backdrop-blur-xl backdrop-saturate-150'
+                ? 'border border-[var(--bordo)] bg-[color-mix(in_srgb,#FAF6EF_78%,transparent)] text-[var(--ink)] shadow-[0_8px_30px_-16px_rgba(10,22,40,.4)] backdrop-blur-xl backdrop-saturate-150'
                 : 'border border-transparent text-[var(--paper)]'
             }`}
           >
@@ -64,7 +64,7 @@ export default function Nav() {
                   className={`text-s-1 transition-colors ${
                     staccato
                       ? 'text-[var(--slate)] hover:text-[var(--ink)]'
-                      : 'text-[color-mix(in_srgb,#F7F4EF_66%,transparent)] hover:text-[var(--paper)]'
+                      : 'text-[color-mix(in_srgb,#FAF6EF_66%,transparent)] hover:text-[var(--paper)]'
                   }`}
                 >
                   {v.label}
@@ -137,12 +137,12 @@ function Marchio() {
       <rect x="0.7" y="0.7" width="26.6" height="26.6" rx="7.6" stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.4" />
       <path
         d="M8 19.5 L14 8 L20 19.5"
-        stroke="var(--jade-2)"
+        stroke="var(--blu-2)"
         strokeWidth="1.9"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M10.6 15 H17.4" stroke="var(--brass)" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   )
 }

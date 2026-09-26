@@ -8,16 +8,16 @@
  * d'occhio perche le ha gia usate mezzo mondo.
  *
  * Linguaggio visivo comune: tratto 1.5, estremi arrotondati, struttura in
- * slate, percorso automatizzato in jade, tempo che passa in tratteggio.
+ * slate, percorso automatizzato in blu, tempo che passa in tratteggio.
  */
 
 type Props = { className?: string }
 
 const INK = 'var(--ink)'
 const SLATE = 'var(--slate-2)'
-const JADE = 'var(--jade)'
-const BRASS = 'var(--brass)'
-const KO = 'var(--red)'
+const BLU = 'var(--blu)'
+const ARANCIO = 'var(--arancio)'
+const KO = 'var(--arancio)'
 
 /** `id` deve essere unico: sei SVG nella stessa pagina con lo stesso id di
  *  pattern sono HTML non valido e tutti finirebbero per riferirsi al primo. */
@@ -53,8 +53,8 @@ export function IllPreventivi({ className }: Props) {
       <rect x="40" y="106" width="64" height="7" rx="3.5" fill={INK} opacity="0.75" />
       <rect x="40" y="123" width="80" height="5" rx="2.5" fill={SLATE} opacity="0.7" />
       <rect x="40" y="136" width="56" height="5" rx="2.5" fill={SLATE} opacity="0.7" />
-      <rect x="40" y="163" width="52" height="24" rx="6" fill={BRASS} opacity="0.16" />
-      <text x="50" y="179" fontSize="13" fontWeight="600" fill={BRASS} fontFamily="ui-sans-serif, system-ui">2.400</text>
+      <rect x="40" y="163" width="52" height="24" rx="6" fill={ARANCIO} opacity="0.16" />
+      <text x="50" y="179" fontSize="13" fontWeight="600" fill={ARANCIO} fontFamily="ui-sans-serif, system-ui">2.400</text>
 
       {/* le tre onde nel tempo */}
       {[
@@ -63,19 +63,19 @@ export function IllPreventivi({ className }: Props) {
         { y: 208, label: '+21', d: 'M148 150 C 186 150, 196 216, 236 216' },
       ].map((s, i) => (
         <g key={s.label}>
-          <path d={s.d} stroke={JADE} strokeWidth="1.5" strokeDasharray="4 5" opacity={0.85 - i * 0.15} />
-          <rect x="236" y={s.y} width="104" height="34" rx="9" fill="var(--paper-2)" stroke={JADE} strokeWidth="1.5" opacity={1 - i * 0.12} />
+          <path d={s.d} stroke={BLU} strokeWidth="1.5" strokeDasharray="4 5" opacity={0.85 - i * 0.15} />
+          <rect x="236" y={s.y} width="104" height="34" rx="9" fill="var(--paper-2)" stroke={BLU} strokeWidth="1.5" opacity={1 - i * 0.12} />
           <rect x="250" y={s.y + 11} width="52" height="5" rx="2.5" fill={SLATE} opacity="0.8" />
           <rect x="250" y={s.y + 21} width="34" height="4" rx="2" fill={SLATE} opacity="0.5" />
-          <text x="200" y={s.y + 28} fontSize="11" fontWeight="600" fill={JADE} fontFamily="ui-sans-serif, system-ui" textAnchor="middle">
+          <text x="200" y={s.y + 28} fontSize="11" fontWeight="600" fill={BLU} fontFamily="ui-sans-serif, system-ui" textAnchor="middle">
             {s.label}
           </text>
         </g>
       ))}
 
       {/* la risposta che torna */}
-      <path d="M348 216 C 392 216, 398 152, 432 152" stroke={JADE} strokeWidth="2" />
-      <circle cx="436" cy="150" r="20" fill={JADE} />
+      <path d="M348 216 C 392 216, 398 152, 432 152" stroke={BLU} strokeWidth="2" />
+      <circle cx="436" cy="150" r="20" fill={BLU} />
       <path d="M428 150 l6 6 l12 -13" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
     </Base>
   )
@@ -93,7 +93,7 @@ export function IllSegreteria({ className }: Props) {
         { d: 'M32 122 A 34 34 0 0 0 32 178', o: 0.34 },
         { d: 'M24 112 A 46 46 0 0 0 24 188', o: 0.2 },
       ].map((w) => (
-        <path key={w.d} d={w.d} stroke={JADE} strokeWidth="1.6" strokeLinecap="round" opacity={w.o} />
+        <path key={w.d} d={w.d} stroke={BLU} strokeWidth="1.6" strokeLinecap="round" opacity={w.o} />
       ))}
 
       <rect x="48" y="106" width="84" height="88" rx="14" fill="var(--paper-2)" stroke={SLATE} strokeWidth="1.5" />
@@ -107,9 +107,9 @@ export function IllSegreteria({ className }: Props) {
       </text>
 
       {/* l'assistente */}
-      <path d="M132 150 H 168" stroke={JADE} strokeWidth="1.5" strokeDasharray="4 5" />
-      <circle cx="210" cy="150" r="42" fill="var(--paper-2)" stroke={JADE} strokeWidth="1.5" />
-      <circle cx="210" cy="150" r="30" fill={JADE} opacity="0.1" />
+      <path d="M132 150 H 168" stroke={BLU} strokeWidth="1.5" strokeDasharray="4 5" />
+      <circle cx="210" cy="150" r="42" fill="var(--paper-2)" stroke={BLU} strokeWidth="1.5" />
+      <circle cx="210" cy="150" r="30" fill={BLU} opacity="0.1" />
       {[-14, -5, 4, 13].map((dx, i) => (
         <rect
           key={dx}
@@ -118,22 +118,22 @@ export function IllSegreteria({ className }: Props) {
           width="4"
           height={[20, 34, 26, 14][i]}
           rx="2"
-          fill={JADE}
+          fill={BLU}
         />
       ))}
 
       {/* uscite: scheda alla segreteria + urgenza */}
-      <path d="M252 138 C 282 138, 286 96, 318 96" stroke={JADE} strokeWidth="1.5" strokeDasharray="4 5" />
-      <path d="M252 162 C 282 162, 286 210, 318 210" stroke={JADE} strokeWidth="1.5" strokeDasharray="4 5" />
+      <path d="M252 138 C 282 138, 286 96, 318 96" stroke={BLU} strokeWidth="1.5" strokeDasharray="4 5" />
+      <path d="M252 162 C 282 162, 286 210, 318 210" stroke={BLU} strokeWidth="1.5" strokeDasharray="4 5" />
 
       <rect x="318" y="66" width="136" height="72" rx="12" fill="var(--paper-2)" stroke={SLATE} strokeWidth="1.5" />
       <rect x="334" y="84" width="46" height="6" rx="3" fill={INK} opacity="0.75" />
       <rect x="334" y="99" width="88" height="5" rx="2.5" fill={SLATE} opacity="0.65" />
       <rect x="334" y="112" width="66" height="5" rx="2.5" fill={SLATE} opacity="0.65" />
 
-      <rect x="318" y="180" width="136" height="60" rx="12" fill="var(--paper-2)" stroke={BRASS} strokeWidth="1.5" />
-      <circle cx="340" cy="210" r="9" fill={BRASS} opacity="0.2" />
-      <path d="M340 205 v6 M340 215 v1" stroke={BRASS} strokeWidth="2.2" strokeLinecap="round" />
+      <rect x="318" y="180" width="136" height="60" rx="12" fill="var(--paper-2)" stroke={ARANCIO} strokeWidth="1.5" />
+      <circle cx="340" cy="210" r="9" fill={ARANCIO} opacity="0.2" />
+      <path d="M340 205 v6 M340 215 v1" stroke={ARANCIO} strokeWidth="2.2" strokeLinecap="round" />
       <rect x="358" y="200" width="72" height="6" rx="3" fill={INK} opacity="0.7" />
       <rect x="358" y="214" width="50" height="5" rx="2.5" fill={SLATE} opacity="0.6" />
     </Base>
@@ -162,12 +162,12 @@ export function IllRichiami({ className }: Props) {
       ))}
 
       {/* gruppo richiamo */}
-      <rect x="56" y="70" width="176" height="94" rx="14" fill={JADE} opacity="0.08" />
-      <text x="72" y="94" fontSize="11" fontWeight="600" fill={JADE} fontFamily="ui-sans-serif, system-ui" letterSpacing="1.4">
+      <rect x="56" y="70" width="176" height="94" rx="14" fill={BLU} opacity="0.08" />
+      <text x="72" y="94" fontSize="11" fontWeight="600" fill={BLU} fontFamily="ui-sans-serif, system-ui" letterSpacing="1.4">
         RICHIAMO
       </text>
       {[0, 1, 2, 3, 4].map((i) => (
-        <circle key={i} cx={82 + i * 32} cy={130} r="11" fill="var(--paper-2)" stroke={JADE} strokeWidth="1.5" />
+        <circle key={i} cx={82 + i * 32} cy={130} r="11" fill="var(--paper-2)" stroke={BLU} strokeWidth="1.5" />
       ))}
 
       {/* gruppo dormiente */}
@@ -180,10 +180,10 @@ export function IllRichiami({ className }: Props) {
       ))}
 
       {/* due messaggi diversi */}
-      <path d="M144 164 V 186" stroke={JADE} strokeWidth="1.5" strokeDasharray="4 4" />
+      <path d="M144 164 V 186" stroke={BLU} strokeWidth="1.5" strokeDasharray="4 4" />
       <path d="M340 164 V 186" stroke={SLATE} strokeWidth="1.5" strokeDasharray="4 4" />
-      <rect x="96" y="238" width="96" height="30" rx="8" fill="var(--paper-2)" stroke={JADE} strokeWidth="1.5" />
-      <rect x="110" y="250" width="50" height="5" rx="2.5" fill={JADE} opacity="0.7" />
+      <rect x="96" y="238" width="96" height="30" rx="8" fill="var(--paper-2)" stroke={BLU} strokeWidth="1.5" />
+      <rect x="110" y="250" width="50" height="5" rx="2.5" fill={BLU} opacity="0.7" />
       <rect x="292" y="238" width="96" height="30" rx="8" fill="var(--paper-2)" stroke={SLATE} strokeWidth="1.5" />
       <rect x="306" y="250" width="50" height="5" rx="2.5" fill={SLATE} opacity="0.7" />
     </Base>
@@ -212,13 +212,13 @@ export function IllNoShow({ className }: Props) {
               width="140"
               height="32"
               rx="8"
-              fill={vuoto ? 'transparent' : JADE}
+              fill={vuoto ? 'transparent' : BLU}
               fillOpacity={vuoto ? 0 : 0.1}
-              stroke={vuoto ? KO : JADE}
+              stroke={vuoto ? KO : BLU}
               strokeWidth="1.5"
               strokeDasharray={vuoto ? '5 4' : undefined}
             />
-            {!vuoto && <rect x="62" y={y + 13} width="62" height="5" rx="2.5" fill={JADE} opacity="0.75" />}
+            {!vuoto && <rect x="62" y={y + 13} width="62" height="5" rx="2.5" fill={BLU} opacity="0.75" />}
             {vuoto && (
               <text x="118" y={y + 21} fontSize="11" fill={KO} textAnchor="middle" fontFamily="ui-sans-serif, system-ui">
                 disdetto
@@ -229,8 +229,8 @@ export function IllNoShow({ className }: Props) {
       })}
 
       {/* percorso di riempimento */}
-      <path d="M208 176 C 252 176, 250 236, 292 236" stroke={JADE} strokeWidth="2" />
-      <path d="M292 236 l-9 -5 v10 z" fill={JADE} transform="rotate(180 292 236)" />
+      <path d="M208 176 C 252 176, 250 236, 292 236" stroke={BLU} strokeWidth="2" />
+      <path d="M292 236 l-9 -5 v10 z" fill={BLU} transform="rotate(180 292 236)" />
 
       {/* lista d'attesa */}
       <text x="300" y="72" fontSize="11" fill={SLATE} letterSpacing="1.4" fontFamily="ui-sans-serif, system-ui">
@@ -248,15 +248,15 @@ export function IllNoShow({ className }: Props) {
               height="40"
               rx="10"
               fill="var(--paper-2)"
-              stroke={scelto ? JADE : SLATE}
+              stroke={scelto ? BLU : SLATE}
               strokeWidth="1.5"
             />
-            <circle cx="322" cy={y + 20} r="10" fill={scelto ? JADE : SLATE} opacity={scelto ? 0.18 : 0.12} />
+            <circle cx="322" cy={y + 20} r="10" fill={scelto ? BLU : SLATE} opacity={scelto ? 0.18 : 0.12} />
             <rect x="342" y={y + 12} width="60" height="5" rx="2.5" fill={INK} opacity="0.7" />
             <rect x="342" y={y + 24} width="42" height="4" rx="2" fill={SLATE} opacity="0.6" />
             {scelto && (
               <>
-                <circle cx="438" cy={y + 20} r="11" fill={JADE} />
+                <circle cx="438" cy={y + 20} r="11" fill={BLU} />
                 <path d={`M432 ${y + 20} l4.5 4.5 l9 -10`} stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
               </>
             )}
@@ -275,7 +275,7 @@ export function IllRecensioni({ className }: Props) {
       const rad = i % 2 === 0 ? r : r * 0.44
       return `${(cx + rad * Math.cos(ang)).toFixed(1)},${(cy + rad * Math.sin(ang)).toFixed(1)}`
     }).join(' ')
-    return <polygon points={pts} fill={pieno ? BRASS : 'none'} stroke={BRASS} strokeWidth="1.2" opacity={pieno ? 1 : 0.4} />
+    return <polygon points={pts} fill={pieno ? ARANCIO : 'none'} stroke={ARANCIO} strokeWidth="1.2" opacity={pieno ? 1 : 0.4} />
   }
 
   return (
@@ -283,15 +283,15 @@ export function IllRecensioni({ className }: Props) {
       <title>La richiesta va a tutti i pazienti e il titolare approva le bozze di risposta</title>
 
       {/* invio a tutti, stesso messaggio */}
-      <circle cx="58" cy="150" r="24" fill={JADE} opacity="0.12" />
-      <circle cx="58" cy="150" r="24" stroke={JADE} strokeWidth="1.5" />
-      <path d="M48 150 h20 M60 142 l8 8 l-8 8" stroke={JADE} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="58" cy="150" r="24" fill={BLU} opacity="0.12" />
+      <circle cx="58" cy="150" r="24" stroke={BLU} strokeWidth="1.5" />
+      <path d="M48 150 h20 M60 142 l8 8 l-8 8" stroke={BLU} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
       {[78, 150, 222].map((y, i) => (
         <g key={y}>
-          <path d={`M84 150 C 116 150, 116 ${y}, 148 ${y}`} stroke={JADE} strokeWidth="1.5" strokeDasharray="4 5" opacity="0.9" />
-          <circle cx="160" cy={y} r="11" fill="var(--paper-2)" stroke={JADE} strokeWidth="1.5" />
-          <circle cx="160" cy={y - 3} r="3.4" fill={JADE} opacity="0.75" />
-          <path d={`M154.5 ${y + 6} a 6 6 0 0 1 11 0`} fill={JADE} opacity="0.75" />
+          <path d={`M84 150 C 116 150, 116 ${y}, 148 ${y}`} stroke={BLU} strokeWidth="1.5" strokeDasharray="4 5" opacity="0.9" />
+          <circle cx="160" cy={y} r="11" fill="var(--paper-2)" stroke={BLU} strokeWidth="1.5" />
+          <circle cx="160" cy={y - 3} r="3.4" fill={BLU} opacity="0.75" />
+          <path d={`M154.5 ${y + 6} a 6 6 0 0 1 11 0`} fill={BLU} opacity="0.75" />
         </g>
       ))}
       <text x="128" y="278" fontSize="11" fill={SLATE} textAnchor="middle" fontFamily="ui-sans-serif, system-ui">
@@ -305,12 +305,12 @@ export function IllRecensioni({ className }: Props) {
       <rect x="228" y="107" width="120" height="5" rx="2.5" fill={SLATE} opacity="0.45" />
 
       {/* recensione critica + bozza */}
-      <rect x="208" y="146" width="244" height="112" rx="12" fill="var(--paper-2)" stroke={BRASS} strokeWidth="1.5" />
+      <rect x="208" y="146" width="244" height="112" rx="12" fill="var(--paper-2)" stroke={ARANCIO} strokeWidth="1.5" />
       {[0, 1, 2, 3, 4].map((i) => stella(230 + i * 20, 172, 8, i < 2))}
       <rect x="228" y="190" width="164" height="5" rx="2.5" fill={SLATE} opacity="0.6" />
       <rect x="228" y="201" width="96" height="5" rx="2.5" fill={SLATE} opacity="0.45" />
-      <rect x="228" y="218" width="204" height="30" rx="8" fill={JADE} opacity="0.1" />
-      <text x="240" y="238" fontSize="11" fontWeight="600" fill={JADE} fontFamily="ui-sans-serif, system-ui">
+      <rect x="228" y="218" width="204" height="30" rx="8" fill={BLU} opacity="0.1" />
+      <text x="240" y="238" fontSize="11" fontWeight="600" fill={BLU} fontFamily="ui-sans-serif, system-ui">
         bozza di risposta pronta
       </text>
     </Base>
@@ -327,13 +327,13 @@ export function IllFondi({ className }: Props) {
       <rect x="28" y="92" width="150" height="96" rx="12" fill={INK} />
       <rect x="46" y="112" width="58" height="6" rx="3" fill="#fff" opacity="0.85" />
       <rect x="46" y="128" width="96" height="4" rx="2" fill="#fff" opacity="0.4" />
-      <rect x="46" y="156" width="40" height="16" rx="4" fill={JADE} />
+      <rect x="46" y="156" width="40" height="16" rx="4" fill={BLU} />
       <text x="52" y="168" fontSize="9" fontWeight="600" fill="#fff" fontFamily="ui-sans-serif, system-ui">
         DIRETTA
       </text>
 
-      <path d="M178 140 H 226" stroke={JADE} strokeWidth="1.5" strokeDasharray="4 5" />
-      <path d="M226 140 l-9 -5 v10 z" fill={JADE} transform="rotate(180 226 140)" />
+      <path d="M178 140 H 226" stroke={BLU} strokeWidth="1.5" strokeDasharray="4 5" />
+      <path d="M226 140 l-9 -5 v10 z" fill={BLU} transform="rotate(180 226 140)" />
 
       {/* checklist della pratica */}
       <rect x="236" y="44" width="216" height="180" rx="14" fill="var(--paper-2)" stroke={SLATE} strokeWidth="1.5" />
@@ -344,18 +344,18 @@ export function IllFondi({ className }: Props) {
         const y = 94 + i * 32
         return (
           <g key={i}>
-            <rect x="256" y={y} width="17" height="17" rx="5" fill={JADE} opacity="0.14" />
-            <path d={`M260 ${y + 8.5} l4 4 l8 -8.5`} stroke={JADE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <rect x="256" y={y} width="17" height="17" rx="5" fill={BLU} opacity="0.14" />
+            <path d={`M260 ${y + 8.5} l4 4 l8 -8.5`} stroke={BLU} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             <rect x="285" y={y + 5} width={[128, 104, 140, 92][i]} height="6" rx="3" fill={SLATE} opacity="0.62" />
           </g>
         )
       })}
 
       {/* limite di scopo dichiarato */}
-      <rect x="236" y="240" width="216" height="36" rx="10" fill={BRASS} opacity="0.12" />
-      <path d="M258 252 v6 M258 262 v1" stroke={BRASS} strokeWidth="2.2" strokeLinecap="round" />
-      <circle cx="258" cy="258" r="11" stroke={BRASS} strokeWidth="1.4" />
-      <text x="278" y="262" fontSize="11" fill={BRASS} fontWeight="600" fontFamily="ui-sans-serif, system-ui">
+      <rect x="236" y="240" width="216" height="36" rx="10" fill={ARANCIO} opacity="0.12" />
+      <path d="M258 252 v6 M258 262 v1" stroke={ARANCIO} strokeWidth="2.2" strokeLinecap="round" />
+      <circle cx="258" cy="258" r="11" stroke={ARANCIO} strokeWidth="1.4" />
+      <text x="278" y="262" fontSize="11" fill={ARANCIO} fontWeight="600" fontFamily="ui-sans-serif, system-ui">
         prepara, non invia al portale
       </text>
     </Base>

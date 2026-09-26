@@ -1,5 +1,6 @@
 import Nav from '@/components/Nav'
 import Hero from '@/components/Hero'
+import Fascia from '@/components/Fascia'
 import Perdite from '@/components/Perdite'
 import Servizi from '@/components/Servizi'
 import Processo from '@/components/Processo'
@@ -17,6 +18,7 @@ export default function Home() {
         {/* Ritmo verticale: scuro, chiaro, scuro, chiaro, scuro, chiaro, chiaro, scuro.
             Mai tre sezioni consecutive dello stesso tono. */}
         <Hero />
+        <Fascia />
         <Perdite />
         <Servizi />
         <Processo />
