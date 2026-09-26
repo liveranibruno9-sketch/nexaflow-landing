@@ -1,139 +1,104 @@
-type NodeColor = 'violet' | 'blue' | 'slate' | 'green'
-
-function WorkflowNode({ icon, label, sub, color }: { icon: string; label: string; sub: string; color: NodeColor }) {
-  const styles: Record<NodeColor, string> = {
-    violet: 'border-violet-500/40 bg-violet-500/10',
-    blue: 'border-blue-500/40 bg-blue-500/10',
-    slate: 'border-white/10 bg-white/[0.04]',
-    green: 'border-green-500/40 bg-green-500/10',
-  }
-  return (
-    <div className={`flex-1 border ${styles[color]} rounded-xl p-2.5 md:p-3 text-center min-w-0`}>
-      <div className="text-xl md:text-2xl mb-1">{icon}</div>
-      <div className="text-xs font-medium text-gray-300 truncate leading-tight">{label}</div>
-      <div className="text-[10px] text-gray-600 mt-0.5">{sub}</div>
-    </div>
-  )
-}
-
-function Arrow() {
-  return (
-    <div className="flex items-center text-gray-700 flex-shrink-0 px-0.5">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7" />
-      </svg>
-    </div>
-  )
-}
+const PROVE = [
+  { ora: '08:40', cosa: 'Chiamata', esito: 'nessuna risposta, 8 squilli', ko: true },
+  { ora: '13:15', cosa: 'Chiamata', esito: 'segreteria telefonica', ko: true },
+  { ora: '19:30', cosa: 'Chiamata', esito: 'nessuna risposta', ko: true },
+  { ora: '09:12', cosa: 'WhatsApp', esito: 'nessuna risposta dopo 26 ore', ko: true },
+  { ora: '—', cosa: 'Profilo Google', esito: '34 recensioni, ultima a maggio', ko: false },
+]
 
 export default function Hero() {
   return (
-    <section className="min-h-screen flex items-center justify-center px-6 pt-16 relative overflow-hidden bg-[#0a0a14]">
-      {/* Top glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 110% 55% at 50% -5%, rgba(124,58,237,0.22) 0%, transparent 68%)',
-        }}
-      />
-      {/* Grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(124,58,237,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.05) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      />
+    <section id="top" className="scuro grana relative overflow-hidden">
+      <div className="wrap relative grid items-center gap-14 pb-[clamp(5rem,10vw,9rem)] pt-[clamp(8rem,16vw,12rem)] lg:grid-cols-[1.05fr_0.95fr] lg:gap-20">
+        <div>
+          <span className="occhiello rivela">Studi dentistici privati · Romagna</span>
+          <div className="filetto mt-5" />
 
-      <div className="max-w-5xl mx-auto relative z-10 w-full py-12">
-        {/* Badge */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 text-violet-400 text-sm font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse inline-block" />
-            Agenti AI · Automazione B2B · Studi professionali italiani
+          <h1 className="serif rivela mt-7 text-s6">
+            Il fatturato che il suo studio perde ogni settimana{' '}
+            <em className="not-italic text-[var(--jade-2)]">ha un numero.</em>
+          </h1>
+
+          <p className="rivela rit-1 misura mt-7 text-s1 leading-[1.5]">
+            Chiamate a cui nessuno ha risposto, preventivi fermi da mesi, poltrone vuote.
+            Prima lo misuro sul suo studio. Poi lo recuperiamo, e lo contiamo insieme ogni mese.
+          </p>
+
+          <div className="rivela rit-2 mt-10 flex flex-col gap-3 sm:flex-row">
+            <a href="#verifica" className="btn btn-primario">
+              Richiedi la verifica gratuita
+              <Freccia />
+            </a>
+            <a href="#servizi" className="btn btn-fantasma">
+              Guarda cosa facciamo
+            </a>
           </div>
+
+          <p className="rivela rit-3 mt-7 !text-s-1 !text-[color-mix(in_srgb,#F7F4EF_52%,transparent)]">
+            Trenta minuti di lavoro, nessun impegno, nessun accesso ai suoi dati.
+          </p>
         </div>
 
-        {/* Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold leading-[1.06] mb-6 tracking-tight text-white text-center">
-          Il tuo studio lavora.<br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-purple-300">
-            Anche quando non ci sei.
-          </span>
-        </h1>
-
-        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed text-center">
-          Nexaflow costruisce agenti AI e automazioni su misura per commercialisti, avvocati,
-          notai, studi medici e agenzie. Tu supervisioni — il sistema esegue.
-        </p>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-5">
-          <a
-            href="#contatti"
-            className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-8 py-4 rounded-lg transition-all text-base shadow-lg shadow-violet-900/50 hover:-translate-y-0.5 text-center"
-          >
-            Richiedi una call gratuita
-          </a>
-          <a
-            href="#esempi"
-            className="border border-white/10 hover:border-violet-500/40 text-gray-300 hover:text-white font-semibold px-8 py-4 rounded-lg transition-all text-base bg-white/[0.04] hover:bg-white/[0.07] text-center"
-          >
-            Vedi automazioni reali
-          </a>
-        </div>
-
-        {/* Pilot strip */}
-        <div className="flex justify-center mb-14">
-          <a
-            href="#agente-email"
-            className="inline-flex items-center gap-2 text-sm text-violet-300 hover:text-violet-200 bg-violet-500/[0.07] hover:bg-violet-500/[0.12] border border-violet-500/20 rounded-full px-4 py-2 transition-colors"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
-            Questo mese: 2 posti pilota — setup gratuito, 30 giorni di prova →
-          </a>
-        </div>
-
-        {/* Workflow visualization */}
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 md:p-6">
-            <div className="flex items-stretch gap-2 md:gap-3">
-              <WorkflowNode icon="📧" label="Email in arrivo" sub="Trigger" color="violet" />
-              <Arrow />
-              <WorkflowNode icon="🤖" label="Agente AI" sub="Classifica + bozza" color="blue" />
-              <Arrow />
-              <WorkflowNode icon="📋" label="Digest mattutino" sub="Solo le urgenze" color="slate" />
-              <Arrow />
-              <WorkflowNode icon="✅" label="Tu approvi" sub="1 click" color="green" />
+        {/* Il pannello della verifica: mostra il prodotto d’ingresso reale,
+            non un mockup generico di dashboard. */}
+        <div className="rivela-scala rit-1">
+          <div className="rounded-xl3 border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#122239_92%,transparent)] p-6 shadow-[0_40px_90px_-40px_rgba(0,0,0,.8)] sm:p-8">
+            <div className="flex items-baseline justify-between gap-4">
+              <span className="occhiello">Verifica gratuita</span>
+              <span className="num text-s-2 text-[color-mix(in_srgb,#F7F4EF_45%,transparent)]">esempio reale</span>
             </div>
-            <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block" />
-                Esempio: Agente Email — presidia la casella dello studio
-              </div>
-              <div className="flex items-center gap-4 text-xs text-gray-600">
-                <span>Attivo 24/7</span>
-                <span className="text-green-500/80">Supervisione umana</span>
-              </div>
+
+            <h2 className="serif mt-4 text-s2 text-[var(--paper)]">
+              Studio a due poltrone, provincia di Ravenna
+            </h2>
+
+            <ul className="mt-7">
+              {PROVE.map((p, i) => (
+                <li
+                  key={i}
+                  className="flex items-center gap-4 border-t border-[var(--bordo-scuro)] py-3.5 first:border-t-0 first:pt-0"
+                >
+                  <span className="num w-12 shrink-0 text-s-2 text-[color-mix(in_srgb,#F7F4EF_45%,transparent)]">
+                    {p.ora}
+                  </span>
+                  <span className="w-[6.5rem] shrink-0 text-s-1 text-[var(--paper)]">{p.cosa}</span>
+                  <span className="flex-1 text-s-1 text-[color-mix(in_srgb,#F7F4EF_62%,transparent)]">
+                    {p.esito}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: p.ko ? 'var(--red)' : 'var(--brass)' }}
+                  />
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-7 rounded-2xl border border-[var(--bordo-scuro)] bg-[color-mix(in_srgb,#ffffff_4%,transparent)] p-4">
+              <p className="!text-s-1 !text-[color-mix(in_srgb,#F7F4EF_68%,transparent)]">
+                Questi sono <strong className="font-medium text-[var(--jade-2)]">dati misurati</strong>, con
+                l’ora dell’osservazione. Le stime stanno in una sezione separata del report, e portano scritto
+                che sono stime.
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Footer bullets */}
-        <div className="mt-10 flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-gray-500">
-          <span className="flex items-center gap-2">
-            <span className="text-violet-400">✓</span> Integra con gli strumenti che già usi
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="text-violet-400">✓</span> Nessun costo nascosto
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="text-violet-400">✓</span> Operativo entro 7–14 giorni
-          </span>
         </div>
       </div>
+
     </section>
+  )
+}
+
+function Freccia() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M3 8h10M9 4l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
