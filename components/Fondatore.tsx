@@ -10,7 +10,7 @@ export default function Fondatore() {
         <div className="card overflow-hidden">
           <div className="grid gap-0 lg:grid-cols-[0.85fr_1.15fr]">
             {/* colonna identita */}
-            <div className="reticolo relative border-b border-[var(--bordo)] bg-[color-mix(in_srgb,#05070F_70%,transparent)] p-8 sm:p-12 lg:border-b-0 lg:border-r">
+            <div className="reticolo relative border-b border-[var(--bordo)] bg-[color-mix(in_srgb,var(--nebula-1)_9%,transparent)] p-8 sm:p-12 lg:border-b-0 lg:border-r">
               <span className="occhiello">Chi guida</span>
               <h2 className="serif mt-5 text-s3">Bruno Liverani</h2>
               <p className="mt-4 text-s-1 tenue">
@@ -53,7 +53,7 @@ export default function Fondatore() {
                 </p>
               </div>
 
-              <div className="mt-9 rounded-2xl border border-[var(--bordo)] bg-[color-mix(in_srgb,#FFE24A_5%,transparent)] p-6">
+              <div className="mt-9 rounded-2xl border border-[color-mix(in_srgb,var(--verde)_28%,transparent)] bg-[color-mix(in_srgb,var(--verde)_6%,transparent)] p-6">
                 <p className="text-s-1 leading-relaxed tenue">
                   Se dopo la verifica risulta che il suo studio risponde a tutte le chiamate e ha il profilo Google
                   in ordine, glielo dico e non le vendo niente. Mi interessa un cliente che resta tre anni, non una

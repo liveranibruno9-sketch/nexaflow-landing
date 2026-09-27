@@ -31,7 +31,7 @@ export default function Demo() {
               ].map(([t, s], i) => (
                 <li
                   key={t}
-                  className="flex items-start gap-4 rounded-2xl border border-[var(--bordo)] bg-[color-mix(in_srgb,#05070F_45%,transparent)] p-4"
+                  className="flex items-start gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--azione-luce)_22%,transparent)] bg-[color-mix(in_srgb,var(--nebula-1)_9%,transparent)] p-4"
                 >
                   <span className="mono num mt-0.5 text-s-2 text-[var(--celeste)]">{`0${i + 1}`}</span>
                   <span>

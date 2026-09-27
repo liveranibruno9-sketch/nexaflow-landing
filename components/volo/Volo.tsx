@@ -30,7 +30,7 @@ import type { Scena } from './scena'
  * lo leggono per intero.
  */
 
-const SFUMATURA = 7 // vh di dissolvenza di ogni quadro
+const SFUMATURA = 13 // vh di dissolvenza di ogni quadro: lunga, come una dissolvenza incrociata al cinema
 
 const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x))
 const liscia = (a: number, b: number, x: number) => {
@@ -84,7 +84,7 @@ export default function Volo() {
       subito: el.hasAttribute('data-subito'),
       fine: el.hasAttribute('data-fine'),
       o: -1,
-      s: -1,
+      t: '',
     }))
     const vociBordo = Array.from(document.querySelectorAll<HTMLElement>('[data-bordo]'))
 
@@ -108,23 +108,26 @@ export default function Volo() {
     }
 
     /* ----- i quadri: opacita e profondita ----- */
+    // curva morbida in entrata e in uscita: niente accelerazioni a scatto
+    const morbida = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
     const aggiornaQuadri = (u: number) => {
       for (const q of quadri) {
-        const entrata = q.subito ? 1 : liscia(q.da, q.da + SFUMATURA, u)
-        const uscita = q.fine ? 0 : liscia(q.a - SFUMATURA, q.a, u)
+        const entrata = q.subito ? 1 : morbida(clamp((u - q.da) / SFUMATURA, 0, 1))
+        const uscita = q.fine ? 0 : morbida(clamp((u - (q.a - SFUMATURA)) / SFUMATURA, 0, 1))
         const o = u < q.da || (!q.fine && u > q.a) ? 0 : Math.min(entrata, 1 - uscita)
-        // il testo viene incontro (0.94 -> 1) e poi ti supera (1 -> 1.06)
-        const s = 0.94 + 0.06 * entrata + 0.06 * uscita
+        // il testo arriva dalla profondita (sale e si avvicina) e poi ti supera (sale ancora e si ingrandisce)
+        const ty = (1 - entrata) * 28 - uscita * 28
+        const s = 0.965 + 0.035 * entrata + 0.04 * uscita
         const oR = Math.round(o * 100) / 100
-        const sR = Math.round(s * 1000) / 1000
+        const tR = `translate3d(0, ${ty.toFixed(1)}px, 0) scale(${s.toFixed(3)})`
         if (oR !== q.o) {
           q.el.style.opacity = String(oR)
           q.el.dataset.attivo = oR > 0.5 ? 'true' : 'false'
           q.o = oR
         }
-        if (sR !== q.s) {
-          q.el.style.transform = `scale(${sR})`
-          q.s = sR
+        if (tR !== q.t) {
+          q.el.style.transform = tR
+          q.t = tR
         }
       }
     }
@@ -200,27 +203,39 @@ export default function Volo() {
     let inVista = true
     let ultimo = performance.now()
     let ultimaScena = ultimo
+    let uLiscio = -1
     let uPrima = -1
     let fermi = 0
 
+    /**
+     * La "macchina da presa": testi e scena 3D seguono la stessa posizione
+     * morbida, che insegue lo scroll con un'inerzia indipendente dai
+     * fotogrammi. Lo scroll resta libero; e il racconto che scivola dietro,
+     * con un filo di ritardo, come una camera su un carrello.
+     */
+    const INERZIA = 3.6 // piu basso = piu morbido e piu lento a fermarsi
     const fotogramma = (ora: number) => {
       raf = 0
+      const dt = Math.min(0.1, (ora - ultimo) / 1000)
       ultimo = ora
-      const u = uCorrente()
-      aggiornaQuadri(u)
-      aggiornaBordo(u)
+      const obiettivo = uCorrente()
+      if (uLiscio < 0) uLiscio = obiettivo
+      uLiscio += (obiettivo - uLiscio) * (1 - Math.exp(-dt * INERZIA))
+      if (Math.abs(obiettivo - uLiscio) < 0.01) uLiscio = obiettivo
+      aggiornaQuadri(uLiscio)
+      aggiornaBordo(uLiscio)
 
       if (scena) {
-        const immobile = Math.abs(u - uPrima) < 0.01
-        fermi = immobile ? fermi + 1 : 0
-        // da fermo si disegna un fotogramma su tre: lo scintillio non ha bisogno di 60 al secondo
-        if (fermi < 45 || fermi % 3 === 0) {
-          const inMoto = scena.aggiorna(u, Math.min(0.1, (ora - ultimaScena) / 1000), ora / 1000)
+        const inMoto = Math.abs(uLiscio - uPrima) > 0.002
+        fermi = inMoto ? 0 : fermi + 1
+        // da fermo, dopo un secondo e mezzo, un fotogramma su due: lo scintillio non ha bisogno di 60 al secondo
+        if (fermi < 90 || fermi % 2 === 0) {
+          const vivo = scena.aggiorna(uLiscio, Math.min(0.1, (ora - ultimaScena) / 1000), ora / 1000)
           ultimaScena = ora
-          if (inMoto) fermi = 0
+          if (vivo) fermi = 0
         }
       }
-      uPrima = u
+      uPrima = uLiscio
       if (inVista && !document.hidden) raf = requestAnimationFrame(fotogramma)
     }
     const avvia = () => {
@@ -337,7 +352,7 @@ export default function Volo() {
                   <h1 className="display mx-auto mt-7 max-w-[15ch] text-[clamp(2.9rem,8.2vw,7.4rem)] leading-[0.94]">
                     Colleghiamo i punti. <span className="testo-sfumato">Lei ritrova i pazienti.</span>
                   </h1>
-                  <p className="mx-auto mt-7 max-w-[46ch] text-s1 leading-[1.45] text-[color-mix(in_srgb,#F2F5FF_82%,transparent)]">
+                  <p className="mx-auto mt-7 max-w-[46ch] text-s1 leading-[1.45] text-[color-mix(in_srgb,var(--bianco)_84%,transparent)]">
                     Chiamate senza risposta, preventivi fermi da mesi, poltrone vuote. Prima lo misuro sul suo studio. Poi
                     lo recuperiamo, e lo contiamo insieme ogni mese.
                   </p>
@@ -403,7 +418,7 @@ export default function Volo() {
                       {m.sigla} · {m.cielo.nome} · <span className="tenue">{cost.coordinate}</span>
                     </span>
                     <h2 className="display mt-5 text-s5 leading-[0.98]">{m.nome}</h2>
-                    <p className="mt-6 max-w-[40ch] text-s1 leading-[1.4] text-[color-mix(in_srgb,#F2F5FF_86%,transparent)]">
+                    <p className="mt-6 max-w-[40ch] text-s1 leading-[1.4] text-[color-mix(in_srgb,var(--bianco)_88%,transparent)]">
                       {m.promessa}
                     </p>
                     <p className="mt-5 max-w-[46ch] text-s-1 italic tenue">{m.cielo.perche}</p>
@@ -418,7 +433,7 @@ export default function Volo() {
                   </div>
 
                   {/* pagina normale: la costellazione disegnata, gia accesa */}
-                  <div className="solo-statico cost-statica reticolo">
+                  <div className="solo-statico cost-statica reticolo vetro-nebulosa">
                     <Costellazione
                       cost={cost}
                       fase="luce"
@@ -454,7 +469,7 @@ export default function Volo() {
                   </ol>
 
                   <div className="quadro quadro--lato" {...finestra(t, FASI.luce[0], FASI.luce[1])}>
-                    <Fase n="03" nome="Luce" colore="var(--giallo)" />
+                    <Fase n="03" nome="Luce" colore="var(--verde)" />
                     <h3 className="display mt-4 text-s3">{guadagno.titolo}</h3>
                     <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{guadagno.testo}</p>
                     <dl className="mt-7 grid max-w-[34rem] gap-3 sm:grid-cols-2">
@@ -463,7 +478,7 @@ export default function Volo() {
                         <dd className="mt-2 text-s-2 leading-snug tenue">{m.oreNota}</dd>
                       </div>
                       <div className="card p-4">
-                        <dt className="display text-s3 leading-none text-[var(--giallo)]">{m.euro}</dt>
+                        <dt className="display text-s3 leading-none text-[var(--verde)]">{m.euro}</dt>
                         <dd className="mt-2 text-s-2 leading-snug tenue">{m.euroNota}</dd>
                       </div>
                     </dl>
@@ -495,18 +510,23 @@ export default function Volo() {
 
             {/* ================= ARRIVO ================= */}
             <div id="arrivo" className="tappa">
+              {/* due colonne: il pulsante sta sotto il testo, il report accanto.
+                  Incolonnati superavano l'altezza di un portatile e il pulsante veniva tagliato */}
               <div className="quadro quadro--lato quadro--arrivo" {...finestra(T_ARRIVO, 0.06, 1)} data-fine>
-                <span className="occhiello text-[var(--giallo)]">Arrivo</span>
-                <h2 className="display mt-4 text-s4 leading-[1]">Il primo passo è una verifica. Gratuita.</h2>
-                <p className="mt-5 max-w-[44ch] text-s0 tenue">
-                  Trenta minuti di lavoro mio, zero suo. Poi le mando una pagina così, con l’ora esatta di ogni prova.
-                </p>
-                <div className="mt-6 max-w-[30rem]">
+                <div className="arrivo-griglia">
+                  <div className="flex flex-col">
+                    <span className="occhiello text-[var(--verde)]">Arrivo</span>
+                    <h2 className="display mt-4 text-s4 leading-[1]">Il primo passo è una verifica. Gratuita.</h2>
+                    <p className="mt-5 max-w-[44ch] text-s0 tenue">
+                      Trenta minuti di lavoro mio, zero suo. Poi le mando una pagina così, con l’ora esatta di ogni
+                      prova.
+                    </p>
+                    <a href="#verifica" className="btn btn-primario mt-7 self-start">
+                      Richiedi la verifica gratuita
+                    </a>
+                  </div>
                   <Report compatto />
                 </div>
-                <a href="#verifica" className="btn btn-primario mt-7 self-start">
-                  Richiedi la verifica gratuita
-                </a>
               </div>
             </div>
 

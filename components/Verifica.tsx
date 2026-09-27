@@ -37,7 +37,7 @@ export default function Verifica() {
             <div className="filetto mt-5" />
             <h2 className="serif rivela mt-7 text-s4">Mi lasci il numero dello studio. Al resto penso io.</h2>
 
-            <p className="rivela rit-1 misura mt-6 text-s0 text-[color-mix(in_srgb,#F2F5FF_80%,transparent)]">
+            <p className="rivela rit-1 misura mt-6 text-s0 text-[color-mix(in_srgb,var(--bianco)_82%,transparent)]">
               Chiamo tre volte in tre fasce orarie, scrivo su WhatsApp, compilo il form del sito e guardo il profilo
               Google. Poi le mando una pagina con cosa è successo, con l’ora esatta di ogni prova.
             </p>
@@ -61,7 +61,7 @@ export default function Verifica() {
                       />
                     </svg>
                   </span>
-                  <span className="text-s-1 text-[color-mix(in_srgb,#F2F5FF_78%,transparent)]">{t}</span>
+                  <span className="text-s-1 text-[color-mix(in_srgb,var(--bianco)_80%,transparent)]">{t}</span>
                 </li>
               ))}
             </ul>

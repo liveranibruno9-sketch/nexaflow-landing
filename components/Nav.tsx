@@ -39,7 +39,7 @@ export default function Nav() {
         <div className="wrap">
           <div
             className={`flex items-center justify-between rounded-full px-4 py-2.5 transition-all duration-500 ease-soft sm:px-5 ${
-              staccato ? 'vetro shadow-[0_14px_40px_-22px_rgba(0,0,0,.9)]' : 'border border-transparent'
+              staccato ? 'vetro vetro-barra' : 'border border-transparent'
             }`}
           >
             <a href="#top" className="flex items-center gap-2.5" aria-label="Agenti Studio, torna su">
@@ -117,7 +117,7 @@ function Marchio() {
       <rect x="0.7" y="0.7" width="26.6" height="26.6" rx="7.6" stroke="var(--celeste)" strokeOpacity="0.35" strokeWidth="1.4" />
       <path d="M8 19.5 L14 8 L20 19.5" stroke="var(--blu-luce)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.7" strokeLinecap="round" />
-      <circle cx="14" cy="8" r="1.6" fill="var(--giallo)" />
+      <circle cx="14" cy="8" r="1.6" fill="var(--verde)" />
     </svg>
   )
 }

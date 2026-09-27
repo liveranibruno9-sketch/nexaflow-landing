@@ -93,6 +93,7 @@ function leggiPalette() {
     nebula1: grezzo('--nebula-1', '#7B2CFF'),
     nebula2: grezzo('--nebula-2', '#FF3DCB'),
     nebula3: grezzo('--nebula-3', '#2D4BFF'),
+    verde: grezzo('--verde', '#4AE89A'),
   }
   return {
     hex,
@@ -101,6 +102,7 @@ function leggiPalette() {
     nebula1: hexRgb(hex.nebula1),
     nebula2: hexRgb(hex.nebula2),
     nebula3: hexRgb(hex.nebula3),
+    verde: hexRgb(hex.verde),
   }
 }
 
@@ -436,16 +438,46 @@ function percorso(imp: Impaginazione): Punto[] {
   return punti
 }
 
-function zAl(punti: Punto[], u: number) {
-  if (u <= punti[0].u) return punti[0].z
-  for (let i = 1; i < punti.length; i++) {
-    const b = punti[i]
-    if (u <= b.u) {
-      const a = punti[i - 1]
-      return a.z + (b.z - a.z) * liscia(a.u, b.u, u)
+/**
+ * Il percorso della camera come curva continua (interpolazione cubica
+ * monotona di Fritsch-Carlson), non come una serie di tratti che partono e
+ * si fermano: prima la camera rallentava fino a zero a ogni punto chiave,
+ * ed era quello che dava al volo l'aria "meccanica". Monotona vuol dire che
+ * non torna mai indietro e non supera i punti chiave.
+ */
+type Percorso = { u: number[]; z: number[]; m: number[] }
+
+function preparaPercorso(punti: Punto[]): Percorso {
+  const u = punti.map((p) => p.u)
+  const z = punti.map((p) => p.z)
+  const n = punti.length
+  const h = u.slice(1).map((x, i) => x - u[i])
+  const d = h.map((hi, i) => (z[i + 1] - z[i]) / hi)
+  const m = new Array<number>(n)
+  m[0] = d[0]
+  m[n - 1] = d[n - 2]
+  for (let i = 1; i < n - 1; i++) {
+    if (d[i - 1] * d[i] <= 0) m[i] = 0
+    else {
+      const w1 = 2 * h[i] + h[i - 1]
+      const w2 = h[i] + 2 * h[i - 1]
+      m[i] = (w1 + w2) / (w1 / d[i - 1] + w2 / d[i])
     }
   }
-  return punti[punti.length - 1].z
+  return { u, z, m }
+}
+
+function zAl(p: Percorso, uu: number) {
+  const { u, z, m } = p
+  if (uu <= u[0]) return z[0]
+  if (uu >= u[u.length - 1]) return z[z.length - 1]
+  let i = 0
+  while (i < u.length - 2 && uu > u[i + 1]) i++
+  const h = u[i + 1] - u[i]
+  const t = (uu - u[i]) / h
+  const t2 = t * t
+  const t3 = t2 * t
+  return (2 * t3 - 3 * t2 + 1) * z[i] + (t3 - 2 * t2 + t) * h * m[i] + (-2 * t3 + 3 * t2) * z[i + 1] + (t3 - t2) * h * m[i + 1]
 }
 
 /* ---------------------------------------------------------------------------
@@ -480,7 +512,7 @@ function disegnaNome(
   const larghezzeSotto = caratteriSotto.map((c) => ctx.measureText(c).width)
   const larghezzaSotto = larghezzeSotto.reduce((t, x) => t + x, 0) + spaziaturaSotto * (caratteriSotto.length - 1)
 
-  const margine = CORPO * 0.3
+  const margine = CORPO * 0.2
   const w = Math.ceil(Math.max(larghezzaNome, larghezzaSotto) + margine * 2)
   const h = Math.ceil(CORPO * 1.05 + corpoSotto * 1.9 + margine * 2)
   canvas.width = w
@@ -757,7 +789,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       posizioni.push(x, y, 0)
       raggi.push((s.r / 100) * LATO * 4.6)
     }
-    const st = stelle(posizioni, raggi, { spento: FISSI.arancio, acceso: P.accento, nucleo: FISSI.bianco, finale: FISSI.giallo })
+    const st = stelle(posizioni, raggi, { spento: FISSI.arancio, acceso: P.accento, nucleo: FISSI.bianco, finale: P.verde })
     gruppo.add(st.punti)
 
     const linee = cost.linee.map((l) => {
@@ -852,13 +884,13 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
   const tappeRotta = stelle(
     [puntiRotta[1], puntiRotta[2], puntiRotta[3]].flatMap((p) => [p.x, p.y, p.z]),
     [0.5, 0.5, 0.62],
-    { spento: FISSI.arancio, acceso: P.accento, nucleo: FISSI.bianco, finale: FISSI.giallo },
+    { spento: FISSI.arancio, acceso: P.accento, nucleo: FISSI.bianco, finale: P.verde },
   )
   scena.add(tappeRotta.punti)
 
   /* ----- impaginazione e percorso ----- */
   let imp = impagina(1.6)
-  let punti = percorso(imp)
+  let percorsoCamera = preparaPercorso(percorso(imp))
 
   /**
    * Il nome: sullo schermo largo sta all'angolo in alto a sinistra della figura;
@@ -869,8 +901,14 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     const k = altezzaNome(imp.ritratto) / CORPO
     const w = m.nome.w * k
     const h = m.nome.h * k
+    m.nome.mesh.rotation.z = 0
     if (imp.ritratto) m.nome.mesh.position.set(0, 0, -1)
-    else m.nome.mesh.position.set(-m.metaLarghezza + w / 2, m.metaAltezza + 0.3 + h / 2, -0.6)
+    else if (m.metaAltezza > m.metaLarghezza * 1.3) {
+      // figure alte (Orione, Lira): sopra non c'e spazio, finirebbe sotto il menu.
+      // Il nome corre in verticale lungo il fianco sinistro e finisce all'angolo in alto
+      m.nome.mesh.rotation.z = Math.PI / 2
+      m.nome.mesh.position.set(-m.metaLarghezza - 0.3 - h / 2, m.metaAltezza - w / 2, -0.6)
+    } else m.nome.mesh.position.set(-m.metaLarghezza + w / 2, m.metaAltezza + 0.3 + h / 2, -0.6)
     m.nome.mesh.scale.set(w, h, 1)
   }
 
@@ -882,7 +920,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     camera.updateProjectionMatrix()
     uPx.value = (h * renderer.getPixelRatio()) / (2 * TAN)
     imp = impagina(camera.aspect)
-    punti = percorso(imp)
+    percorsoCamera = preparaPercorso(percorso(imp))
     for (const m of moduli) {
       m.gruppo.position.set(imp.xFigura, imp.yFigura, m.z)
       posizionaNome(m)
@@ -924,7 +962,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
 
   /* ----- stato e aggiornamento ----- */
   let uLiscio = 0
-  let zPrima = zAl(punti, 0)
+  let zPrima = zAl(percorsoCamera, 0)
   let velocita = 0
   const mira = { x: 0, y: 0 }
   const scarto = { x: 0, y: 0 }
@@ -969,24 +1007,30 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     m.nome.materiale.opacity = (imp.ritratto ? 0.34 : 0.85) * liscia(0.3, 0.45, frazione) * alfa
   }
 
+  /**
+   * `u` arriva gia morbida da Volo.tsx: testi e scena condividono la stessa
+   * "macchina da presa", cosi si muovono insieme invece di rincorrersi.
+   */
   const aggiorna = (u: number, dt: number, tempo: number) => {
-    // inerzia: la camera insegue lo scroll con una morbidezza indipendente dai fotogrammi
-    uLiscio += (u - uLiscio) * (1 - Math.exp(-dt * 6))
-    if (Math.abs(u - uLiscio) < 0.005) uLiscio = u
+    uLiscio = u
     uTempo.value = tempo
 
-    const z = zAl(punti, uLiscio)
-    velocita += (Math.abs(z - zPrima) / Math.max(dt, 0.001) - velocita) * 0.12
+    const z = zAl(percorsoCamera, uLiscio)
+    const passo = Math.max(dt, 0.001)
+    velocita += (Math.abs(z - zPrima) / passo - velocita) * (1 - Math.exp(-passo * 5))
     zPrima = z
-    scarto.x += (mira.x - scarto.x) * 0.05
-    scarto.y += (mira.y - scarto.y) * 0.05
+    // il puntatore sposta appena l'inquadratura, con molta calma
+    scarto.x += (mira.x - scarto.x) * (1 - Math.exp(-passo * 2.2))
+    scarto.y += (mira.y - scarto.y) * (1 - Math.exp(-passo * 2.2))
     camera.position.set(
-      0.22 * Math.sin(uLiscio * 0.011) + scarto.x * 0.35,
-      0.16 * Math.sin(uLiscio * 0.0083 + 1.2) + scarto.y * 0.25,
+      0.24 * Math.sin(uLiscio * 0.0095) + scarto.x * 0.35,
+      0.17 * Math.sin(uLiscio * 0.0071 + 1.2) + scarto.y * 0.25,
       z,
     )
-    // "effetto velocita": il campo visivo si allarga quando si scorre in fretta
-    const fov = FOV + clamp(velocita * 0.035, 0, 9)
+    // un rollio leggerissimo, come una camera a mano ferma: meno di un grado e mezzo
+    camera.rotation.z = 0.02 * Math.sin(uLiscio * 0.0042 + 0.6) + scarto.x * -0.012
+    // "effetto velocita": il campo visivo si allarga appena quando si scorre in fretta
+    const fov = FOV + clamp(velocita * 0.03, 0, 7)
     if (Math.abs(camera.fov - fov) > 0.02) {
       camera.fov = fov
       camera.updateProjectionMatrix()
@@ -1035,7 +1079,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     tappeRotta.geometria.getAttribute('aFinale').needsUpdate = true
 
     renderer.render(scena, camera)
-    return Math.abs(u - uLiscio) > 0.02 || velocita > 0.5
+    return velocita > 0.3
   }
 
   return {

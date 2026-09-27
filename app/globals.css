@@ -18,8 +18,8 @@
 :root {
   /* --- profondita --- */
   --spazio:   #05070F;
-  --notte:    #0C1330;
-  --notte-2:  #121B42;
+  --notte:    #0F0B2A;  /* notte con una punta di viola, per l'aurora */
+  --notte-2:  #171038;
 
   /* --- PALETTE "AURORA ULTRAVIOLETTA" (base) ---
      Tutti i colori del tema stanno qui: anche la scena 3D li legge da queste
@@ -35,13 +35,42 @@
   --nebula-2:     #FF3DCB;
   --nebula-3:     #2D4BFF;
   --titolo-sfumato: linear-gradient(95deg, #B39BFF 0%, #FF6AD5 48%, #3DF2FF 100%);
-  --neutro:   #9C97C9;
   --neutro-2: #3E3670;
+
+  /* --- testo: bianco perla, in tutte le palette ---
+     Il colore resta allo spazio; il testo e perla classico, piu professionale.
+     Contrasti su #05070F: perla ~18, perla secondario ~12. */
+  --bianco:   #F7F5F0;  /* titoli e testo principale */
+  --neutro:   #C9C6BF;  /* testo secondario: perla attenuato, non grigio freddo */
 
   /* --- significati che non cambiano con la palette --- */
   --arancio:    #FF6B2C;  /* quello che lo studio perde */
-  --giallo:     #FFE24A;  /* la prova, il dato misurato */
-  --bianco:     #F2F5FF;
+  --verde:      #4AE89A;  /* quello che lo studio guadagna, il dato misurato: smeraldo chiaro */
+  --verde-luce: #A6F7CF;
+  --giallo:     #FFE24A;  /* resta solo per qualche stella del fondo */
+
+  /* --- VETRI SPAZIALI: il fondo di tutti i riquadri ---
+     Trasparenti, con una punta del colore della nebulosa: lo spazio si vede
+     attraverso e il riquadro sembra fluttuare. Il bordo e un filo di luce
+     sfumato, ben definito. Niente sfocatura dietro (costa a ogni fotogramma
+     del volo): solo la barra fissa in alto ce l'ha.
+     Tre toni:
+       nebulosa  riquadri delle costellazioni, pannelli principali (viola)
+       abisso    schede di contenuto (blu profondo, piu scuro e quieto)
+       aurora    barra fissa, modulo, report: i punti d'azione (iridescente) */
+  --vetro-nebulosa:
+    linear-gradient(180deg, rgb(255 255 255 / 0.045), transparent 32%),
+    linear-gradient(150deg, color-mix(in srgb, var(--nebula-1) 20%, transparent), color-mix(in srgb, var(--notte) 58%, transparent) 45%, color-mix(in srgb, var(--spazio) 72%, transparent));
+  --filo-nebulosa: linear-gradient(140deg, color-mix(in srgb, var(--azione-luce) 62%, transparent), color-mix(in srgb, var(--nebula-1) 16%, transparent) 42%, color-mix(in srgb, var(--accento) 34%, transparent));
+  --vetro-abisso:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 30%),
+    linear-gradient(165deg, color-mix(in srgb, var(--nebula-3) 13%, transparent), color-mix(in srgb, var(--notte) 62%, transparent) 48%, color-mix(in srgb, var(--spazio) 78%, transparent));
+  --filo-abisso: linear-gradient(160deg, color-mix(in srgb, var(--azione-luce) 40%, transparent), color-mix(in srgb, var(--accento) 10%, transparent) 50%, color-mix(in srgb, var(--nebula-1) 30%, transparent));
+  --vetro-aurora:
+    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 36%),
+    linear-gradient(120deg, color-mix(in srgb, var(--nebula-1) 24%, transparent), color-mix(in srgb, var(--nebula-2) 7%, transparent) 48%, color-mix(in srgb, var(--accento) 10%, transparent)),
+    color-mix(in srgb, var(--spazio) 62%, transparent);
+  --filo-aurora: linear-gradient(110deg, color-mix(in srgb, var(--azione-luce) 70%, transparent), color-mix(in srgb, var(--nebula-2) 40%, transparent) 46%, color-mix(in srgb, var(--accento) 62%, transparent));
 
   /* nomi storici, ancora usati dai componenti: puntano ai ruoli sopra */
   --celeste:    var(--accento);
@@ -82,7 +111,6 @@ html[data-palette="ciano"] {
   --nebula-2: #19D3FF;
   --nebula-3: #2B63F5;
   --titolo-sfumato: linear-gradient(95deg, #6E9BFF 0%, #1FE3FF 100%);
-  --neutro: #8C96BC;
   --neutro-2: #3A4470;
 }
 html[data-palette="bianco"] {
@@ -96,7 +124,6 @@ html[data-palette="bianco"] {
   --nebula-2: #4B2BFF;
   --nebula-3: #2B63F5;
   --titolo-sfumato: linear-gradient(95deg, #8FB0FF 0%, #FFFFFF 100%);
-  --neutro: #8C96BC;
   --neutro-2: #3A4470;
 }
 
@@ -225,28 +252,66 @@ a { color: inherit; text-decoration: none; }
 
   .sezione { padding-block: var(--sezione); }
 
+  /* fascia di sezione: una velatura, non un muro. Lo spazio si vede attraverso */
   .livello-notte {
     background:
-      radial-gradient(60% 50% at 85% 0%, color-mix(in srgb, var(--azione) 12%, transparent), transparent 70%),
-      color-mix(in srgb, var(--notte) 88%, transparent);
-    border-block: 1px solid var(--bordo);
+      radial-gradient(60% 50% at 85% 0%, color-mix(in srgb, var(--nebula-1) 12%, transparent), transparent 70%),
+      linear-gradient(180deg, transparent, color-mix(in srgb, var(--notte) 42%, transparent) 18%, color-mix(in srgb, var(--notte) 42%, transparent) 82%, transparent);
   }
 
   .filetto { height: 2px; width: 46px; background: linear-gradient(90deg, var(--blu-luce), transparent); }
   .filetto-caldo { background: linear-gradient(90deg, var(--arancio), transparent); }
 
-  /* vetro: superfici sopra il cielo, abbastanza piene da leggere bene.
-     Niente backdrop-filter: su un fondo di stelle la sfocatura non si vede,
-     e sui telefoni medi costa a ogni fotogramma di scroll. */
-  .vetro {
-    background: color-mix(in srgb, var(--notte) 90%, transparent);
-    border: 1px solid var(--bordo);
+  /* ------------------------------------------------------------
+     VETRI SPAZIALI (vedi i toni in :root)
+     Il bordo e un filo di luce sfumato disegnato da ::before con una
+     maschera: un bordo sfumato "normale" (background border-box)
+     trasparirebbe dentro il riquadro trasparente e lo tingerebbe tutto.
+     ------------------------------------------------------------ */
+  .vetro,
+  .card,
+  .vetro-nebulosa {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid transparent;
+    box-shadow:
+      0 30px 80px -48px color-mix(in srgb, var(--nebula-1) 55%, transparent),
+      0 16px 40px -28px rgb(0 0 0 / 0.85);
+  }
+  .vetro::before,
+  .card::before,
+  .vetro-nebulosa::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--filo-abisso);
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
-  .card {
-    background: color-mix(in srgb, var(--notte) 82%, transparent);
-    border: 1px solid var(--bordo);
-    border-radius: 22px;
+  /* aurora: barra fissa, modulo, report */
+  .vetro { background: var(--vetro-aurora); }
+  .vetro::before { background: var(--filo-aurora); }
+
+  /* abisso: le schede di contenuto */
+  .card { background: var(--vetro-abisso); border-radius: 22px; }
+
+  /* nebulosa: i riquadri delle costellazioni */
+  .vetro-nebulosa { background: var(--vetro-nebulosa); }
+  .vetro-nebulosa::before { background: var(--filo-nebulosa); }
+
+  /* solo la barra fissa sfoca quello che le passa sotto: e piccola, costa poco */
+  .vetro-barra {
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
   }
 
   /* reticolo da carta celeste, per i pannelli delle costellazioni */
@@ -303,8 +368,8 @@ a { color: inherit; text-decoration: none; }
     border-radius: 999px;
     font-size: var(--step--2);
     font-weight: 500;
-    border: 1px solid var(--bordo);
-    background: color-mix(in srgb, var(--accento) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--azione-luce) 30%, transparent);
+    background: linear-gradient(120deg, color-mix(in srgb, var(--nebula-1) 16%, transparent), color-mix(in srgb, var(--accento) 5%, transparent));
     white-space: nowrap;
   }
 
@@ -439,7 +504,7 @@ a { color: inherit; text-decoration: none; }
   .cost [data-stato="spenta"] .stella-alone { opacity: 0; }
   .cost [data-stato="accesa"] .stella-numero,
   .cost [data-stato="finale"] .stella-numero { fill: var(--bianco); }
-  .cost [data-stato="finale"] .stella-nucleo { fill: var(--giallo); transform: scale(1.15); }
+  .cost [data-stato="finale"] .stella-nucleo { fill: var(--verde); transform: scale(1.15); }
   .cost [data-stato="finale"] .stella-alone { opacity: 1; transform: scale(1.25); }
   .cost [data-corrente="true"] .stella-anello { opacity: 0.9; transform: scale(1); }
 
@@ -710,9 +775,7 @@ html:not(.volo) .cost-statica {
   aspect-ratio: 1;
   margin: 2.75rem auto;
   padding: 1.25rem;
-  border: 1px solid var(--bordo);
   border-radius: 22px;
-  background-color: color-mix(in srgb, var(--notte) 80%, transparent);
 }
 html:not(.volo) .passi-statici {
   max-width: 1280px;
@@ -723,3 +786,52 @@ html:not(.volo) .passi-statici {
   list-style: none;
 }
 html:not(.volo) .passi-statici li { display: flex; gap: 0.8rem; font-size: var(--step--1); }
+
+/* ---------- tappa d'arrivo: due colonne, il pulsante sempre in vista ----------
+   Incolonnati (titolo, testo, report, pulsante) superavano l'altezza di uno
+   schermo da portatile e il pulsante finiva tagliato dal palco. */
+html.volo .quadro--arrivo {
+  right: clamp(4rem, 11vw, 11rem); /* lascia libera la mappa laterale */
+  width: auto;
+}
+.arrivo-griglia { display: grid; gap: 2.5rem; }
+@media (min-aspect-ratio: 1/1) {
+  .arrivo-griglia {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 29rem);
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 6rem);
+  }
+}
+
+/* ---------- schermi bassi (portatili): il testo dei quadri resta dentro il palco ---------- */
+@media (min-aspect-ratio: 1/1) and (max-height: 780px) {
+  html.volo .quadro--lato { padding-block: 5rem 2rem; }
+  html.volo .quadro--lato .display.text-s5 { font-size: clamp(2.3rem, 4.4vw, 3.5rem); }
+  html.volo .quadro--lato .display.text-s4 { font-size: clamp(2rem, 3.4vw, 2.9rem); }
+  html.volo .quadro--lato .display.text-s3 { font-size: clamp(1.6rem, 2.5vw, 2.1rem); }
+  html.volo .quadro--lato .mt-8 { margin-top: 1.25rem; }
+  html.volo .quadro--lato .mt-7,
+  html.volo .quadro--lato .mt-6 { margin-top: 1rem; }
+}
+
+/* ---------- footer: vetro spaziale, testo perla ---------- */
+.piede {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 40%),
+    linear-gradient(170deg, color-mix(in srgb, var(--nebula-1) 14%, transparent), color-mix(in srgb, var(--notte) 55%, transparent) 40%, color-mix(in srgb, var(--spazio) 80%, transparent));
+  border-top: 1px solid transparent;
+  border-image: var(--filo-nebulosa) 1;
+}
+.piede,
+.piede .tenue,
+.piede a { color: var(--neutro); }
+.piede a:hover { color: var(--bianco); }
+.piede .occhiello { color: var(--bianco); letter-spacing: 0.16em; }
+
+/* riquadri delle costellazioni: il reticolo da carta celeste sopra il vetro nebulosa */
+.reticolo.vetro-nebulosa {
+  background:
+    linear-gradient(color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px) center / 44px 44px,
+    linear-gradient(90deg, color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px) center / 44px 44px,
+    var(--vetro-nebulosa);
+}

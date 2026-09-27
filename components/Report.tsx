@@ -41,7 +41,7 @@ export default function Report({ compatto = false }: { compatto?: boolean }) {
 
       {compatto ? null : (
         <p className="mt-6 text-s-2 tenue">
-          Nel report i <strong className="font-medium text-[var(--giallo)]">dati misurati</strong> portano l’ora
+          Nel report i <strong className="font-medium text-[var(--verde)]">dati misurati</strong> portano l’ora
           dell’osservazione. Le stime stanno in una sezione separata, e portano scritto che sono stime.
         </p>
       )}

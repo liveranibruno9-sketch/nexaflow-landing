@@ -3,7 +3,7 @@ import { CONTATTO, MODULI } from './dati'
 export default function Footer() {
   const anno = new Date().getFullYear()
   return (
-    <footer className="relative z-[1] border-t border-[var(--bordo)] bg-[color-mix(in_srgb,#05070F_92%,transparent)]">
+    <footer className="piede relative z-[1]">
       <div className="wrap py-14 sm:py-20">
         <div className="grid gap-12 md:grid-cols-[1.3fr_1fr_1fr] md:gap-8">
           <div>
@@ -12,7 +12,7 @@ export default function Footer() {
                 <rect width="28" height="28" rx="8" fill="var(--notte)" />
                 <path d="M8 19.5 L14 8 L20 19.5" stroke="var(--blu-luce)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.6" strokeLinecap="round" />
-                <circle cx="14" cy="8" r="1.6" fill="var(--giallo)" />
+                <circle cx="14" cy="8" r="1.6" fill="var(--verde)" />
               </svg>
               <span className="text-s0 font-medium tracking-[-0.02em]">Agenti Studio</span>
             </div>

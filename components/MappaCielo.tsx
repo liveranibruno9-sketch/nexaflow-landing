@@ -29,7 +29,7 @@ export default function MappaCielo() {
             <li key={m.slug} className={`rivela ${i % 3 === 1 ? 'rit-1' : i % 3 === 2 ? 'rit-2' : ''}`}>
               <a
                 href={`#${m.slug}`}
-                className="mappa-voce reticolo group flex h-full flex-col rounded-xl2 border border-[var(--bordo)] bg-[color-mix(in_srgb,#05070F_55%,transparent)] p-4 transition-colors duration-500 ease-soft hover:border-[var(--bordo-forte)] sm:p-6"
+                className="mappa-voce vetro-nebulosa reticolo group flex h-full flex-col rounded-xl2 p-4 sm:p-6"
               >
                 <span className="flex items-baseline justify-between gap-3">
                   <span className="mono text-s-2 text-[var(--celeste)]">{m.sigla}</span>
