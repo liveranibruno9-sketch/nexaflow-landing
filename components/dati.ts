@@ -43,6 +43,8 @@ export type Modulo = {
   oreNota: string
   euro: string
   euroNota: string
+  /** il servizio in tre righe: si legge per primo, prima dei dettagli */
+  inBreve: { problema: string; soluzione: string; risultato: string }
   cielo: Cielo
   posts: Post[]
 }
@@ -60,6 +62,11 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese di richiami che la segreteria non fa più a mano',
     euro: '1 impianto',
     euroNota: 'recuperato ripaga il servizio per più di un anno',
+    inBreve: {
+      problema: 'Preventivi consegnati e mai richiamati: restano fermi per mesi.',
+      soluzione: 'Tre messaggi al paziente in ventun giorni, in automatico.',
+      risultato: '1 impianto recuperato ripaga il servizio per più di un anno.',
+    },
     cielo: {
       chiave: 'orione',
       nome: 'Orione',
@@ -108,8 +115,13 @@ export const MODULI: Modulo[] = [
     metrica: 'Percentuale di chiamate con risposta',
     ore: '6–10 ore',
     oreNota: 'al mese di telefono tolte alla poltrona',
-    euro: 'Migliaia',
-    euroNota: 'di euro: è il valore nel tempo di un solo paziente implantologico',
+    euro: '1 chiamata',
+    euroNota: 'risposta invece che persa può diventare un paziente da impianto: da 1.500 €, diversi mesi di servizio',
+    inBreve: {
+      problema: 'Chiamate senza risposta quando la segreteria è occupata o lo studio è chiuso.',
+      soluzione: 'Un assistente risponde, raccoglie nome e motivo, avvisa subito per le urgenze.',
+      risultato: '1 chiamata risposta può diventare un paziente da impianto: da 1.500 €.',
+    },
     cielo: {
       chiave: 'lira',
       nome: 'Lira',
@@ -157,8 +169,13 @@ export const MODULI: Modulo[] = [
     metrica: 'Pazienti riattivati e sedute prenotate',
     ore: '4–6 ore',
     oreNota: 'al mese di lavoro di lista che nessuno ha tempo di fare',
-    euro: 'Archivio',
-    euroNota: 'già pagato: sono pazienti che si sono già fidati una volta',
+    euro: '1 paziente',
+    euroNota: 'che torna vale una seduta di igiene, fino a 120 €, e spesso le cure che ne nascono: già pochi ritorni al mese coprono il servizio',
+    inBreve: {
+      problema: 'Centinaia di pazienti dovevano tornare, e nessuno li richiama.',
+      soluzione: 'Ogni settimana il sistema li ricontatta, con il tono giusto per ognuno.',
+      risultato: '1 paziente che torna vale un’igiene, fino a 120 €, e le cure che ne nascono.',
+    },
     cielo: {
       chiave: 'carro',
       nome: 'Grande Carro',
@@ -208,8 +225,13 @@ export const MODULI: Modulo[] = [
     metrica: 'Tasso di assenze e slot riempiti dalla lista d’attesa',
     ore: '2–4 ore',
     oreNota: 'al mese di telefonate per riempire i buchi',
-    euro: '80–200 €',
-    euroNota: 'per ogni ora di poltrona che torna a produrre',
+    euro: '1 ora',
+    euroNota: 'di poltrona riempita dopo una disdetta vale fra 80 e 200 €: due al mese coprono il servizio',
+    inBreve: {
+      problema: 'Una disdetta la sera prima lascia la poltrona vuota.',
+      soluzione: 'Il posto liberato va subito a chi è in lista d’attesa, anche di notte.',
+      risultato: '1 ora di poltrona riempita vale fra 80 e 200 €.',
+    },
     cielo: {
       chiave: 'cassiopea',
       nome: 'Cassiopea',
@@ -257,6 +279,11 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese: scrivere risposte è il lavoro che nessuno vuole fare',
     euro: 'Canale #1',
     euroNota: 'di acquisizione nel dentale locale: chi cerca un dentista legge le recensioni',
+    inBreve: {
+      problema: 'Poche recensioni, l’ultima di mesi fa, risposte mai scritte.',
+      soluzione: 'Richiesta a ogni paziente dopo la visita, bozza di risposta pronta da approvare.',
+      risultato: 'Un profilo Google che si muove ogni settimana, dove i nuovi pazienti scelgono.',
+    },
     cielo: {
       chiave: 'corona',
       nome: 'Corona Boreale',
@@ -306,6 +333,11 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese, negli studi con molti pazienti in convenzione diretta',
     euro: '8,6 milioni',
     euroNota: 'di assicurati dichiarati dal solo UniSalute: il bacino è enorme',
+    inBreve: {
+      problema: 'Ogni pratica dei fondi costa verifiche, autorizzazioni e documenti a mano.',
+      soluzione: 'Il sistema prepara l’elenco esatto dei documenti per quel fondo.',
+      risultato: '4–8 ore al mese restituite alla segreteria.',
+    },
     cielo: {
       chiave: 'cigno',
       nome: 'Cigno',

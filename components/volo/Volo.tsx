@@ -47,6 +47,7 @@ const numero = new Intl.NumberFormat('it-IT')
 
 const T_PARTENZA = TAPPE[0]
 const T_PERDITE = TAPPE.filter((t) => t.tipo === 'perdita')
+const T_SVOLTA = TAPPE.find((t) => t.tipo === 'svolta')!
 const T_MODULI = TAPPE.filter((t) => t.tipo === 'modulo')
 const T_ROTTA = TAPPE.find((t) => t.tipo === 'rotta')!
 const T_ARRIVO = TAPPE.find((t) => t.tipo === 'arrivo')!
@@ -55,6 +56,7 @@ const T_ARRIVO = TAPPE.find((t) => t.tipo === 'arrivo')!
 const BORDO = [
   { id: 'top', nome: 'Partenza' },
   { id: 'perdite', nome: 'Le perdite' },
+  { id: 'soluzioni', nome: 'Le soluzioni' },
   ...MODULI.map((m) => ({ id: m.slug, nome: `${m.sigla} · ${m.cielo.nome}` })),
   { id: 'processo', nome: 'La rotta' },
   { id: 'arrivo', nome: 'Arrivo' },
@@ -410,27 +412,66 @@ export default function Volo() {
               )
             })}
 
-            {/* ================= LE SEI COSTELLAZIONI ================= */}
+            {/* ================= LA SVOLTA: LE SOLUZIONI =================
+                Separa i problemi dalle soluzioni: dietro, la supernova (scena.ts).
+                Il titolo compare dal lampo dell'esplosione. */}
+            <div id="soluzioni" className="tappa tappa--svolta">
+              <div className="quadro quadro--centro quadro--svolta" {...finestra(T_SVOLTA, 0.3, 0.97)}>
+                <div className="wrap text-center">
+                  <span className="occhiello text-[var(--verde)]">Le soluzioni</span>
+                  <h2 className="display mx-auto mt-6 max-w-[17ch] text-[clamp(2.5rem,6vw,5.6rem)] leading-[0.98]">
+                    Ecco le soluzioni. <span className="testo-sfumato">Sei automazioni AI per lo studio dentistico.</span>
+                  </h2>
+                  <p className="mx-auto mt-7 max-w-[60ch] text-s1 leading-[1.45] text-[color-mix(in_srgb,var(--bianco)_86%,transparent)]">
+                    Segreteria AI per le chiamate perse, recupero dei preventivi, richiami dei pazienti, anti no-show,
+                    recensioni Google e pratiche dei fondi sanitari. Una per ogni perdita, e ognuna si misura ogni mese.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ================= LE SEI COSTELLAZIONI =================
+                Ogni servizio in cinque quadri, sempre nello stesso ordine:
+                presentazione con "In breve", il problema, la soluzione, come
+                funziona per lo studio, il risultato. In ogni quadro la prima
+                frase e il titolo e il resto la spiegazione. */}
             {T_MODULI.map((t) => {
               const m = MODULI[t.indice]
-              const [problema, cosaFa, comeFunziona, guadagno] = m.posts
+              const [problema, cosaFa, comeFunziona] = m.posts
               const cost = COSTELLAZIONI[m.cielo.chiave]
+              const [problemaTitolo, problemaResto] = dividi(problema.testo)
+              const [soluzioneTitolo, soluzioneResto] = dividi(cosaFa.testo)
+              const [comeTitolo, comeResto] = dividi(comeFunziona.testo)
               return (
                 <div key={t.id} id={t.id} className="tappa tappa--modulo">
+                  {/* 1. presentazione: il servizio in tre righe, prima dei dettagli */}
                   <div className="quadro quadro--lato" {...finestra(t, FASI.avvicinamento[0], FASI.avvicinamento[1])}>
                     <span className="occhiello">
                       {m.sigla} · {m.cielo.nome} · <span className="tenue">{cost.coordinate}</span>
                     </span>
-                    <h2 className="display mt-5 text-s5 leading-[0.98]">{m.nome}</h2>
-                    <p className="mt-6 max-w-[40ch] text-s1 leading-[1.4] text-[color-mix(in_srgb,var(--bianco)_88%,transparent)]">
+                    <h2 className="display mt-4 text-s5 leading-[0.98]">{m.nome}</h2>
+                    <p className="mt-4 max-w-[40ch] text-s1 leading-[1.4] text-[color-mix(in_srgb,var(--bianco)_88%,transparent)]">
                       {m.promessa}
                     </p>
-                    <p className="mt-5 max-w-[46ch] text-s-1 italic tenue">{m.cielo.perche}</p>
-                    <p className="chip mt-6 self-start !whitespace-normal !rounded-2xl leading-snug">
+                    <dl className="in-breve card mt-6 max-w-[36rem] p-5">
+                      <div>
+                        <dt style={{ color: 'var(--arancio)' }}>Il problema</dt>
+                        <dd>{m.inBreve.problema}</dd>
+                      </div>
+                      <div>
+                        <dt style={{ color: 'var(--accento)' }}>La soluzione</dt>
+                        <dd>{m.inBreve.soluzione}</dd>
+                      </div>
+                      <div>
+                        <dt style={{ color: 'var(--verde)' }}>Il risultato</dt>
+                        <dd>{m.inBreve.risultato}</dd>
+                      </div>
+                    </dl>
+                    <p className="chip mt-5 self-start !whitespace-normal !rounded-2xl leading-snug">
                       <span
                         aria-hidden="true"
                         className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ background: m.stato === 'pronto' ? 'var(--blu-luce)' : 'var(--neutro)' }}
+                        style={{ background: m.stato === 'pronto' ? 'var(--verde)' : 'var(--neutro)' }}
                       />
                       {m.stato === 'pronto' ? 'Pronto' : 'Dopo la verifica'} · {m.statoNota}
                     </p>
@@ -447,20 +488,26 @@ export default function Volo() {
                     />
                   </div>
 
+                  {/* 2. il problema */}
                   <div className="quadro quadro--lato" {...finestra(t, FASI.buio[0], FASI.buio[1])}>
-                    <Fase n="01" nome="Buio" colore="var(--arancio)" />
-                    <h3 className="display mt-4 text-s3">{problema.titolo}</h3>
-                    <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{problema.testo}</p>
+                    <Fase n="01" nome="Il problema" colore="var(--arancio)" />
+                    <h3 className={titoloFrase(problemaTitolo)}>{problemaTitolo}</h3>
+                    {problemaResto ? <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{problemaResto}</p> : null}
                   </div>
+
+                  {/* 3. la soluzione: mentre si legge, le stelle si collegano */}
                   <div className="quadro quadro--lato" {...finestra(t, FASI.cosaFa[0], FASI.cosaFa[1])}>
-                    <Fase n="02" nome="Collegamento" colore="var(--celeste)" />
-                    <h3 className="display mt-4 text-s3">{cosaFa.titolo}</h3>
-                    <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{cosaFa.testo}</p>
+                    <Fase n="02" nome="La soluzione" colore="var(--accento)" />
+                    <h3 className={titoloFrase(soluzioneTitolo)}>{soluzioneTitolo}</h3>
+                    {soluzioneResto ? <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{soluzioneResto}</p> : null}
+                    <p className="mt-5 max-w-[46ch] text-s-1 italic tenue">{m.cielo.perche}</p>
                   </div>
+
+                  {/* 4. come funziona per lo studio: cosa deve fare, cioe quasi niente */}
                   <div className="quadro quadro--lato" {...finestra(t, FASI.comeFunziona[0], FASI.comeFunziona[1])}>
-                    <Fase n="02" nome="Collegamento" colore="var(--celeste)" />
-                    <h3 className="display mt-4 text-s3">{comeFunziona.titolo}</h3>
-                    <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{comeFunziona.testo}</p>
+                    <Fase n="03" nome="Come funziona per lo studio" colore="var(--accento)" />
+                    <h3 className={titoloFrase(comeTitolo)}>{comeTitolo}</h3>
+                    {comeResto ? <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{comeResto}</p> : null}
                   </div>
 
                   <ol className="solo-statico passi-statici">
@@ -472,20 +519,14 @@ export default function Volo() {
                     ))}
                   </ol>
 
+                  {/* 5. il risultato: il conto di un solo paziente, detto in grande */}
                   <div className="quadro quadro--lato" {...finestra(t, FASI.luce[0], FASI.luce[1])}>
-                    <Fase n="03" nome="Luce" colore="var(--verde)" />
-                    <h3 className="display mt-4 text-s3">{guadagno.titolo}</h3>
-                    <p className="mt-4 max-w-[46ch] text-s0 leading-relaxed tenue">{guadagno.testo}</p>
-                    <dl className="mt-7 grid max-w-[34rem] gap-3 sm:grid-cols-2">
-                      <div className="card p-4">
-                        <dt className="display text-s3 leading-none text-[var(--blu-luce)]">{m.ore}</dt>
-                        <dd className="mt-2 text-s-2 leading-snug tenue">{m.oreNota}</dd>
-                      </div>
-                      <div className="card p-4">
-                        <dt className="display text-s3 leading-none text-[var(--verde)]">{m.euro}</dt>
-                        <dd className="mt-2 text-s-2 leading-snug tenue">{m.euroNota}</dd>
-                      </div>
-                    </dl>
+                    <Fase n="04" nome="Il risultato" colore="var(--verde)" />
+                    <p className="display mt-5 text-s5 leading-none text-[var(--verde)]">{m.euro}</p>
+                    <p className="mt-4 max-w-[34ch] text-s2 leading-[1.25] text-[var(--bianco)]">{m.euroNota}.</p>
+                    <p className="mt-6 max-w-[46ch] text-s0 leading-relaxed tenue">
+                      In più: <strong className="font-medium text-[var(--bianco)]">{m.ore}</strong> {m.oreNota}.
+                    </p>
                     <p className="mt-5 text-s-2 tenue">
                       <span className="mono uppercase tracking-[0.12em] text-[var(--celeste)]">Si misura con</span> · {m.metrica}
                     </p>
@@ -560,6 +601,17 @@ export default function Volo() {
       </p>
     </>
   )
+}
+
+/** separa la prima frase dal resto: la prima diventa il titolo del quadro, il resto la spiegazione */
+function dividi(testo: string): [string, string] {
+  const trovato = testo.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/)
+  return trovato ? [trovato[1], trovato[2]] : [testo, '']
+}
+
+/** le frasi lunghe come titolo si leggono meglio un gradino piu piccole */
+function titoloFrase(frase: string) {
+  return `display mt-4 max-w-[24ch] leading-[1.1] ${frase.length > 90 ? 'text-s2' : 'text-s3'}`
 }
 
 function Fase({ n, nome, colore }: { n: string; nome: string; colore: string }) {

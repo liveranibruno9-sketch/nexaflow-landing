@@ -835,3 +835,34 @@ html.volo .quadro--arrivo {
     linear-gradient(90deg, color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px) center / 44px 44px,
     var(--vetro-nebulosa);
 }
+
+/* ---------- servizi: il riquadro "In breve" (problema, soluzione, risultato) ---------- */
+.in-breve { display: grid; gap: 0.9rem; }
+.in-breve > div {
+  display: grid;
+  grid-template-columns: 7.2rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: baseline;
+}
+.in-breve dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.in-breve dd { margin: 0; font-size: var(--step--1); line-height: 1.45; color: var(--bianco); }
+@media (max-width: 520px) {
+  .in-breve > div { grid-template-columns: 1fr; gap: 0.2rem; }
+}
+
+/* ---------- la svolta: il titolo delle soluzioni sopra il lampo della supernova ---------- */
+html.volo .quadro--svolta::before {
+  content: "";
+  position: absolute;
+  inset: 12% 8%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(5, 7, 15, 0.74), rgba(5, 7, 15, 0.4) 62%, transparent);
+}
+html:not(.volo) .tappa--svolta { padding-block: clamp(4rem, 9vw, 7rem); text-align: center; }

@@ -9,7 +9,7 @@ import { MODULI, PERDITE } from '../dati'
  * corrente come `u`, i vh percorsi dall'inizio del volo.
  */
 
-export type TipoTappa = 'partenza' | 'perdita' | 'modulo' | 'rotta' | 'arrivo'
+export type TipoTappa = 'partenza' | 'perdita' | 'svolta' | 'modulo' | 'rotta' | 'arrivo'
 
 export type Tappa = {
   /** id HTML della tappa: e anche l'ancora dei collegamenti (#preventivi, #processo...) */
@@ -24,6 +24,7 @@ export type Tappa = {
 const DURATA: Record<TipoTappa, number> = {
   partenza: 100,
   perdita: 80,
+  svolta: 130,
   modulo: 210,
   rotta: 210,
   arrivo: 110,
@@ -39,6 +40,8 @@ export const TAPPE: Tappa[] = (() => {
   aggiungi('top', 'partenza', 0, 'Partenza')
   // la prima perdita ospita anche il titolo della sezione: e piu lunga
   PERDITE.forEach((p, i) => aggiungi(i === 0 ? 'perdite' : `perdita-${i + 1}`, 'perdita', i, `Perdita ${p.n}`, i === 0 ? 110 : DURATA.perdita))
+  // la svolta: la supernova che separa i problemi dalle soluzioni
+  aggiungi('soluzioni', 'svolta', 0, 'Le soluzioni')
   MODULI.forEach((m, i) => aggiungi(m.slug, 'modulo', i, m.cielo.nome))
   aggiungi('processo', 'rotta', 0, 'La rotta')
   aggiungi('arrivo', 'arrivo', 0, 'Arrivo')

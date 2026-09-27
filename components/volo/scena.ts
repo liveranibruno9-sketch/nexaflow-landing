@@ -24,7 +24,7 @@ import {
 } from 'three'
 import { COSTELLAZIONI } from '../cielo/stelle'
 import { MODULI } from '../dati'
-import { TAPPE, passiAccesi, type Tappa } from './rotta'
+import { LUNGHEZZA, TAPPE, passiAccesi, type Tappa } from './rotta'
 
 /**
  * La scena 3D del volo.
@@ -52,13 +52,27 @@ import { TAPPE, passiAccesi, type Tappa } from './rotta'
 const FOV = 50
 const TAN = Math.tan(((FOV / 2) * Math.PI) / 180)
 const LATO = 5.4 // lato lungo di una costellazione, in unita del mondo
-const DISTANZA_MODULI = 100
-const Z_PRIMO_MODULO = -310
+/**
+ * La camera avanza a VELOCITA COSTANTE per tutto il viaggio: stelle e polvere
+ * scorrono sempre allo stesso ritmo dello scroll, quindi non si sente mai un
+ * freno, nemmeno sulle costellazioni. Sono loro a venire incontro alla camera
+ * e ad accompagnarla mentre si legge, come una ripresa con il drone che segue
+ * il soggetto (vedi profiloDistanza).
+ */
+const VELOCITA = 0.5 // unita del mondo per vh di scroll
+const zCamera = (u: number) => 10 - VELOCITA * u
 const RAGGIO_GALASSIA = 13
-const zGalassia = (i: number) => -60 - i * 45
-const zModulo = (i: number) => Z_PRIMO_MODULO - i * DISTANZA_MODULI
-const Z_ROTTA = [zModulo(5) - 45, zModulo(5) - 80, zModulo(5) - 115]
-const Z_FINE = Z_ROTTA[2] - 30
+const RAGGIO_SUPERNOVA = 34
+const T_PERDITE = TAPPE.filter((t) => t.tipo === 'perdita')
+const T_SVOLTA = TAPPE.find((t) => t.tipo === 'svolta')!
+const T_ROTTA = TAPPE.find((t) => t.tipo === 'rotta')!
+/** ogni galassia sta dove la camera passa al 62% della sua tappa: se ne attraversa il nucleo */
+const zGalassia = (i: number) => zCamera(T_PERDITE[i].inizio + 0.62 * T_PERDITE[i].durata) - 1
+/** la supernova esplode davanti; la camera ne attraversa il centro alla fine della svolta */
+const Z_SUPERNOVA = zCamera(T_SVOLTA.inizio + 0.55 * T_SVOLTA.durata) - 25
+/** le tre tappe della rotta: la camera ci passa accanto al 33%, 66% e 97% */
+const Z_ROTTA = [0.33, 0.66, 0.97].map((f) => zCamera(T_ROTTA.inizio + f * T_ROTTA.durata) - 2)
+const Z_FINE = zCamera(LUNGHEZZA)
 
 /** colori fissi: non cambiano con la palette */
 const FISSI = {
@@ -224,7 +238,8 @@ const BAGLIORE_FRAG = /* glsl */ `
   varying vec2 vUv;
   void main() {
     float r = length(vUv - 0.5) * 2.0;
-    float a = exp(-r * r * 9.0) * 0.5 + exp(-r * r * 2.2) * 0.14;
+    // la maschera porta tutto a zero prima del bordo: senza, con il lampo forte si vedeva il piano quadrato
+    float a = (exp(-r * r * 9.0) * 0.5 + exp(-r * r * 2.2) * 0.14) * smoothstep(1.0, 0.72, r);
     gl_FragColor = vec4(uColore, a * uAlfa);
   }
 `
@@ -294,6 +309,43 @@ const SCIA_FRAG = /* glsl */ `
     float pulsa = 0.75 + 0.25 * sin(vUv.x * 70.0 - uTempo * 3.0);
     float testa = smoothstep(0.035, 0.0, uProg - vUv.x) * (1.0 - step(0.999, uProg));
     gl_FragColor = vec4(uColore + testa * 0.5, (0.5 * pulsa + testa) * uAlfa * vicino);
+  }
+`
+
+/** supernova: frammenti che si allontanano dal centro lungo la loro direzione */
+const SUPERNOVA_VERT = /* glsl */ `
+  attribute vec3 aDir;
+  attribute float aVel;
+  attribute float aR;
+  attribute vec3 aColore;
+  uniform float uRaggio;
+  uniform float uPx;
+  uniform float uAlfa;
+  uniform float uTempo;
+  varying vec3 vColore;
+  varying float vAlfa;
+  void main() {
+    vec3 p = aDir * (uRaggio * aVel + sin(uTempo * 0.7 + aVel * 31.0) * 0.12);
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    float d = max(-mv.z, 0.001);
+    gl_PointSize = clamp(aR * uPx / d, 1.0, 16.0);
+    gl_Position = projectionMatrix * mv;
+    vColore = aColore;
+    vAlfa = uAlfa * smoothstep(0.3, 2.2, d);
+  }
+`
+
+/** onda d'urto: un anello che si allarga */
+const ANELLO_FRAG = /* glsl */ `
+  uniform vec3 uColore;
+  uniform float uAlfa;
+  uniform float uR;
+  varying vec2 vUv;
+  void main() {
+    float r = length(vUv - 0.5) * 2.0;
+    float fronte = exp(-pow((r - uR) / 0.03, 2.0));
+    float scia = exp(-pow((r - uR * 0.88) / 0.09, 2.0)) * 0.35;
+    gl_FragColor = vec4(uColore + fronte * 0.3, (fronte + scia) * uAlfa);
   }
 `
 
@@ -404,53 +456,26 @@ function impagina(aspetto: number): Impaginazione {
 
 type Punto = { u: number; z: number }
 
-/** i punti chiave della camera lungo la rotta; fra un punto e l'altro si interpola morbido */
-function percorso(imp: Impaginazione): Punto[] {
-  const punti: Punto[] = []
-  for (const t of TAPPE) {
-    const f = (frazione: number) => t.inizio + frazione * t.durata
-    if (t.tipo === 'partenza') punti.push({ u: f(0), z: 10 })
-    if (t.tipo === 'perdita') {
-      // si entra nella galassia e se ne attraversa il nucleo verso il 62% della tappa
-      const zg = zGalassia(t.indice)
-      punti.push({ u: f(0), z: zg + 26 }, { u: f(0.62), z: zg - 1 })
-    }
-    if (t.tipo === 'modulo') {
-      // Mai fermi, nemmeno sulle costellazioni. La camera entra appena
-      // oltre la figura precedente, si avvicina, rallenta mentre le stelle si
-      // collegano, continua a scivolare piano durante la luce (la figura
-      // cresce e si sposta di lato, come quando la stai superando) e la
-      // attraversa. Velocita (vh di scroll per unita del mondo, schermo
-      // largo, 1440x900): mai sotto 0.11, massimo 1.17. Scelte con un calcolo che
-      // tiene la figura grande mentre le stelle si collegano.
-      const zc = zModulo(t.indice)
-      punti.push(
-        { u: f(0), z: zc + DISTANZA_MODULI - 5 },
-        { u: f(0.34), z: zc + imp.sosta + 18 },
-        { u: f(0.72), z: zc + imp.sosta + 4 },
-        { u: f(0.95), z: zc + imp.sosta - 4 },
-      )
-    }
-    if (t.tipo === 'rotta') {
-      punti.push(
-        { u: f(0), z: zModulo(5) - 5 },
-        { u: f(0.33), z: Z_ROTTA[0] + 2 },
-        { u: f(0.66), z: Z_ROTTA[1] + 2 },
-        { u: f(0.97), z: Z_ROTTA[2] + 1 },
-      )
-    }
-    // l'arrivo rallenta dolcemente verso la nebulosa: il volo si posa, non si inchioda
-    if (t.tipo === 'arrivo') punti.push({ u: f(0), z: Z_ROTTA[2] - 3 }, { u: f(1), z: Z_FINE })
-  }
-  return punti
+/**
+ * Distanza fra la camera e una costellazione durante la sua tappa (frazione 0..1).
+ * All'inizio si avvicina alla stessa velocita della camera, quindi nessuno
+ * stacco; poi, mentre le stelle si collegano e durante la luce, la
+ * costellazione accompagna la camera (si avvicina piano rispetto a noi) e alla
+ * fine ci supera. Lo sfondo intanto scorre sempre alla stessa velocita.
+ */
+function profiloDistanza(imp: Impaginazione, durata: number) {
+  return preparaPercorso([
+    { u: 0, z: imp.sosta + 10 + VELOCITA * 0.34 * durata },
+    { u: 0.34, z: imp.sosta + 10 },
+    { u: 0.72, z: imp.sosta + 2 },
+    { u: 0.95, z: imp.sosta - 3 },
+    { u: 1, z: -5 },
+  ])
 }
 
 /**
- * Il percorso della camera come curva continua (interpolazione cubica
- * monotona di Fritsch-Carlson), non come una serie di tratti che partono e
- * si fermano: prima la camera rallentava fino a zero a ogni punto chiave,
- * ed era quello che dava al volo l'aria "meccanica". Monotona vuol dire che
- * non torna mai indietro e non supera i punti chiave.
+ * Curva continua (interpolazione cubica monotona di Fritsch-Carlson): non
+ * torna mai indietro, non supera i punti chiave e non ha soste a scatti.
  */
 type Percorso = { u: number[]; z: number[]; m: number[] }
 
@@ -570,7 +595,6 @@ export type Scena = {
 type ModuloScena = {
   tappa: Tappa
   gruppo: Group
-  z: number
   materialeStelle: ShaderMaterial
   geometriaStelle: BufferGeometry
   aLuce: Float32Array
@@ -779,14 +803,65 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     return { gruppo, z: zGalassia(i), materiale: mat, bagliore, alone: alone.materiale }
   })
 
+  /* ----- la supernova: separa i problemi dalle soluzioni ----- */
+  const supernova = (() => {
+    const caso = mulberry32(777)
+    const n = mobile ? 3000 : 7000
+    const dir = new Float32Array(n * 3)
+    const vel = new Float32Array(n)
+    const raggi = new Float32Array(n)
+    const colori = new Float32Array(n * 3)
+    const tinte = [P.accento, P.nebula2, P.nebula1, FISSI.bianco]
+    for (let k = 0; k < n; k++) {
+      // direzione uniforme sulla sfera
+      const zz = caso() * 2 - 1
+      const a = caso() * Math.PI * 2
+      const rr = Math.sqrt(1 - zz * zz)
+      dir[k * 3] = rr * Math.cos(a)
+      dir[k * 3 + 1] = rr * Math.sin(a)
+      dir[k * 3 + 2] = zz
+      // quasi tutto su un guscio sottile, qualche frammento piu interno
+      vel[k] = caso() < 0.72 ? 0.8 + caso() * 0.2 : 0.2 + caso() * 0.6
+      raggi[k] = 0.07 + Math.pow(caso(), 3) * 0.2
+      const c = caso()
+      const tinta = c < 0.36 ? tinte[0] : c < 0.66 ? tinte[1] : c < 0.86 ? tinte[2] : tinte[3]
+      colori[k * 3] = tinta[0]
+      colori[k * 3 + 1] = tinta[1]
+      colori[k * 3 + 2] = tinta[2]
+    }
+    const g = new BufferGeometry()
+    // la posizione vera la calcola lo shader da direzione e raggio; questa serve solo a contare i punti
+    g.setAttribute('position', new BufferAttribute(new Float32Array(n * 3), 3))
+    g.setAttribute('aDir', new BufferAttribute(dir, 3))
+    g.setAttribute('aVel', new BufferAttribute(vel, 1))
+    g.setAttribute('aR', new BufferAttribute(raggi, 1))
+    g.setAttribute('aColore', new BufferAttribute(colori, 3))
+    eliminabili.push(g)
+    const frammenti = materiale(PUNTO_FRAG, SUPERNOVA_VERT, { uPx, uTempo, uRaggio: { value: 0 }, uAlfa: { value: 0 } })
+    const punti = new Points(g, frammenti)
+    punti.frustumCulled = false
+    const lampo = materiale(BAGLIORE_FRAG, VERT_UV, { uColore: { value: v3([0.92, 0.97, 1]) }, uAlfa: { value: 0 } })
+    const nucleo = new Mesh(pianoBase, lampo)
+    const onda = materiale(ANELLO_FRAG, VERT_UV, { uColore: { value: v3(P.accento) }, uAlfa: { value: 0 }, uR: { value: 0 } })
+    const anello = new Mesh(pianoBase, onda)
+    anello.scale.set(RAGGIO_SUPERNOVA * 2.2, RAGGIO_SUPERNOVA * 2.2, 1)
+    const resti = [
+      { ...nebula(0, 0, -2, 20, P.nebula2, P.accento, 0.32, 40), lato: 20 },
+      { ...nebula(2, -1, -6, 28, P.nebula1, P.nebula2, 0.24, 41), lato: 28 },
+    ]
+    const gruppo = new Group()
+    gruppo.add(resti[1].mesh, resti[0].mesh, anello, punti, nucleo)
+    gruppo.position.set(0.8, 1.2, Z_SUPERNOVA)
+    scena.add(gruppo)
+    return { gruppo, frammenti, lampo, nucleo, onda, resti }
+  })()
+
   /* ----- le sei costellazioni ----- */
   const famiglie = { display: 'sans-serif', mono: 'monospace' }
   const moduli: ModuloScena[] = TAPPE.filter((t) => t.tipo === 'modulo').map((tappa) => {
     const modulo = MODULI[tappa.indice]
     const cost = COSTELLAZIONI[modulo.cielo.chiave]
     const gruppo = new Group()
-    const z = zModulo(tappa.indice)
-    gruppo.position.z = z
     const mondo = (x: number, y: number) => [((x - cost.larghezza / 2) / 100) * LATO, (-(y - cost.altezza / 2) / 100) * LATO]
 
     const posizioni: number[] = []
@@ -851,7 +926,6 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     return {
       tappa,
       gruppo,
-      z,
       materialeStelle: st.materiale,
       geometriaStelle: st.geometria,
       aLuce: st.aLuce,
@@ -897,7 +971,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
 
   /* ----- impaginazione e percorso ----- */
   let imp = impagina(1.6)
-  let percorsoCamera = preparaPercorso(percorso(imp))
+  let profilo = profiloDistanza(imp, moduli[0].tappa.durata)
 
   /**
    * Il nome: sullo schermo largo sta all'angolo in alto a sinistra della figura;
@@ -927,9 +1001,11 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     camera.updateProjectionMatrix()
     uPx.value = (h * renderer.getPixelRatio()) / (2 * TAN)
     imp = impagina(camera.aspect)
-    percorsoCamera = preparaPercorso(percorso(imp))
+    profilo = profiloDistanza(imp, moduli[0].tappa.durata)
     for (const m of moduli) {
-      m.gruppo.position.set(imp.xFigura, imp.yFigura, m.z)
+      // la z la decide il profilo di avvicinamento, a ogni fotogramma
+      m.gruppo.position.x = imp.xFigura
+      m.gruppo.position.y = imp.yFigura
       posizionaNome(m)
     }
     galassie.forEach((g, i) => g.gruppo.position.set(imp.xGalassia * (i % 2 === 0 ? 1 : -1), imp.yGalassia, g.z))
@@ -969,12 +1045,12 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
 
   /* ----- stato e aggiornamento ----- */
   let uLiscio = 0
-  let zPrima = zAl(percorsoCamera, 0)
+  let zPrima = zCamera(0)
   let velocita = 0
   const mira = { x: 0, y: 0 }
   const scarto = { x: 0, y: 0 }
 
-  const aggiornaModulo = (m: ModuloScena, u: number, distanza: number) => {
+  const aggiornaModulo = (m: ModuloScena, u: number, distanza: number, comparsa: number) => {
     const frazione = clamp((u - m.tappa.inizio) / m.tappa.durata, 0, 1)
     const accesi = passiAccesi(frazione, m.totale)
     const luce = liscia(0.72, 0.78, frazione)
@@ -999,7 +1075,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     m.geometriaStelle.getAttribute('aFinale').needsUpdate = true
 
     // svanisce da lontano e mentre la camera attraversa il suo piano
-    const alfa = liscia(190, 100, distanza) * liscia(-1, 4, distanza)
+    const alfa = liscia(190, 100, distanza) * liscia(-1, 4, distanza) * comparsa
     m.materialeStelle.uniforms.uAlfa.value = alfa
     for (const l of m.linee) {
       const prog = Number.isFinite(l.passo) ? clamp((accesi - (l.passo - 1)) / 0.85, 0, 1) : 0
@@ -1008,7 +1084,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     }
     // la nebulosa si illumina man mano che la costellazione si completa
     for (const n of m.nebule) {
-      n.materiale.uniforms.uAlfa.value = n.base * liscia(230, 110, distanza) * liscia(2, 12, distanza) * (1 + 0.5 * (accesi / m.totale) + 0.6 * luce)
+      n.materiale.uniforms.uAlfa.value = n.base * comparsa * liscia(230, 110, distanza) * liscia(2, 12, distanza) * (1 + 0.5 * (accesi / m.totale) + 0.6 * luce)
     }
     // il nome compare quando le stelle cominciano a collegarsi
     m.nome.materiale.opacity = (imp.ritratto ? 0.34 : 0.85) * liscia(0.3, 0.45, frazione) * alfa
@@ -1022,7 +1098,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     uLiscio = u
     uTempo.value = tempo
 
-    const z = zAl(percorsoCamera, uLiscio)
+    const z = zCamera(uLiscio)
     const passo = Math.max(dt, 0.001)
     velocita += (Math.abs(z - zPrima) / passo - velocita) * (1 - Math.exp(-passo * 5))
     zPrima = z
@@ -1045,10 +1121,20 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     }
 
     for (const m of moduli) {
-      const distanza = z - m.z
-      const vicino = distanza < 240 && distanza > -30
-      m.gruppo.visible = vicino
-      if (vicino) aggiornaModulo(m, uLiscio, distanza)
+      // prima della sua tappa la costellazione aspetta ferma davanti; durante la
+      // tappa segue il profilo (ci accompagna); dopo resta ferma alle spalle
+      const f = (uLiscio - m.tappa.inizio) / m.tappa.durata
+      const visibile = f > -0.18 && f < 1.1
+      m.gruppo.visible = visibile
+      if (!visibile) continue
+      const distanza =
+        f < 0
+          ? profilo.z[0] + VELOCITA * (m.tappa.inizio - uLiscio)
+          : f > 1
+            ? -5 - VELOCITA * (uLiscio - m.tappa.inizio - m.tappa.durata)
+            : zAl(profilo, f)
+      m.gruppo.position.z = z - distanza
+      aggiornaModulo(m, uLiscio, distanza, liscia(-0.18, -0.05, f))
     }
 
     galassie.forEach((g, i) => {
@@ -1065,6 +1151,35 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       g.bagliore.uniforms.uAlfa.value = alfa * liscia(1.5, 8, Math.abs(d))
       g.alone.uniforms.uAlfa.value = 0.14 * alfa * liscia(1, 7, Math.abs(d))
     })
+
+    // la supernova: la stella pulsa, collassa, esplode; poi la si attraversa.
+    // Tutto dipende dalla posizione nella svolta: tornando indietro si riavvolge
+    {
+      const p = clamp((uLiscio - T_SVOLTA.inizio) / T_SVOLTA.durata, 0, 1)
+      const d = z - Z_SUPERNOVA
+      const vicina = d < 260 && d > -30
+      supernova.gruppo.visible = vicina
+      if (vicina) {
+        const lontano = liscia(260, 120, d) * liscia(-30, -8, d)
+        const esplosione = clamp((p - 0.26) / 0.74, 0, 1)
+        const raggio = RAGGIO_SUPERNOVA * (1 - Math.pow(1 - esplosione, 3))
+        const prima = (1 - liscia(0.24, 0.29, p)) * liscia(0, 0.08, p) * (0.35 + 0.25 * Math.sin(tempo * 5.5))
+        const bagliore = liscia(0.24, 0.29, p) * (1 - liscia(0.3, 0.5, p))
+        supernova.frammenti.uniforms.uRaggio.value = raggio
+        supernova.frammenti.uniforms.uAlfa.value = lontano * liscia(0.25, 0.3, p) * (1 - 0.55 * liscia(0.55, 1, p))
+        supernova.lampo.uniforms.uAlfa.value =
+          lontano * (prima * 1.4 + bagliore * 2.4 + liscia(0.3, 0.6, p) * 0.12) * liscia(2, 10, Math.abs(d))
+        const scalaNucleo = 3 + 5 * prima + 34 * bagliore + 10 * liscia(0.3, 1, p)
+        supernova.nucleo.scale.set(scalaNucleo, scalaNucleo, 1)
+        supernova.onda.uniforms.uR.value = raggio / (RAGGIO_SUPERNOVA * 1.1)
+        supernova.onda.uniforms.uAlfa.value = lontano * liscia(0.27, 0.33, p) * (1 - liscia(0.45, 1, p)) * 0.9 * liscia(1, 8, Math.abs(d))
+        for (const r of supernova.resti) {
+          r.materiale.uniforms.uAlfa.value = r.base * lontano * liscia(0.3, 0.6, p) * liscia(1, 9, Math.abs(d))
+          const lato = r.lato * (0.4 + 0.9 * esplosione)
+          r.mesh.scale.set(lato, lato, 1)
+        }
+      }
+    }
 
     for (const n of nebuleLibere) {
       const d = z - n.z
