@@ -1,36 +1,35 @@
 import Nav from '@/components/Nav'
-import Hero from '@/components/Hero'
-import Fascia from '@/components/Fascia'
-import Perdite from '@/components/Perdite'
+import Volo from '@/components/volo/Volo'
 import MappaCielo from '@/components/MappaCielo'
-import Costellazioni from '@/components/Costellazioni'
-import Rotta from '@/components/Rotta'
 import Regole from '@/components/Regole'
 import Fondatore from '@/components/Fondatore'
+import Demo from '@/components/Demo'
 import Domande from '@/components/Domande'
 import Verifica from '@/components/Verifica'
 import Footer from '@/components/Footer'
 
 /**
- * Un viaggio dal buio alla rotta.
- * Ritmo di profondita: nebulosa, notte, spazio, notte, spazio, notte,
- * spazio, notte, spazio, nebulosa. Mai tre livelli uguali di fila.
+ * Variante "profondita": prima il volo, poi l'orbita.
+ *
+ * Il volo racconta (partenza, perdite, sei costellazioni, rotta, arrivo).
+ * L'orbita e la parte da consultare: si scorre normalmente sopra il cielo
+ * dove la camera si e fermata. Ritmo di profondita dell'orbita:
+ * notte, spazio, notte, spazio, spazio, nebulosa.
  */
 export default function Home() {
   return (
     <>
       <Nav />
       <main id="contenuto">
-        <Hero />
-        <Fascia />
-        <Perdite />
-        <MappaCielo />
-        <Costellazioni />
-        <Rotta />
-        <Regole />
-        <Fondatore />
-        <Domande />
-        <Verifica />
+        <Volo />
+        <div id="orbita" className="scroll-mt-0">
+          <MappaCielo />
+          <Regole />
+          <Fondatore />
+          <Demo />
+          <Domande />
+          <Verifica />
+        </div>
       </main>
       <Footer />
     </>

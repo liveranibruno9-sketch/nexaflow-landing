@@ -131,7 +131,14 @@ a { color: inherit; text-decoration: none; }
      TIPOGRAFIA
      ============================================================ */
 
-  .serif { font-family: var(--font-serif), Georgia, "Times New Roman", serif; font-weight: 400; }
+  /* variante "profondita": i titoli (anche quelli con la vecchia classe .serif)
+     sono in Space Grotesk, stretto e deciso */
+  .serif,
+  .display {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.045em;
+  }
   .mono { font-family: var(--font-mono), ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; }
 
   /* etichetta "da strumento di bordo": l'unico posto dove si usa il maiuscolo */
@@ -426,3 +433,236 @@ a { color: inherit; text-decoration: none; }
 
   :focus-visible { outline: 2px solid var(--celeste); outline-offset: 3px; border-radius: 4px; }
 }
+
+/* =====================================================================
+   IL VOLO — variante "profondita"
+   ---------------------------------------------------------------------
+   html.volo       volo 3D: palco sticky, quadri che compaiono e svaniscono
+   html:not(.volo) pagina normale: le tappe una sotto l'altra
+   La classe la decide uno script in <head> prima del primo disegno.
+   ===================================================================== */
+
+html:not(.volo) .solo-volo { display: none !important; }
+html.volo .solo-statico { display: none !important; }
+
+/* la scena 3D: fissa dietro al contenuto, dentro .pagina (z-index -1: sotto
+   anche ai blocchi non posizionati dell'orbita) */
+.cielo3d {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cielo3d[data-pronto="true"] { opacity: 1; }
+.cielo3d canvas { display: block; width: 100%; height: 100%; }
+
+.volo-traccia { position: relative; }
+html:not(.volo) .volo-traccia { height: auto !important; }
+.volo-palco { position: relative; }
+
+html.volo .volo-palco {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+html.volo .tappa { position: absolute; inset: 0; pointer-events: none; }
+html.volo .quadro {
+  position: absolute;
+  opacity: 0;
+  transform-origin: 20% 50%;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+html.volo .quadro[data-attivo="true"] { pointer-events: auto; }
+html.volo .quadro--iniziale { opacity: 1; }
+html.volo .quadro--sfondo { inset: 0; transform-origin: 50% 70%; }
+html.volo .quadro--centro {
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3.5rem;
+  transform-origin: 50% 50%;
+}
+
+/* schermo largo: il testo a sinistra, la costellazione a destra */
+html.volo .quadro--lato {
+  left: clamp(1.25rem, 6vw, 6.5rem);
+  top: 0;
+  bottom: 0;
+  width: min(46vw, 38rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 6rem 4rem;
+}
+/* un velo morbido dietro il testo: si legge su qualsiasi zona del cielo */
+html.volo .quadro--lato::before {
+  content: "";
+  position: absolute;
+  inset: 8% -30% 8% -40%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(5, 7, 15, 0.78), rgba(5, 7, 15, 0.4) 60%, transparent);
+}
+
+/* telefono: la costellazione in alto, il testo in basso */
+@media (max-aspect-ratio: 1/1) {
+  html.volo .quadro--lato {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-height: 64%;
+    justify-content: flex-end;
+    padding: 2rem 1.25rem max(2.25rem, 6vh);
+    transform-origin: 50% 100%;
+  }
+  html.volo .quadro--lato::before {
+    inset: -30% 0 0 0;
+    background: linear-gradient(180deg, transparent, rgba(5, 7, 15, 0.86) 34%, rgba(5, 7, 15, 0.96));
+  }
+  html.volo .quadro--lato .display.text-s5 { font-size: clamp(2.1rem, 9.4vw, 2.9rem); }
+  html.volo .quadro--lato .display.text-s4 { font-size: clamp(1.75rem, 7.6vw, 2.3rem); }
+  html.volo .quadro--lato .display.text-s3 { font-size: clamp(1.45rem, 6.2vw, 1.9rem); }
+  html.volo .quadro--lato .text-s1 { font-size: 1.1rem; }
+  html.volo .quadro--lato .text-s0 { font-size: 0.97rem; }
+}
+
+/* didascalia del passo corrente */
+.didascalia {
+  position: absolute;
+  right: clamp(1.25rem, 5vw, 5rem);
+  bottom: 7vh;
+  z-index: 2;
+  max-width: min(36vw, 30rem);
+  text-align: right;
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--bianco);
+  text-shadow: 0 0 18px rgba(5, 7, 15, 0.95);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.didascalia[data-vuota="true"] { opacity: 0; }
+@media (max-aspect-ratio: 1/1) {
+  .didascalia {
+    left: 0;
+    right: 0;
+    top: 47%;
+    bottom: auto;
+    max-width: none;
+    padding-inline: 1.25rem;
+    text-align: center;
+    font-size: var(--step--2);
+  }
+}
+
+/* strumenti di bordo */
+.bordo {
+  position: fixed;
+  right: clamp(0.75rem, 1.8vw, 1.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.4rem;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bordo ol { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.bordo a[data-bordo] { display: flex; align-items: center; justify-content: flex-end; gap: 0.7rem; padding: 0.15rem 0; }
+.bordo-punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--neutro-2);
+  transition: background-color 0.4s, box-shadow 0.4s, transform 0.4s;
+}
+.bordo-nome {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.3s, transform 0.3s, color 0.3s;
+}
+.bordo:hover .bordo-nome,
+.bordo a:focus-visible .bordo-nome,
+.bordo a[data-attiva="true"] .bordo-nome { opacity: 1; transform: none; }
+.bordo a[data-attiva="true"] .bordo-nome { color: var(--bianco); }
+.bordo a[data-attiva="true"] .bordo-punto { background: var(--celeste); box-shadow: 0 0 12px var(--celeste); transform: scale(1.4); }
+.bordo-salta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  border-bottom: 1px solid var(--bordo-forte);
+  padding-bottom: 2px;
+}
+.bordo-salta:hover { color: var(--bianco); }
+.bordo-mini {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 4.7rem;
+  z-index: 45;
+  display: none;
+  text-align: center;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  transition: opacity 0.5s;
+}
+html.in-orbita .bordo,
+html.in-orbita .bordo-mini { opacity: 0; pointer-events: none; }
+@media (max-aspect-ratio: 1/1), (max-width: 767px) {
+  .bordo { display: none; }
+  .bordo-mini { display: block; }
+}
+
+/* ---------- pagina normale (senza volo) ---------- */
+html:not(.volo) .tappa { position: relative; padding-block: clamp(3.5rem, 7vw, 6rem); }
+html:not(.volo) .tappa + .tappa { border-top: 1px solid var(--bordo); }
+html:not(.volo) .tappa--partenza {
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding-block: 8rem 5rem;
+}
+html:not(.volo) .quadro--sfondo { position: absolute; inset: 0; z-index: -1; }
+html:not(.volo) .quadro--lato {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+html:not(.volo) .quadro--lato + .quadro--lato { margin-top: 3.25rem; }
+html:not(.volo) .cost-statica {
+  width: min(100% - 2.5rem, 440px);
+  aspect-ratio: 1;
+  margin: 2.75rem auto;
+  padding: 1.25rem;
+  border: 1px solid var(--bordo);
+  border-radius: 22px;
+  background-color: color-mix(in srgb, #0C1330 80%, transparent);
+}
+html:not(.volo) .passi-statici {
+  max-width: 1280px;
+  margin: 2.5rem auto 0;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  gap: 0.55rem;
+  list-style: none;
+}
+html:not(.volo) .passi-statici li { display: flex; gap: 0.8rem; font-size: var(--step--1); }

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 const VOCI = [
   { href: '#perdite', label: 'Il problema' },
-  { href: '#cielo', label: 'Cosa facciamo' },
+  { href: '#preventivi', label: 'Le costellazioni' },
   { href: '#processo', label: 'Come si parte' },
   { href: '#conformita', label: 'Regole' },
   { href: '#domande', label: 'Domande' },
