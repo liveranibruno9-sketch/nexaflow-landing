@@ -20,7 +20,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       root
       options={{
         // piu morbido: la rotella scivola invece di scattare, come un carrello cinematografico
-        lerp: 0.075,
+        lerp: 0.07,
         smoothWheel: true,
         wheelMultiplier: 0.85,
         touchMultiplier: 1.6,

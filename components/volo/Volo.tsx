@@ -198,7 +198,7 @@ export default function Volo() {
     }
     const attesa = conIdle.requestIdleCallback ? conIdle.requestIdleCallback(carica, { timeout: 1800 }) : window.setTimeout(carica, 700)
 
-    /* ----- il ciclo: gira solo quando il volo e sullo schermo ----- */
+    /* ----- il ciclo: non si ferma mai finche la pagina e visibile ----- */
     let raf = 0
     let inVista = true
     let ultimo = performance.now()
@@ -212,8 +212,12 @@ export default function Volo() {
      * morbida, che insegue lo scroll con un'inerzia indipendente dai
      * fotogrammi. Lo scroll resta libero; e il racconto che scivola dietro,
      * con un filo di ritardo, come una camera su un carrello.
+     *
+     * Il cielo non si congela mai: da fermi la camera continua a fluttuare
+     * (vedi scena.ts) e nell'orbita, dietro le sezioni finali, lo spazio resta
+     * vivo. Quando non serve la piena fluidita si disegna un fotogramma su due.
      */
-    const INERZIA = 3.6 // piu basso = piu morbido e piu lento a fermarsi
+    const INERZIA = 3.2 // piu basso = piu morbido e piu lento a fermarsi
     const fotogramma = (ora: number) => {
       raf = 0
       const dt = Math.min(0.1, (ora - ultimo) / 1000)
@@ -222,24 +226,27 @@ export default function Volo() {
       if (uLiscio < 0) uLiscio = obiettivo
       uLiscio += (obiettivo - uLiscio) * (1 - Math.exp(-dt * INERZIA))
       if (Math.abs(obiettivo - uLiscio) < 0.01) uLiscio = obiettivo
-      aggiornaQuadri(uLiscio)
-      aggiornaBordo(uLiscio)
+      if (inVista) {
+        aggiornaQuadri(uLiscio)
+        aggiornaBordo(uLiscio)
+      }
 
       if (scena) {
         const inMoto = Math.abs(uLiscio - uPrima) > 0.002
         fermi = inMoto ? 0 : fermi + 1
-        // da fermo, dopo un secondo e mezzo, un fotogramma su due: lo scintillio non ha bisogno di 60 al secondo
-        if (fermi < 90 || fermi % 2 === 0) {
+        // piena fluidita mentre ci si muove; da fermi (dopo un secondo) o in orbita, 30 al secondo
+        const pieno = inVista && fermi < 60
+        if (pieno || fermi % 2 === 0) {
           const vivo = scena.aggiorna(uLiscio, Math.min(0.1, (ora - ultimaScena) / 1000), ora / 1000)
           ultimaScena = ora
           if (vivo) fermi = 0
         }
       }
       uPrima = uLiscio
-      if (inVista && !document.hidden) raf = requestAnimationFrame(fotogramma)
+      if (!document.hidden) raf = requestAnimationFrame(fotogramma)
     }
     const avvia = () => {
-      if (!raf && inVista && !document.hidden && html.classList.contains('volo')) raf = requestAnimationFrame(fotogramma)
+      if (!raf && !document.hidden && html.classList.contains('volo')) raf = requestAnimationFrame(fotogramma)
     }
     const ferma = () => {
       if (raf) cancelAnimationFrame(raf)
@@ -249,12 +256,9 @@ export default function Volo() {
     const osservatore = new IntersectionObserver(
       ([voce]) => {
         inVista = voce.isIntersecting
-        if (inVista) avvia()
-        else {
-          // ultimo aggiornamento prima di fermarsi: in orbita resta la scena d'arrivo
-          aggiornaBordo(uCorrente())
-          ferma()
-        }
+        // fuori dal volo i testi non servono: si aggiorna solo la tappa di bordo
+        if (!inVista) aggiornaBordo(uCorrente())
+        avvia()
       },
       { rootMargin: '10% 0px 10% 0px' },
     )

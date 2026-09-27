@@ -53,12 +53,11 @@ const FOV = 50
 const TAN = Math.tan(((FOV / 2) * Math.PI) / 180)
 const LATO = 5.4 // lato lungo di una costellazione, in unita del mondo
 const DISTANZA_MODULI = 100
-const Z_PRIMO_MODULO = -290
-const AVVICINAMENTO = 40
+const Z_PRIMO_MODULO = -310
 const RAGGIO_GALASSIA = 13
 const zGalassia = (i: number) => -60 - i * 45
 const zModulo = (i: number) => Z_PRIMO_MODULO - i * DISTANZA_MODULI
-const Z_ROTTA = [zModulo(5) - 80, zModulo(5) - 115, zModulo(5) - 150]
+const Z_ROTTA = [zModulo(5) - 45, zModulo(5) - 80, zModulo(5) - 115]
 const Z_FINE = Z_ROTTA[2] - 30
 
 /** colori fissi: non cambiano con la palette */
@@ -417,23 +416,31 @@ function percorso(imp: Impaginazione): Punto[] {
       punti.push({ u: f(0), z: zg + 26 }, { u: f(0.62), z: zg - 1 })
     }
     if (t.tipo === 'modulo') {
+      // Mai fermi, nemmeno sulle costellazioni. La camera entra appena
+      // oltre la figura precedente, si avvicina, rallenta mentre le stelle si
+      // collegano, continua a scivolare piano durante la luce (la figura
+      // cresce e si sposta di lato, come quando la stai superando) e la
+      // attraversa. Velocita (vh di scroll per unita del mondo, schermo
+      // largo, 1440x900): mai sotto 0.11, massimo 1.17. Scelte con un calcolo che
+      // tiene la figura grande mentre le stelle si collegano.
       const zc = zModulo(t.indice)
       punti.push(
-        { u: f(0), z: zc + imp.sosta + AVVICINAMENTO },
-        { u: f(0.34), z: zc + imp.sosta + 10 },
-        { u: f(0.7), z: zc + imp.sosta },
-        { u: f(0.94), z: zc + imp.sosta - 0.5 },
+        { u: f(0), z: zc + DISTANZA_MODULI - 5 },
+        { u: f(0.34), z: zc + imp.sosta + 18 },
+        { u: f(0.72), z: zc + imp.sosta + 4 },
+        { u: f(0.95), z: zc + imp.sosta - 4 },
       )
     }
     if (t.tipo === 'rotta') {
       punti.push(
-        { u: f(0), z: Z_ROTTA[0] + 16 },
+        { u: f(0), z: zModulo(5) - 5 },
         { u: f(0.33), z: Z_ROTTA[0] + 2 },
         { u: f(0.66), z: Z_ROTTA[1] + 2 },
-        { u: f(0.97), z: Z_ROTTA[2] + 2 },
+        { u: f(0.97), z: Z_ROTTA[2] + 1 },
       )
     }
-    if (t.tipo === 'arrivo') punti.push({ u: f(0), z: Z_ROTTA[2] - 4 }, { u: f(1), z: Z_FINE })
+    // l'arrivo rallenta dolcemente verso la nebulosa: il volo si posa, non si inchioda
+    if (t.tipo === 'arrivo') punti.push({ u: f(0), z: Z_ROTTA[2] - 3 }, { u: f(1), z: Z_FINE })
   }
   return punti
 }
@@ -1023,12 +1030,13 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     scarto.x += (mira.x - scarto.x) * (1 - Math.exp(-passo * 2.2))
     scarto.y += (mira.y - scarto.y) * (1 - Math.exp(-passo * 2.2))
     camera.position.set(
-      0.24 * Math.sin(uLiscio * 0.0095) + scarto.x * 0.35,
-      0.17 * Math.sin(uLiscio * 0.0071 + 1.2) + scarto.y * 0.25,
+      // oscillazione legata al percorso + un respiro nel tempo: anche da fermi la camera fluttua
+      0.24 * Math.sin(uLiscio * 0.0095) + 0.07 * Math.sin(tempo * 0.23) + scarto.x * 0.35,
+      0.17 * Math.sin(uLiscio * 0.0071 + 1.2) + 0.05 * Math.sin(tempo * 0.19 + 1.3) + scarto.y * 0.25,
       z,
     )
     // un rollio leggerissimo, come una camera a mano ferma: meno di un grado e mezzo
-    camera.rotation.z = 0.02 * Math.sin(uLiscio * 0.0042 + 0.6) + scarto.x * -0.012
+    camera.rotation.z = 0.02 * Math.sin(uLiscio * 0.0042 + 0.6) + 0.004 * Math.sin(tempo * 0.15) + scarto.x * -0.012
     // "effetto velocita": il campo visivo si allarga appena quando si scorre in fretta
     const fov = FOV + clamp(velocita * 0.03, 0, 7)
     if (Math.abs(camera.fov - fov) > 0.02) {
