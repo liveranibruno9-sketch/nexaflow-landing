@@ -8,19 +8,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Palette semantica: blu = quello che recuperi, arancio = quello che perdi,
-        // lime = il dato misurato. Vedi app/globals.css.
-        ink: { DEFAULT: '#080D18', 2: '#111A2E', 3: '#1B2740' },
-        paper: { DEFAULT: '#FAF6EF', 2: '#FFFFFF', 3: '#F1EBE0' },
-        slate2: { DEFAULT: '#5A6478', light: '#98A2B8', soft: '#C8CEDB' },
-        blu: { DEFAULT: '#2563FF', light: '#7DA2FF', dark: '#1441B8', tenue: '#E8EEFF' },
-        arancio: { DEFAULT: '#FF5A1F', ink: '#C63A0C', tenue: '#FFE9DF' },
-        lime: '#C9F24D',
-        ok: '#1FA971',
+        // Palette astrale con significato: blu = quello che recuperi,
+        // arancio = quello che perdi, giallo = la prova, celeste = il cielo.
+        // Vedi app/globals.css.
+        spazio: '#05070F',
+        notte: { DEFAULT: '#0C1330', 2: '#121B42' },
+        blu: { DEFAULT: '#2B63F5', luce: '#6E9BFF', scuro: '#1E4FD6' },
+        arancio: '#FF6B2C',
+        giallo: '#FFE24A',
+        celeste: '#9ED8FF',
+        bianco: '#F2F5FF',
+        neutro: { DEFAULT: '#8C96BC', 2: '#3A4470' },
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         serif: ['var(--font-serif)', 'Georgia', 'serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       fontSize: {
         's-2': 'var(--step--2)',

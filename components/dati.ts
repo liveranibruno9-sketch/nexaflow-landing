@@ -15,7 +15,21 @@ export const CONTATTO = {
   formspree: 'https://formspree.io/f/mrednjvj',
 }
 
+import type { ChiaveCostellazione } from './cielo/stelle'
+
 export type Post = { titolo: string; testo: string }
+
+/**
+ * La costellazione di ogni modulo. I PASSI sono le etichette delle stelle,
+ * nello stesso ordine in cui si accendono (vedi components/cielo/stelle.ts):
+ * devono essere tanti quante le stelle dell'ordine.
+ */
+export type Cielo = {
+  chiave: ChiaveCostellazione
+  nome: string
+  perche: string
+  passi: string[]
+}
 
 export type Modulo = {
   sigla: string
@@ -29,6 +43,7 @@ export type Modulo = {
   oreNota: string
   euro: string
   euroNota: string
+  cielo: Cielo
   posts: Post[]
 }
 
@@ -45,6 +60,21 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese di richiami che la segreteria non fa più a mano',
     euro: '1 impianto',
     euroNota: 'recuperato ripaga il servizio per più di un anno',
+    cielo: {
+      chiave: 'orione',
+      nome: 'Orione',
+      perche:
+        'Il cacciatore: va a riprendere quello che sembrava perso. Tre stelle nella cintura, tre messaggi in ventun giorni.',
+      passi: [
+        'Il preventivo è consegnato, e resta fermo',
+        'La segreteria lo segna sul foglio condiviso: dieci secondi',
+        'Primo messaggio: il preventivo c’è ancora',
+        'Secondo messaggio: esiste il pagamento dilazionato',
+        'Al ventunesimo giorno: vuole ancora parlarne?',
+        'Il paziente risponde',
+        'La segreteria viene avvisata',
+      ],
+    },
     posts: [
       {
         titolo: 'Il problema',
@@ -80,6 +110,20 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese di telefono tolte alla poltrona',
     euro: 'Migliaia',
     euroNota: 'di euro: è il valore nel tempo di un solo paziente implantologico',
+    cielo: {
+      chiave: 'lira',
+      nome: 'Lira',
+      perche:
+        'La lira di Orfeo: la costellazione della voce. La sua stella principale, Vega, è tra le più luminose del cielo.',
+      passi: [
+        'Lo studio è occupato, in pausa o chiuso',
+        'La chiamata passa all’assistente, sullo stesso numero',
+        'Si presenta subito come assistente virtuale',
+        'Dice orari, indirizzo e dove parcheggiare',
+        'Raccoglie nome, numero e motivo, e segnala subito le urgenze',
+        'Al mattino la segreteria trova l’elenco pronto',
+      ],
+    },
     posts: [
       {
         titolo: 'Il problema',
@@ -115,6 +159,22 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese di lavoro di lista che nessuno ha tempo di fare',
     euro: 'Archivio',
     euroNota: 'già pagato: sono pazienti che si sono già fidati una volta',
+    cielo: {
+      chiave: 'carro',
+      nome: 'Grande Carro',
+      perche:
+        'Le due stelle sul bordo del Carro puntano alla Stella Polare. Da secoli è il modo di ritrovare la strada di casa.',
+      passi: [
+        'Una volta a settimana legge lo storico delle visite',
+        'Salta chi è stato contattato negli ultimi tre mesi',
+        'Divide i pazienti in due gruppi',
+        'A chi è in scadenza di controllo scrive breve',
+        'A chi manca da oltre un anno e mezzo scrive con cautela',
+        'Tiene l’elenco di chi non è stato contattato, e perché',
+        'Il paziente risponde',
+        'Stella Polare: la seduta è prenotata',
+      ],
+    },
     posts: [
       {
         titolo: 'Il problema',
@@ -150,6 +210,18 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese di telefonate per riempire i buchi',
     euro: '80–200 €',
     euroNota: 'per ogni ora di poltrona che torna a produrre',
+    cielo: {
+      chiave: 'cassiopea',
+      nome: 'Cassiopea',
+      perche: 'La regina seduta sul trono. Qui il trono è la poltrona, e non deve restare vuota.',
+      passi: [
+        'Promemoria a due giorni, con due pulsanti',
+        'Promemoria a un giorno, solo a chi non ha confermato',
+        'Il paziente disdice, anche alle otto di sera',
+        'Offre il posto alla lista d’attesa, per una seduta della stessa durata',
+        'La poltrona torna occupata',
+      ],
+    },
     posts: [
       {
         titolo: 'Il problema',
@@ -185,6 +257,20 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese: scrivere risposte è il lavoro che nessuno vuole fare',
     euro: 'Canale #1',
     euroNota: 'di acquisizione nel dentale locale: chi cerca un dentista legge le recensioni',
+    cielo: {
+      chiave: 'corona',
+      nome: 'Corona Boreale',
+      perche: 'Una corona di sette stelle. La più luminosa si chiama Gemma: qui è la recensione che arriva.',
+      passi: [
+        'La visita si conclude',
+        'La richiesta parte a tutti, con il canale diretto nello stesso messaggio',
+        'Gemma: la recensione arriva',
+        'Il sistema prepara la bozza di risposta',
+        'Il titolare la approva in dieci secondi',
+        'La risposta è pubblicata',
+        'Il profilo si muove ogni settimana',
+      ],
+    },
     posts: [
       {
         titolo: 'Il problema',
@@ -220,6 +306,19 @@ export const MODULI: Modulo[] = [
     oreNota: 'al mese, negli studi con molti pazienti in convenzione diretta',
     euro: '8,6 milioni',
     euroNota: 'di assicurati dichiarati dal solo UniSalute: il bacino è enorme',
+    cielo: {
+      chiave: 'cigno',
+      nome: 'Cigno',
+      perche: 'Le sue stelle formano la Croce del Nord, una delle figure più regolari del cielo. Come una pratica fatta bene.',
+      passi: [
+        'Il paziente dice: “ho UniSalute”',
+        'Il sistema registra il fondo e la forma di convenzione',
+        'Consulta la tabella di quel fondo: niente di inventato',
+        'Prepara l’elenco esatto dei documenti',
+        'Blocca ogni messaggio che prometta una copertura',
+        'La pratica arriva in segreteria già pronta',
+      ],
+    },
     posts: [
       {
         titolo: 'Il problema',

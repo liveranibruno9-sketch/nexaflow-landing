@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 const VOCI = [
   { href: '#perdite', label: 'Il problema' },
-  { href: '#servizi', label: 'Cosa facciamo' },
+  { href: '#cielo', label: 'Cosa facciamo' },
   { href: '#processo', label: 'Come si parte' },
   { href: '#conformita', label: 'Regole' },
   { href: '#domande', label: 'Domande' },
@@ -32,23 +32,14 @@ export default function Nav() {
     <>
       {/* barra di progresso della lettura, CSS puro */}
       <div className="fixed inset-x-0 top-0 z-[60] h-[2px] bg-transparent">
-        <div className="barra-progresso h-full w-full origin-left bg-[var(--blu)]" />
+        <div className="barra-progresso h-full w-full origin-left bg-[linear-gradient(90deg,var(--blu),var(--celeste))]" />
       </div>
 
-      <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-soft ${
-          staccato ? 'py-2' : 'py-4'
-        }`}
-      >
+      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-soft ${staccato ? 'py-2' : 'py-4'}`}>
         <div className="wrap">
-          {/* In cima la barra e trasparente sopra l hero scuro, quindi il testo
-              deve essere chiaro. Appena si scorre compare la pillola di vetro
-              su fondo carta e il testo torna scuro. */}
           <div
-            className={`flex items-center justify-between rounded-full px-4 py-2.5 text-[var(--ink)] transition-all duration-500 ease-soft sm:px-5 ${
-              staccato
-                ? 'border border-[var(--bordo)] bg-[color-mix(in_srgb,#FAF6EF_80%,transparent)] shadow-[0_10px_34px_-20px_rgba(8,13,24,.5)] backdrop-blur-xl backdrop-saturate-150'
-                : 'border border-transparent'
+            className={`flex items-center justify-between rounded-full px-4 py-2.5 transition-all duration-500 ease-soft sm:px-5 ${
+              staccato ? 'vetro shadow-[0_14px_40px_-22px_rgba(0,0,0,.9)]' : 'border border-transparent'
             }`}
           >
             <a href="#top" className="flex items-center gap-2.5" aria-label="Agenti Studio, torna su">
@@ -58,11 +49,7 @@ export default function Nav() {
 
             <nav className="hidden items-center gap-7 md:flex" aria-label="Principale">
               {VOCI.map((v) => (
-                <a
-                  key={v.href}
-                  href={v.href}
-                  className="text-s-1 text-[var(--slate)] transition-colors hover:text-[var(--ink)]"
-                >
+                <a key={v.href} href={v.href} className="text-s-1 tenue transition-colors hover:text-[var(--bianco)]">
                   {v.label}
                 </a>
               ))}
@@ -77,7 +64,7 @@ export default function Nav() {
                 onClick={() => setAperto((v) => !v)}
                 aria-expanded={aperto}
                 aria-label={aperto ? 'Chiudi il menu' : 'Apri il menu'}
-                className="grid h-11 w-11 place-items-center rounded-full border border-[var(--bordo)] md:hidden"
+                className="grid h-11 w-11 place-items-center rounded-full border border-[var(--bordo-forte)] md:hidden"
               >
                 <span className="relative block h-3 w-4">
                   <span
@@ -99,7 +86,7 @@ export default function Nav() {
 
       {/* menu mobile */}
       <div
-        className={`fixed inset-0 z-40 bg-[var(--paper)] transition-opacity duration-400 ease-soft md:hidden ${
+        className={`fixed inset-0 z-40 bg-[color-mix(in_srgb,#05070F_96%,transparent)] backdrop-blur-xl transition-opacity duration-500 ease-soft md:hidden ${
           aperto ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
         }`}
       >
@@ -123,20 +110,14 @@ export default function Nav() {
   )
 }
 
-/** Il marchio non usa un riempimento fisso: funziona sia sul fondo scuro
- *  dell hero sia sulla pillola chiara quando si scorre. */
+/** Il marchio: la A di Agenti, con la barra arancione. Due stelle ai piedi. */
 function Marchio() {
   return (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true" className="shrink-0">
-      <rect x="0.7" y="0.7" width="26.6" height="26.6" rx="7.6" stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.4" />
-      <path
-        d="M8 19.5 L14 8 L20 19.5"
-        stroke="var(--blu)"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <rect x="0.7" y="0.7" width="26.6" height="26.6" rx="7.6" stroke="var(--celeste)" strokeOpacity="0.35" strokeWidth="1.4" />
+      <path d="M8 19.5 L14 8 L20 19.5" stroke="var(--blu-luce)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="14" cy="8" r="1.6" fill="var(--giallo)" />
     </svg>
   )
 }
