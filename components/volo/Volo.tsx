@@ -420,11 +420,12 @@ export default function Volo() {
                 <div className="wrap text-center">
                   <span className="occhiello text-[var(--verde)]">Le soluzioni</span>
                   <h2 className="display mx-auto mt-6 max-w-[17ch] text-[clamp(2.5rem,6vw,5.6rem)] leading-[0.98]">
-                    Ecco le soluzioni. <span className="testo-sfumato">Sei automazioni AI per lo studio dentistico.</span>
+                    Ecco la soluzione. <span className="testo-sfumato">Sei servizi per il suo studio dentistico.</span>
                   </h2>
                   <p className="mx-auto mt-7 max-w-[60ch] text-s1 leading-[1.45] text-[color-mix(in_srgb,var(--bianco)_86%,transparent)]">
-                    Segreteria AI per le chiamate perse, recupero dei preventivi, richiami dei pazienti, anti no-show,
-                    recensioni Google e pratiche dei fondi sanitari. Una per ogni perdita, e ognuna si misura ogni mese.
+                    Una segreteria che risponde alle chiamate perse, il recupero dei preventivi, i richiami dei pazienti,
+                    l’anti no-show, le recensioni Google e le pratiche dei fondi sanitari. Uno per ogni perdita, e ognuno
+                    si misura ogni mese.
                   </p>
                 </div>
               </div>
