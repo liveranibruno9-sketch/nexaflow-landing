@@ -3,3 +3,6 @@ node_modules/
 .env.local
 .env
 out/
+
+# immagini originali scaricate, non servono al sito
+_sorgenti/

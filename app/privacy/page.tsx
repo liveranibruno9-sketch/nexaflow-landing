@@ -13,7 +13,7 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
     corpo: (
       <p>
         Bruno Liverani, Faenza (RA). Contatto:{' '}
-        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu)]">
+        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu-luce)]">
           {CONTATTO.email}
         </a>
       </p>
@@ -60,7 +60,7 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
           href="https://formspree.io/legal/privacy-policy/"
           target="_blank"
           rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-[var(--blu)]"
+          className="underline underline-offset-2 hover:text-[var(--blu-luce)]"
         >
           termini privacy
         </a>
@@ -85,7 +85,7 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
       <p>
         Può chiedere in qualsiasi momento accesso, rettifica o cancellazione dei suoi dati, oppure opporsi al
         trattamento, scrivendo a{' '}
-        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu)]">
+        <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu-luce)]">
           {CONTATTO.email}
         </a>
         . Ha inoltre diritto di proporre reclamo al Garante per la protezione dei dati personali.
@@ -107,21 +107,21 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
 
 export default function Privacy() {
   return (
-    <main className="min-h-screen bg-[var(--paper)]">
+    <main className="min-h-screen bg-transparent">
       <div className="wrap max-w-3xl py-20 sm:py-28">
-        <a href="/" className="text-s-1 text-[var(--blu)] transition-colors hover:text-[var(--blu-3)]">
+        <a href="/" className="text-s-1 text-[var(--blu-luce)] transition-colors hover:text-[var(--celeste)]">
           ← Torna al sito
         </a>
 
         <h1 className="serif mt-8 text-s4">Privacy policy</h1>
-        <p className="mt-3 text-s-1 text-[var(--slate)]">Ultimo aggiornamento: settembre 2026</p>
+        <p className="mt-3 text-s-1 text-[var(--neutro)]">Ultimo aggiornamento: settembre 2026</p>
         <div className="filetto mt-8" />
 
         <div className="mt-12 space-y-10">
           {SEZIONI.map((s) => (
             <section key={s.titolo}>
               <h2 className="text-s1 font-medium tracking-[-0.02em]">{s.titolo}</h2>
-              <div className="mt-3 text-s0 leading-relaxed text-[var(--slate)]">{s.corpo}</div>
+              <div className="mt-3 text-s0 leading-relaxed text-[var(--neutro)]">{s.corpo}</div>
             </section>
           ))}
         </div>

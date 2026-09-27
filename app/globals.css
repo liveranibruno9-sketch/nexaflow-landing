@@ -3,47 +3,83 @@
 @tailwind utilities;
 
 /* ============================================================
-   AGENTI STUDIO — sistema di design v2
+   AGENTI STUDIO — sistema di design "astrale"
    ------------------------------------------------------------
-   Palette "Inchiostro, blu recupero, arancio perdita".
-   Il colore non e decorazione, e informazione:
-     BLU     = quello che il sistema ti restituisce (azione, risultato)
-     ARANCIO = quello che stai perdendo oggi (problema, urgenza)
-     LIME    = il dato misurato, la prova
-   Chi legge impara la convenzione in tre secondi e da li ogni numero
-   arancione sulla pagina lavora per la conversione.
-   Riferimento: 10-frameworks/web-elite/08-blueprint-sito-elite.md
+   Il colore e informazione, come nel sito precedente:
+     BLU      = quello che il sistema recupera (azioni, risultati)
+     ARANCIO  = quello che lo studio perde (problema, stelle spente)
+     GIALLO   = la prova, il dato misurato (usato pochissimo)
+     CELESTE  = la struttura del cielo: linee e stelle
+   Contrasti su #05070F: bianco ~18, celeste 13.1, blu-luce 7.5,
+   arancio 7.1, neutro 6.9. Tutti oltre la soglia AA di 4.5.
+   Design: vault 20-projects/sito-agentistudio/astrale/design.md
    ============================================================ */
 
 :root {
-  /* --- base --- */
-  --ink:      #080D18;
-  --ink-2:    #111A2E;
-  --ink-3:    #1B2740;
-  --paper:    #FAF6EF;
-  --paper-2:  #FFFFFF;
-  --paper-3:  #F1EBE0;
+  /* --- profondita --- */
+  --spazio:   #05070F;
+  --notte:    #0F0B2A;  /* notte con una punta di viola, per l'aurora */
+  --notte-2:  #171038;
 
-  /* --- neutri tinti (mai grigi puri: hanno dentro la dominante) --- */
-  --slate:    #5A6478;
-  --slate-2:  #98A2B8;
-  --slate-3:  #C8CEDB;
+  /* --- PALETTE "AURORA ULTRAVIOLETTA" (base) ---
+     Tutti i colori del tema stanno qui: anche la scena 3D li legge da queste
+     variabili. Due alternative si provano dal link: ?palette=ciano, ?palette=bianco
+     (le imposta lo script in <head>, vedi app/layout.tsx).
+     Contrasti su #05070F: accento ~15, azione-luce 8.7, neutro 7.4;
+     testo bianco sul pulsante #6D3BFF 5.6. Tutti oltre la soglia AA di 4.5. */
+  --accento:      #3DF2FF;  /* la struttura del cielo: linee, stelle accese, etichette */
+  --azione:       #6D3BFF;  /* pulsanti */
+  --azione-scuro: #5A2BE0;
+  --azione-luce:  #B39BFF;  /* testo d'accento */
+  --nebula-1:     #7B2CFF;
+  --nebula-2:     #FF3DCB;
+  --nebula-3:     #2D4BFF;
+  --titolo-sfumato: linear-gradient(95deg, #B39BFF 0%, #FF6AD5 48%, #3DF2FF 100%);
+  --neutro-2: #3E3670;
 
-  /* --- freddo: quello che recuperi --- */
-  --blu:      #2563FF;
-  --blu-2:    #7DA2FF;
-  --blu-3:    #1441B8;
-  --blu-tenue:#E8EEFF;
+  /* --- testo: bianco perla, in tutte le palette ---
+     Il colore resta allo spazio; il testo e perla classico, piu professionale.
+     Contrasti su #05070F: perla ~18, perla secondario ~12. */
+  --bianco:   #F7F5F0;  /* titoli e testo principale */
+  --neutro:   #C9C6BF;  /* testo secondario: perla attenuato, non grigio freddo */
 
-  /* --- caldo: quello che perdi --- */
-  --arancio:      #FF5A1F;   /* su fondo scuro, grafica, cifre grandi */
-  --arancio-ink:  #C63A0C;   /* versione leggibile come testo su carta */
-  --arancio-tenue:#FFE9DF;
+  /* --- significati che non cambiano con la palette --- */
+  --arancio:    #FF6B2C;  /* quello che lo studio perde */
+  --verde:      #4AE89A;  /* quello che lo studio guadagna, il dato misurato: smeraldo chiaro */
+  --verde-luce: #A6F7CF;
+  --giallo:     #FFE24A;  /* resta solo per qualche stella del fondo */
 
-  /* --- acido: la prova misurata. Solo su fondo scuro --- */
-  --lime:     #C9F24D;
+  /* --- VETRI SPAZIALI: il fondo di tutti i riquadri ---
+     Trasparenti, con una punta del colore della nebulosa: lo spazio si vede
+     attraverso e il riquadro sembra fluttuare. Il bordo e un filo di luce
+     sfumato, ben definito. Niente sfocatura dietro (costa a ogni fotogramma
+     del volo): solo la barra fissa in alto ce l'ha.
+     Tre toni:
+       nebulosa  riquadri delle costellazioni, pannelli principali (viola)
+       abisso    schede di contenuto (blu profondo, piu scuro e quieto)
+       aurora    barra fissa, modulo, report: i punti d'azione (iridescente) */
+  --vetro-nebulosa:
+    linear-gradient(180deg, rgb(255 255 255 / 0.045), transparent 32%),
+    linear-gradient(150deg, color-mix(in srgb, var(--nebula-1) 20%, transparent), color-mix(in srgb, var(--notte) 58%, transparent) 45%, color-mix(in srgb, var(--spazio) 72%, transparent));
+  --filo-nebulosa: linear-gradient(140deg, color-mix(in srgb, var(--azione-luce) 62%, transparent), color-mix(in srgb, var(--nebula-1) 16%, transparent) 42%, color-mix(in srgb, var(--accento) 34%, transparent));
+  --vetro-abisso:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 30%),
+    linear-gradient(165deg, color-mix(in srgb, var(--nebula-3) 13%, transparent), color-mix(in srgb, var(--notte) 62%, transparent) 48%, color-mix(in srgb, var(--spazio) 78%, transparent));
+  --filo-abisso: linear-gradient(160deg, color-mix(in srgb, var(--azione-luce) 40%, transparent), color-mix(in srgb, var(--accento) 10%, transparent) 50%, color-mix(in srgb, var(--nebula-1) 30%, transparent));
+  --vetro-aurora:
+    linear-gradient(180deg, rgb(255 255 255 / 0.06), transparent 36%),
+    linear-gradient(120deg, color-mix(in srgb, var(--nebula-1) 24%, transparent), color-mix(in srgb, var(--nebula-2) 7%, transparent) 48%, color-mix(in srgb, var(--accento) 10%, transparent)),
+    color-mix(in srgb, var(--spazio) 62%, transparent);
+  --filo-aurora: linear-gradient(110deg, color-mix(in srgb, var(--azione-luce) 70%, transparent), color-mix(in srgb, var(--nebula-2) 40%, transparent) 46%, color-mix(in srgb, var(--accento) 62%, transparent));
 
-  --ok:       #1FA971;
+  /* nomi storici, ancora usati dai componenti: puntano ai ruoli sopra */
+  --celeste:    var(--accento);
+  --blu:        var(--azione);
+  --blu-scuro:  var(--azione-scuro);
+  --blu-luce:   var(--azione-luce);
+
+  --bordo:       color-mix(in srgb, var(--accento) 13%, transparent);
+  --bordo-forte: color-mix(in srgb, var(--accento) 26%, transparent);
 
   /* --- scala tipografica fluida (quarta perfetta, 1.333) --- */
   --step--2: clamp(0.69rem, 0.67rem + 0.10vw, 0.75rem);
@@ -57,22 +93,61 @@
   --step-6:  clamp(3.81rem, 2.75rem + 5.30vw, 7.01rem);
 
   --sezione: clamp(5.5rem, 11vw, 11rem);
-  --bordo:   color-mix(in srgb, #080D18 10%, transparent);
-  --bordo-scuro: color-mix(in srgb, #ffffff 13%, transparent);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --font-sans: 'Inter Variable';
-  --font-serif: 'Instrument Serif';
+  /* --font-sans, --font-serif e --font-mono li definisce next/font
+     sull'elemento <html> (vedi app/layout.tsx) */
+}
+
+/* palette alternative, da provare dal link */
+html[data-palette="ciano"] {
+  --notte: #0C1330;
+  --notte-2: #121B42;
+  --accento: #1FE3FF;
+  --azione: #2B63F5;
+  --azione-scuro: #1E4FD6;
+  --azione-luce: #6E9BFF;
+  --nebula-1: #1433E6;
+  --nebula-2: #19D3FF;
+  --nebula-3: #2B63F5;
+  --titolo-sfumato: linear-gradient(95deg, #6E9BFF 0%, #1FE3FF 100%);
+  --neutro-2: #3A4470;
+}
+html[data-palette="bianco"] {
+  --notte: #0C1330;
+  --notte-2: #121B42;
+  --accento: #FFFFFF;
+  --azione: #2B63F5;
+  --azione-scuro: #1E4FD6;
+  --azione-luce: #8FB0FF;
+  --nebula-1: #2451FF;
+  --nebula-2: #4B2BFF;
+  --nebula-3: #2B63F5;
+  --titolo-sfumato: linear-gradient(95deg, #8FB0FF 0%, #FFFFFF 100%);
+  --neutro-2: #3A4470;
+}
+
+/* titolo con la sfumatura della palette */
+.testo-sfumato {
+  background-image: var(--titolo-sfumato);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 * { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  background: var(--spazio);
+  color-scheme: dark;
+}
 
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--spazio);
+  color: var(--bianco);
   font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: var(--step-0);
   line-height: 1.6;
@@ -94,27 +169,78 @@ h1, h2, h3, h4 {
 p { text-wrap: pretty; margin: 0; }
 a { color: inherit; text-decoration: none; }
 
+/* il cielo sta dietro a tutto; il contenuto sopra */
+.cielo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* strati piu alti del viewport: salendo con la parallasse non scoprono il fondo.
+   100lvh = viewport "grande" dei telefoni, non cambia con la barra degli indirizzi */
+.cielo-strato {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 135vh;
+  height: 135lvh;
+}
+.cielo-strato canvas { display: block; width: 100%; height: 100%; }
+.scintilla { position: absolute; border-radius: 50%; opacity: 0.55; }
+@media (prefers-reduced-motion: no-preference) {
+  .scintilla { animation: scintilla 4s ease-in-out infinite alternate; }
+}
+@keyframes scintilla { from { opacity: 0.12; } to { opacity: 0.9; } }
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cielo-strato-1,
+    .cielo-strato-2 { will-change: transform; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: scroll(root block); }
+    .cielo-strato-1 { animation-name: deriva-media; }
+    .cielo-strato-2 { animation-name: deriva-vicina; }
+  }
+}
+@keyframes deriva-media { to { transform: translateY(-14vh); } }
+@keyframes deriva-vicina { to { transform: translateY(-32vh); } }
+
+.pagina { position: relative; z-index: 1; }
+
 @layer components {
   /* ============================================================
      TIPOGRAFIA
      ============================================================ */
 
-  .serif { font-family: var(--font-serif), Georgia, "Times New Roman", serif; font-weight: 400; }
+  /* variante "profondita": i titoli (anche quelli con la vecchia classe .serif)
+     sono in Space Grotesk, stretto e deciso */
+  .serif,
+  .display {
+    font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.045em;
+  }
+  .mono { font-family: var(--font-mono), ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; }
 
+  /* etichetta "da strumento di bordo": l'unico posto dove si usa il maiuscolo */
   .occhiello {
+    font-family: var(--font-mono), ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
     font-size: var(--step--2);
     text-transform: uppercase;
-    letter-spacing: 0.17em;
+    letter-spacing: 0.14em;
     font-weight: 500;
-    color: var(--slate);
+    color: var(--celeste);
     display: block;
   }
 
   .num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
   .misura { max-width: 62ch; }
+  .tenue { color: var(--neutro); }
 
   /* ============================================================
-     LAYOUT
+     LAYOUT E PROFONDITA
+     Tre livelli al posto di chiaro/scuro: spazio, notte, nebulosa.
+     Mai tre sezioni consecutive dello stesso livello.
      ============================================================ */
 
   .wrap {
@@ -126,51 +252,76 @@ a { color: inherit; text-decoration: none; }
 
   .sezione { padding-block: var(--sezione); }
 
-  .scuro { background: var(--ink); color: var(--paper); }
-  .scuro .occhiello { color: var(--blu-2); }
-  .scuro p { color: color-mix(in srgb, #FAF6EF 76%, transparent); }
-
-  /* Trama: il pseudo-elemento e posizionato, quindi verrebbe dipinto sopra
-     il contenuto non posizionato. I figli diretti diventano relative. */
-  .grana { position: relative; }
-  .grana > * { position: relative; }
-  .grana::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.5;
-    background-image: radial-gradient(color-mix(in srgb, #2563FF 20%, transparent) 0.6px, transparent 0.6px);
-    background-size: 24px 24px;
-    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 76%);
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 0%, transparent 76%);
-  }
-  .scuro.grana::before {
-    background-image: radial-gradient(color-mix(in srgb, #7DA2FF 34%, transparent) 0.6px, transparent 0.6px);
-  }
-
-  /* alone luminoso dietro l'hero: da profondita senza immagini */
-  .alone { position: relative; isolation: isolate; }
-  .alone::after {
-    content: "";
-    position: absolute;
-    z-index: -1;
-    inset: -30% -10% auto -10%;
-    height: 90%;
-    pointer-events: none;
+  /* fascia di sezione: una velatura, non un muro. Lo spazio si vede attraverso */
+  .livello-notte {
     background:
-      radial-gradient(45% 55% at 16% 22%, color-mix(in srgb, #2563FF 16%, transparent), transparent 70%),
-      radial-gradient(40% 50% at 84% 8%, color-mix(in srgb, #FF5A1F 13%, transparent), transparent 72%);
-    filter: blur(34px);
-  }
-  .scuro.alone::after {
-    background:
-      radial-gradient(45% 55% at 18% 25%, color-mix(in srgb, #2563FF 34%, transparent), transparent 70%),
-      radial-gradient(38% 48% at 82% 12%, color-mix(in srgb, #FF5A1F 22%, transparent), transparent 72%);
+      radial-gradient(60% 50% at 85% 0%, color-mix(in srgb, var(--nebula-1) 12%, transparent), transparent 70%),
+      linear-gradient(180deg, transparent, color-mix(in srgb, var(--notte) 42%, transparent) 18%, color-mix(in srgb, var(--notte) 42%, transparent) 82%, transparent);
   }
 
-  .filetto { height: 2px; width: 46px; background: linear-gradient(90deg, var(--blu), transparent); }
+  .filetto { height: 2px; width: 46px; background: linear-gradient(90deg, var(--blu-luce), transparent); }
   .filetto-caldo { background: linear-gradient(90deg, var(--arancio), transparent); }
+
+  /* ------------------------------------------------------------
+     VETRI SPAZIALI (vedi i toni in :root)
+     Il bordo e un filo di luce sfumato disegnato da ::before con una
+     maschera: un bordo sfumato "normale" (background border-box)
+     trasparirebbe dentro il riquadro trasparente e lo tingerebbe tutto.
+     ------------------------------------------------------------ */
+  .vetro,
+  .card,
+  .vetro-nebulosa {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid transparent;
+    box-shadow:
+      0 30px 80px -48px color-mix(in srgb, var(--nebula-1) 55%, transparent),
+      0 16px 40px -28px rgb(0 0 0 / 0.85);
+  }
+  .vetro::before,
+  .card::before,
+  .vetro-nebulosa::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--filo-abisso);
+    -webkit-mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    -webkit-mask-clip: content-box, border-box;
+    -webkit-mask-composite: xor;
+    mask-image: linear-gradient(#000 0 0), linear-gradient(#000 0 0);
+    mask-clip: content-box, border-box;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* aurora: barra fissa, modulo, report */
+  .vetro { background: var(--vetro-aurora); }
+  .vetro::before { background: var(--filo-aurora); }
+
+  /* abisso: le schede di contenuto */
+  .card { background: var(--vetro-abisso); border-radius: 22px; }
+
+  /* nebulosa: i riquadri delle costellazioni */
+  .vetro-nebulosa { background: var(--vetro-nebulosa); }
+  .vetro-nebulosa::before { background: var(--filo-nebulosa); }
+
+  /* solo la barra fissa sfoca quello che le passa sotto: e piccola, costa poco */
+  .vetro-barra {
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+  }
+
+  /* reticolo da carta celeste, per i pannelli delle costellazioni */
+  .reticolo {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-position: center;
+  }
 
   /* ============================================================
      COMPONENTI
@@ -197,20 +348,17 @@ a { color: inherit; text-decoration: none; }
   .btn-primario {
     background: var(--blu);
     color: #fff;
-    box-shadow: 0 1px 2px rgba(8,13,24,.2), 0 12px 30px -12px color-mix(in srgb, #2563FF 75%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--azione-luce) 40%, transparent),
+                0 14px 38px -12px color-mix(in srgb, var(--azione) 80%, transparent);
   }
   .btn-primario:hover {
-    background: var(--blu-3);
-    box-shadow: 0 2px 6px rgba(8,13,24,.24), 0 20px 42px -14px color-mix(in srgb, #2563FF 85%, transparent);
+    background: var(--blu-scuro);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accento) 50%, transparent),
+                0 20px 48px -14px color-mix(in srgb, var(--azione) 95%, transparent);
   }
 
-  .btn-fantasma { border-color: var(--bordo); color: var(--ink); background: transparent; }
-  .btn-fantasma:hover { border-color: color-mix(in srgb, #080D18 28%, transparent); background: color-mix(in srgb, #080D18 3%, transparent); }
-  .scuro .btn-fantasma { border-color: var(--bordo-scuro); color: var(--paper); }
-  .scuro .btn-fantasma:hover { border-color: color-mix(in srgb, #fff 36%, transparent); background: color-mix(in srgb, #fff 7%, transparent); }
-
-  .card { background: var(--paper-2); border: 1px solid var(--bordo); border-radius: 22px; }
-  .scuro .card { background: var(--ink-2); border-color: var(--bordo-scuro); }
+  .btn-fantasma { border-color: var(--bordo-forte); color: var(--bianco); background: transparent; }
+  .btn-fantasma:hover { border-color: color-mix(in srgb, var(--accento) 50%, transparent); background: color-mix(in srgb, var(--accento) 7%, transparent); }
 
   .chip {
     display: inline-flex;
@@ -220,79 +368,19 @@ a { color: inherit; text-decoration: none; }
     border-radius: 999px;
     font-size: var(--step--2);
     font-weight: 500;
-    border: 1px solid var(--bordo);
-    background: color-mix(in srgb, #ffffff 72%, transparent);
+    border: 1px solid color-mix(in srgb, var(--azione-luce) 30%, transparent);
+    background: linear-gradient(120deg, color-mix(in srgb, var(--nebula-1) 16%, transparent), color-mix(in srgb, var(--accento) 5%, transparent));
     white-space: nowrap;
   }
-  .scuro .chip { border-color: var(--bordo-scuro); background: color-mix(in srgb, #fff 6%, transparent); }
 
   /* ============================================================
-     CAROSELLO
-     La barra di scorrimento resta VISIBILE: senza, chi consulta il
-     sito non capisce che ci sono altre schede e l'ultima resta tagliata.
-     Lo spaziatore finale permette all'ultima scheda di allinearsi a
-     sinistra invece di fermarsi contro il bordo.
-     ============================================================ */
-
-  .carosello {
-    display: flex;
-    gap: clamp(0.75rem, 1.6vw, 1.25rem);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline-start: clamp(1.25rem, 4vw, 3rem);
-    -webkit-overflow-scrolling: touch;
-    padding-block: 4px 18px;
-    scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, #2563FF 60%, transparent) transparent;
-  }
-  .carosello::-webkit-scrollbar { height: 6px; }
-  .carosello::-webkit-scrollbar-track { background: color-mix(in srgb, #080D18 8%, transparent); border-radius: 99px; }
-  .scuro .carosello::-webkit-scrollbar-track { background: color-mix(in srgb, #ffffff 12%, transparent); }
-  .carosello::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, #2563FF 60%, transparent);
-    border-radius: 99px;
-  }
-  .carosello::-webkit-scrollbar-thumb:hover { background: var(--blu); }
-
-  .carosello > * { flex: 0 0 min(84%, 330px); scroll-snap-align: start; }
-  .carosello--largo > * { flex: 0 0 min(88%, 430px); }
-  /* spaziatore: l'ultima scheda deve poter arrivare a sinistra */
-  .carosello::after {
-    content: "";
-    flex: 0 0 clamp(1.25rem, 4vw, 3rem);
-    scroll-snap-align: none;
-  }
-
-  .freccia-car {
-    display: grid;
-    place-items: center;
-    width: 40px; height: 40px;
-    border-radius: 999px;
-    border: 1px solid var(--bordo);
-    color: var(--ink);
-    transition: background-color .3s var(--ease), border-color .3s var(--ease), opacity .3s var(--ease);
-  }
-  .freccia-car:hover { background: color-mix(in srgb, #080D18 5%, transparent); border-color: color-mix(in srgb, #080D18 28%, transparent); }
-  .freccia-car[disabled] { opacity: .3; cursor: default; }
-  .scuro .freccia-car { border-color: var(--bordo-scuro); color: var(--paper); }
-  .scuro .freccia-car:hover { background: color-mix(in srgb, #fff 9%, transparent); border-color: color-mix(in srgb, #fff 34%, transparent); }
-
-  .car-barra { height: 2px; flex: 1; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, #080D18 12%, transparent); }
-  .scuro .car-barra { background: color-mix(in srgb, #ffffff 14%, transparent); }
-  .car-barra__fill { height: 100%; border-radius: 99px; background: var(--blu); transition: width .2s ease-out; }
-  .scuro .car-barra__fill { background: var(--blu-2); }
-  .car-stato { flex-shrink: 0; font-size: var(--step--2); color: var(--slate); }
-  .scuro .car-stato { color: color-mix(in srgb, #FAF6EF 52%, transparent); }
-
-  /* ============================================================
-     MARQUEE — striscia infinita. Il contenuto va duplicato due volte
-     nel markup, altrimenti alla fine del ciclo si vede il salto.
+     MARQUEE — il contenuto e duplicato due volte nel markup,
+     altrimenti alla fine del ciclo si vede il salto.
      ============================================================ */
 
   .marquee { display: flex; width: max-content; }
   @media (prefers-reduced-motion: no-preference) {
-    .marquee { animation: scorri-marquee 46s linear infinite; }
+    .marquee { animation: scorri-marquee 60s linear infinite; }
     .marquee:hover { animation-play-state: paused; }
   }
   @keyframes scorri-marquee { to { transform: translateX(-50%); } }
@@ -303,16 +391,21 @@ a { color: inherit; text-decoration: none; }
      invece di sparire per sempre.
      ============================================================ */
 
-  /* rivelazione del titolo per righe, da dietro una maschera */
   .riga { display: block; overflow: hidden; padding-block: 0.06em; }
   .riga > span { display: block; }
 
   @keyframes sali { from { transform: translateY(108%); } to { transform: none; } }
-  @keyframes comparsa { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
-  @keyframes comparsa-scala { from { opacity: 0; transform: translateY(34px) scale(0.975); } to { opacity: 1; transform: none; } }
-  @keyframes esci-in-profondita { to { transform: scale(0.93) translateY(-1.5vh); opacity: 0.3; filter: blur(3px); } }
-  @keyframes cresci-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  @keyframes deriva { to { transform: translateY(-12%); } }
+  @keyframes comparsa { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+  @keyframes comparsa-scala { from { opacity: 0; transform: translateY(30px) scale(0.975); } to { opacity: 1; transform: none; } }
+  @keyframes traccia { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+  /* la stella della perdita: parte accesa e celeste, si spegne in arancione.
+     Lo stato di base (senza supporto) e quello finale. */
+  @keyframes spegni {
+    from { color: var(--celeste); opacity: 1; transform: scale(1.12); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accento) 70%, transparent)); }
+    to   { color: var(--arancio); opacity: 0.6; transform: scale(0.86); filter: none; }
+  }
+  .stella-perdita { color: var(--arancio); opacity: 0.6; transform: scale(0.86); }
 
   @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
@@ -323,7 +416,6 @@ a { color: inherit; text-decoration: none; }
       }
       .riga:nth-child(2) > span { animation-range: entry 3% cover 26%; }
       .riga:nth-child(3) > span { animation-range: entry 6% cover 30%; }
-      .riga:nth-child(4) > span { animation-range: entry 9% cover 34%; }
 
       .rivela {
         animation: comparsa linear both;
@@ -339,10 +431,17 @@ a { color: inherit; text-decoration: none; }
       .rit-2 { animation-range: entry 12% cover 34%; }
       .rit-3 { animation-range: entry 16% cover 38%; }
 
-      .parallasse {
-        animation: deriva linear both;
+      .stella-perdita {
+        animation: spegni linear both;
         animation-timeline: view();
-        animation-range: cover 0% cover 100%;
+        animation-range: entry 30% cover 60%;
+      }
+
+      .rotta-traccia {
+        stroke-dasharray: 1;
+        animation: traccia linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 55%;
       }
     }
   }
@@ -356,20 +455,86 @@ a { color: inherit; text-decoration: none; }
       }
     }
   }
+  @keyframes cresci-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-  /* --- pila sticky --- */
-  .pila { display: grid; gap: clamp(1rem, 2vw, 1.5rem); }
-  .pila > .strato { position: sticky; top: clamp(4.5rem, 12vh, 7.5rem); }
+  /* ============================================================
+     COSTELLAZIONI
+     Le transizioni si attivano solo dopo l'idratazione (data-animabile),
+     cosi al primo caricamento non si vede il cielo che si spegne.
+     ============================================================ */
 
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
-      .pila > .strato {
-        animation: esci-in-profondita linear both;
-        animation-timeline: view();
-        animation-range: exit-crossing 0% exit-crossing 100%;
-      }
-    }
+  .cost { width: 100%; height: 100%; overflow: visible; display: block; }
+
+  .cost .linea {
+    stroke: var(--celeste);
+    stroke-width: 0.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0.8;
   }
+  .cost .linea[data-accesa="true"] { stroke-dashoffset: 0; }
+  .cost .linea--tratteggiata {
+    stroke-dasharray: 0.02 0.03;
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  .cost .linea--tratteggiata[data-accesa="true"] { opacity: 0.7; }
+
+  .cost .stella-nucleo,
+  .cost .stella-alone,
+  .cost .stella-anello {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .cost .stella-nucleo { fill: var(--bianco); }
+  .cost .stella-alone { opacity: 0.8; }
+  .cost .stella-anello { fill: none; stroke: var(--celeste); stroke-width: 0.35; opacity: 0; transform: scale(0.6); }
+  .cost .stella-numero {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 5.6px; /* telefono: la figura e piccola, il numero deve restare leggibile */
+    fill: var(--neutro);
+    font-weight: 500;
+  }
+  @media (min-width: 1024px) {
+    .cost .stella-numero { font-size: 3.8px; }
+  }
+
+  .cost [data-stato="spenta"] .stella-nucleo { fill: var(--arancio); opacity: 0.5; transform: scale(0.72); }
+  .cost [data-stato="spenta"] .stella-alone { opacity: 0; }
+  .cost [data-stato="accesa"] .stella-numero,
+  .cost [data-stato="finale"] .stella-numero { fill: var(--bianco); }
+  .cost [data-stato="finale"] .stella-nucleo { fill: var(--verde); transform: scale(1.15); }
+  .cost [data-stato="finale"] .stella-alone { opacity: 1; transform: scale(1.25); }
+  .cost [data-corrente="true"] .stella-anello { opacity: 0.9; transform: scale(1); }
+
+  .cost--compatta .linea { stroke-width: 0.7; }
+
+  [data-animabile="true"] .cost .linea { transition: stroke-dashoffset 0.7s var(--ease), opacity 0.6s var(--ease); }
+  [data-animabile="true"] .cost .stella-nucleo,
+  [data-animabile="true"] .cost .stella-alone,
+  [data-animabile="true"] .cost .stella-anello,
+  [data-animabile="true"] .cost .stella-numero {
+    transition: fill 0.6s var(--ease), opacity 0.6s var(--ease), transform 0.6s var(--ease);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-animabile="true"] .cost [data-corrente="true"] .stella-anello { animation: pulsa 1.8s var(--ease) infinite; }
+  }
+  @keyframes pulsa {
+    0%   { transform: scale(0.85); opacity: 0.95; }
+    70%  { transform: scale(1.6);  opacity: 0; }
+    100% { transform: scale(1.6);  opacity: 0; }
+  }
+
+  /* mappa del cielo: le mini costellazioni si accendono al passaggio */
+  .mappa-voce .cost { opacity: 0.72; transition: opacity 0.5s var(--ease), transform 0.5s var(--ease); }
+  .mappa-voce:hover .cost,
+  .mappa-voce:focus-visible .cost { opacity: 1; transform: scale(1.04); }
+
+  /* ============================================================
+     ACCESSIBILITA
+     ============================================================ */
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -378,15 +543,326 @@ a { color: inherit; text-decoration: none; }
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
-    .pila > .strato { position: static; }
     .riga > span { transform: none !important; }
   }
 
-  /* --- dettagli --- */
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
   details[open] .piu { transform: rotate(45deg); }
 
-  :focus-visible { outline: 2px solid var(--blu); outline-offset: 3px; border-radius: 4px; }
-  .scuro :focus-visible { outline-color: var(--blu-2); }
+  :focus-visible { outline: 2px solid var(--celeste); outline-offset: 3px; border-radius: 4px; }
 }
+
+/* =====================================================================
+   IL VOLO — variante "profondita"
+   ---------------------------------------------------------------------
+   html.volo       volo 3D: palco sticky, quadri che compaiono e svaniscono
+   html:not(.volo) pagina normale: le tappe una sotto l'altra
+   La classe la decide uno script in <head> prima del primo disegno.
+   ===================================================================== */
+
+html:not(.volo) .solo-volo { display: none !important; }
+html.volo .solo-statico { display: none !important; }
+
+/* la scena 3D: fissa dietro al contenuto, dentro .pagina (z-index -1: sotto
+   anche ai blocchi non posizionati dell'orbita) */
+.cielo3d {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cielo3d[data-pronto="true"] { opacity: 1; }
+.cielo3d canvas { display: block; width: 100%; height: 100%; }
+
+.volo-traccia { position: relative; }
+html:not(.volo) .volo-traccia { height: auto !important; }
+.volo-palco { position: relative; }
+
+html.volo .volo-palco {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+html.volo .tappa { position: absolute; inset: 0; pointer-events: none; }
+html.volo .quadro {
+  position: absolute;
+  opacity: 0;
+  transform-origin: 20% 50%;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+html.volo .quadro[data-attivo="true"] { pointer-events: auto; }
+html.volo .quadro--iniziale { opacity: 1; }
+html.volo .quadro--sfondo { inset: 0; transform-origin: 50% 70%; }
+html.volo .quadro--centro {
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 3.5rem;
+  transform-origin: 50% 50%;
+}
+
+/* schermo largo: il testo a sinistra, la costellazione a destra */
+html.volo .quadro--lato {
+  left: clamp(1.25rem, 6vw, 6.5rem);
+  top: 0;
+  bottom: 0;
+  width: min(46vw, 38rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 6rem 4rem;
+}
+/* un velo morbido dietro il testo: si legge su qualsiasi zona del cielo */
+html.volo .quadro--lato::before {
+  content: "";
+  position: absolute;
+  inset: 8% -30% 8% -40%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(5, 7, 15, 0.78), rgba(5, 7, 15, 0.4) 60%, transparent);
+}
+
+/* telefono: la costellazione in alto, il testo in basso */
+@media (max-aspect-ratio: 1/1) {
+  html.volo .quadro--lato {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-height: 64%;
+    justify-content: flex-end;
+    padding: 2rem 1.25rem max(2.25rem, 6vh);
+    transform-origin: 50% 100%;
+  }
+  html.volo .quadro--lato::before {
+    inset: -30% 0 0 0;
+    background: linear-gradient(180deg, transparent, rgba(5, 7, 15, 0.86) 34%, rgba(5, 7, 15, 0.96));
+  }
+  html.volo .quadro--lato .display.text-s5 { font-size: clamp(2.1rem, 9.4vw, 2.9rem); }
+  html.volo .quadro--lato .display.text-s4 { font-size: clamp(1.75rem, 7.6vw, 2.3rem); }
+  html.volo .quadro--lato .display.text-s3 { font-size: clamp(1.45rem, 6.2vw, 1.9rem); }
+  html.volo .quadro--lato .text-s1 { font-size: 1.1rem; }
+  html.volo .quadro--lato .text-s0 { font-size: 0.97rem; }
+}
+
+/* didascalia del passo corrente */
+.didascalia {
+  position: absolute;
+  right: clamp(1.25rem, 5vw, 5rem);
+  bottom: 7vh;
+  z-index: 2;
+  max-width: min(36vw, 30rem);
+  text-align: right;
+  font-size: var(--step--1);
+  line-height: 1.45;
+  color: var(--bianco);
+  text-shadow: 0 0 18px rgba(5, 7, 15, 0.95);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.didascalia[data-vuota="true"] { opacity: 0; }
+/* telefono: il passo corrente prende il posto della riga di bordo, in alto,
+   cosi sotto la costellazione resta spazio per il suo nome */
+html:has(.didascalia[data-vuota="false"]) .bordo-mini { opacity: 0; }
+@media (max-aspect-ratio: 1/1) {
+  .didascalia {
+    left: 0;
+    right: 0;
+    top: 4.55rem;
+    bottom: auto;
+    max-width: none;
+    padding-inline: 1.25rem;
+    text-align: center;
+    font-size: var(--step--2);
+  }
+}
+
+/* strumenti di bordo */
+.bordo {
+  position: fixed;
+  right: clamp(0.75rem, 1.8vw, 1.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.4rem;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bordo ol { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.bordo a[data-bordo] { display: flex; align-items: center; justify-content: flex-end; gap: 0.7rem; padding: 0.15rem 0; }
+.bordo-punto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--neutro-2);
+  transition: background-color 0.4s, box-shadow 0.4s, transform 0.4s;
+}
+.bordo-nome {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.3s, transform 0.3s, color 0.3s;
+}
+.bordo:hover .bordo-nome,
+.bordo a:focus-visible .bordo-nome,
+.bordo a[data-attiva="true"] .bordo-nome { opacity: 1; transform: none; }
+.bordo a[data-attiva="true"] .bordo-nome { color: var(--bianco); }
+.bordo a[data-attiva="true"] .bordo-punto { background: var(--celeste); box-shadow: 0 0 12px var(--celeste); transform: scale(1.4); }
+.bordo-salta {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  border-bottom: 1px solid var(--bordo-forte);
+  padding-bottom: 2px;
+}
+.bordo-salta:hover { color: var(--bianco); }
+.bordo-mini {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 4.7rem;
+  z-index: 45;
+  display: none;
+  text-align: center;
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--neutro);
+  transition: opacity 0.5s;
+}
+html.in-orbita .bordo,
+html.in-orbita .bordo-mini { opacity: 0; pointer-events: none; }
+@media (max-aspect-ratio: 1/1), (max-width: 767px) {
+  .bordo { display: none; }
+  .bordo-mini { display: block; }
+}
+
+/* ---------- pagina normale (senza volo) ---------- */
+html:not(.volo) .tappa { position: relative; padding-block: clamp(3.5rem, 7vw, 6rem); }
+html:not(.volo) .tappa + .tappa { border-top: 1px solid var(--bordo); }
+html:not(.volo) .tappa--partenza {
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding-block: 8rem 5rem;
+}
+html:not(.volo) .quadro--sfondo { position: absolute; inset: 0; z-index: -1; }
+html:not(.volo) .quadro--lato {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+}
+html:not(.volo) .quadro--lato + .quadro--lato { margin-top: 3.25rem; }
+html:not(.volo) .cost-statica {
+  width: min(100% - 2.5rem, 440px);
+  aspect-ratio: 1;
+  margin: 2.75rem auto;
+  padding: 1.25rem;
+  border-radius: 22px;
+}
+html:not(.volo) .passi-statici {
+  max-width: 1280px;
+  margin: 2.5rem auto 0;
+  padding-inline: clamp(1.25rem, 4vw, 3rem);
+  display: grid;
+  gap: 0.55rem;
+  list-style: none;
+}
+html:not(.volo) .passi-statici li { display: flex; gap: 0.8rem; font-size: var(--step--1); }
+
+/* ---------- tappa d'arrivo: due colonne, il pulsante sempre in vista ----------
+   Incolonnati (titolo, testo, report, pulsante) superavano l'altezza di uno
+   schermo da portatile e il pulsante finiva tagliato dal palco. */
+html.volo .quadro--arrivo {
+  right: clamp(4rem, 11vw, 11rem); /* lascia libera la mappa laterale */
+  width: auto;
+}
+.arrivo-griglia { display: grid; gap: 2.5rem; }
+@media (min-aspect-ratio: 1/1) {
+  .arrivo-griglia {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 29rem);
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 6rem);
+  }
+}
+
+/* ---------- schermi bassi (portatili): il testo dei quadri resta dentro il palco ---------- */
+@media (min-aspect-ratio: 1/1) and (max-height: 780px) {
+  html.volo .quadro--lato { padding-block: 5rem 2rem; }
+  html.volo .quadro--lato .display.text-s5 { font-size: clamp(2.3rem, 4.4vw, 3.5rem); }
+  html.volo .quadro--lato .display.text-s4 { font-size: clamp(2rem, 3.4vw, 2.9rem); }
+  html.volo .quadro--lato .display.text-s3 { font-size: clamp(1.6rem, 2.5vw, 2.1rem); }
+  html.volo .quadro--lato .mt-8 { margin-top: 1.25rem; }
+  html.volo .quadro--lato .mt-7,
+  html.volo .quadro--lato .mt-6 { margin-top: 1rem; }
+}
+
+/* ---------- footer: vetro spaziale, testo perla ---------- */
+.piede {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 40%),
+    linear-gradient(170deg, color-mix(in srgb, var(--nebula-1) 14%, transparent), color-mix(in srgb, var(--notte) 55%, transparent) 40%, color-mix(in srgb, var(--spazio) 80%, transparent));
+  border-top: 1px solid transparent;
+  border-image: var(--filo-nebulosa) 1;
+}
+.piede,
+.piede .tenue,
+.piede a { color: var(--neutro); }
+.piede a:hover { color: var(--bianco); }
+.piede .occhiello { color: var(--bianco); letter-spacing: 0.16em; }
+
+/* riquadri delle costellazioni: il reticolo da carta celeste sopra il vetro nebulosa */
+.reticolo.vetro-nebulosa {
+  background:
+    linear-gradient(color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px) center / 44px 44px,
+    linear-gradient(90deg, color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px) center / 44px 44px,
+    var(--vetro-nebulosa);
+}
+
+/* ---------- servizi: il riquadro "In breve" (problema, soluzione, risultato) ---------- */
+.in-breve { display: grid; gap: 0.9rem; }
+.in-breve > div {
+  display: grid;
+  grid-template-columns: 7.2rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: baseline;
+}
+.in-breve dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.in-breve dd { margin: 0; font-size: var(--step--1); line-height: 1.45; color: var(--bianco); }
+@media (max-width: 520px) {
+  .in-breve > div { grid-template-columns: 1fr; gap: 0.2rem; }
+}
+
+/* ---------- la svolta: il titolo delle soluzioni sopra il lampo della supernova ---------- */
+html.volo .quadro--svolta::before {
+  content: "";
+  position: absolute;
+  inset: 12% 8%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(5, 7, 15, 0.74), rgba(5, 7, 15, 0.4) 62%, transparent);
+}
+html:not(.volo) .tappa--svolta { padding-block: clamp(4rem, 9vw, 7rem); text-align: center; }

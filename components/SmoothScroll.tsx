@@ -19,10 +19,10 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     <ReactLenis
       root
       options={{
-        lerp: 0.1,
-        duration: 1.1,
+        // piu morbido: la rotella scivola invece di scattare, come un carrello cinematografico
+        lerp: 0.07,
         smoothWheel: true,
-        wheelMultiplier: 1,
+        wheelMultiplier: 0.85,
         touchMultiplier: 1.6,
       }}
     >

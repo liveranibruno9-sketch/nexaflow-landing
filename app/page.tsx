@@ -1,31 +1,35 @@
 import Nav from '@/components/Nav'
-import Hero from '@/components/Hero'
-import Fascia from '@/components/Fascia'
-import Perdite from '@/components/Perdite'
-import Servizi from '@/components/Servizi'
-import Processo from '@/components/Processo'
-import Conformita from '@/components/Conformita'
+import Volo from '@/components/volo/Volo'
+import MappaCielo from '@/components/MappaCielo'
+import Regole from '@/components/Regole'
 import Fondatore from '@/components/Fondatore'
+import Demo from '@/components/Demo'
 import Domande from '@/components/Domande'
 import Verifica from '@/components/Verifica'
 import Footer from '@/components/Footer'
 
+/**
+ * Variante "profondita": prima il volo, poi l'orbita.
+ *
+ * Il volo racconta (partenza, perdite, sei costellazioni, rotta, arrivo).
+ * L'orbita e la parte da consultare: si scorre normalmente sopra il cielo
+ * dove la camera si e fermata. Ritmo di profondita dell'orbita:
+ * notte, spazio, notte, spazio, spazio, nebulosa.
+ */
 export default function Home() {
   return (
     <>
       <Nav />
       <main id="contenuto">
-        {/* Ritmo verticale: scuro, chiaro, scuro, chiaro, scuro, chiaro, chiaro, scuro.
-            Mai tre sezioni consecutive dello stesso tono. */}
-        <Hero />
-        <Fascia />
-        <Perdite />
-        <Servizi />
-        <Processo />
-        <Conformita />
-        <Fondatore />
-        <Domande />
-        <Verifica />
+        <Volo />
+        <div id="orbita" className="scroll-mt-0">
+          <MappaCielo />
+          <Regole />
+          <Fondatore />
+          <Demo />
+          <Domande />
+          <Verifica />
+        </div>
       </main>
       <Footer />
     </>
