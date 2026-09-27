@@ -21,20 +21,36 @@
   --notte:    #0C1330;
   --notte-2:  #121B42;
 
-  /* --- significati --- */
-  --blu:        #2B63F5;  /* pieno: pulsanti. Bianco sopra: contrasto 5,0 */
-  --blu-luce:   #6E9BFF;  /* testo blu su fondo scuro */
-  --blu-scuro:  #1E4FD6;
-  --arancio:    #FF6B2C;
-  --giallo:     #FFE24A;
-  --celeste:    #9ED8FF;
+  /* --- PALETTE "AURORA ULTRAVIOLETTA" (base) ---
+     Tutti i colori del tema stanno qui: anche la scena 3D li legge da queste
+     variabili. Due alternative si provano dal link: ?palette=ciano, ?palette=bianco
+     (le imposta lo script in <head>, vedi app/layout.tsx).
+     Contrasti su #05070F: accento ~15, azione-luce 8.7, neutro 7.4;
+     testo bianco sul pulsante #6D3BFF 5.6. Tutti oltre la soglia AA di 4.5. */
+  --accento:      #3DF2FF;  /* la struttura del cielo: linee, stelle accese, etichette */
+  --azione:       #6D3BFF;  /* pulsanti */
+  --azione-scuro: #5A2BE0;
+  --azione-luce:  #B39BFF;  /* testo d'accento */
+  --nebula-1:     #7B2CFF;
+  --nebula-2:     #FF3DCB;
+  --nebula-3:     #2D4BFF;
+  --titolo-sfumato: linear-gradient(95deg, #B39BFF 0%, #FF6AD5 48%, #3DF2FF 100%);
+  --neutro:   #9C97C9;
+  --neutro-2: #3E3670;
 
-  /* --- testo e struttura --- */
-  --bianco:   #F2F5FF;
-  --neutro:   #8C96BC;
-  --neutro-2: #3A4470;
-  --bordo:    color-mix(in srgb, #9ED8FF 13%, transparent);
-  --bordo-forte: color-mix(in srgb, #9ED8FF 26%, transparent);
+  /* --- significati che non cambiano con la palette --- */
+  --arancio:    #FF6B2C;  /* quello che lo studio perde */
+  --giallo:     #FFE24A;  /* la prova, il dato misurato */
+  --bianco:     #F2F5FF;
+
+  /* nomi storici, ancora usati dai componenti: puntano ai ruoli sopra */
+  --celeste:    var(--accento);
+  --blu:        var(--azione);
+  --blu-scuro:  var(--azione-scuro);
+  --blu-luce:   var(--azione-luce);
+
+  --bordo:       color-mix(in srgb, var(--accento) 13%, transparent);
+  --bordo-forte: color-mix(in srgb, var(--accento) 26%, transparent);
 
   /* --- scala tipografica fluida (quarta perfetta, 1.333) --- */
   --step--2: clamp(0.69rem, 0.67rem + 0.10vw, 0.75rem);
@@ -52,6 +68,44 @@
 
   /* --font-sans, --font-serif e --font-mono li definisce next/font
      sull'elemento <html> (vedi app/layout.tsx) */
+}
+
+/* palette alternative, da provare dal link */
+html[data-palette="ciano"] {
+  --notte: #0C1330;
+  --notte-2: #121B42;
+  --accento: #1FE3FF;
+  --azione: #2B63F5;
+  --azione-scuro: #1E4FD6;
+  --azione-luce: #6E9BFF;
+  --nebula-1: #1433E6;
+  --nebula-2: #19D3FF;
+  --nebula-3: #2B63F5;
+  --titolo-sfumato: linear-gradient(95deg, #6E9BFF 0%, #1FE3FF 100%);
+  --neutro: #8C96BC;
+  --neutro-2: #3A4470;
+}
+html[data-palette="bianco"] {
+  --notte: #0C1330;
+  --notte-2: #121B42;
+  --accento: #FFFFFF;
+  --azione: #2B63F5;
+  --azione-scuro: #1E4FD6;
+  --azione-luce: #8FB0FF;
+  --nebula-1: #2451FF;
+  --nebula-2: #4B2BFF;
+  --nebula-3: #2B63F5;
+  --titolo-sfumato: linear-gradient(95deg, #8FB0FF 0%, #FFFFFF 100%);
+  --neutro: #8C96BC;
+  --neutro-2: #3A4470;
+}
+
+/* titolo con la sfumatura della palette */
+.testo-sfumato {
+  background-image: var(--titolo-sfumato);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 * { box-sizing: border-box; }
@@ -173,8 +227,8 @@ a { color: inherit; text-decoration: none; }
 
   .livello-notte {
     background:
-      radial-gradient(60% 50% at 85% 0%, color-mix(in srgb, #2F6BFF 12%, transparent), transparent 70%),
-      color-mix(in srgb, #0C1330 88%, transparent);
+      radial-gradient(60% 50% at 85% 0%, color-mix(in srgb, var(--azione) 12%, transparent), transparent 70%),
+      color-mix(in srgb, var(--notte) 88%, transparent);
     border-block: 1px solid var(--bordo);
   }
 
@@ -185,12 +239,12 @@ a { color: inherit; text-decoration: none; }
      Niente backdrop-filter: su un fondo di stelle la sfocatura non si vede,
      e sui telefoni medi costa a ogni fotogramma di scroll. */
   .vetro {
-    background: color-mix(in srgb, #0C1330 90%, transparent);
+    background: color-mix(in srgb, var(--notte) 90%, transparent);
     border: 1px solid var(--bordo);
   }
 
   .card {
-    background: color-mix(in srgb, #0C1330 82%, transparent);
+    background: color-mix(in srgb, var(--notte) 82%, transparent);
     border: 1px solid var(--bordo);
     border-radius: 22px;
   }
@@ -198,8 +252,8 @@ a { color: inherit; text-decoration: none; }
   /* reticolo da carta celeste, per i pannelli delle costellazioni */
   .reticolo {
     background-image:
-      linear-gradient(color-mix(in srgb, #9ED8FF 6%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, #9ED8FF 6%, transparent) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--accento) 6%, transparent) 1px, transparent 1px);
     background-size: 44px 44px;
     background-position: center;
   }
@@ -229,17 +283,17 @@ a { color: inherit; text-decoration: none; }
   .btn-primario {
     background: var(--blu);
     color: #fff;
-    box-shadow: 0 0 0 1px color-mix(in srgb, #6E9BFF 40%, transparent),
-                0 14px 38px -12px color-mix(in srgb, #2F6BFF 80%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--azione-luce) 40%, transparent),
+                0 14px 38px -12px color-mix(in srgb, var(--azione) 80%, transparent);
   }
   .btn-primario:hover {
     background: var(--blu-scuro);
-    box-shadow: 0 0 0 1px color-mix(in srgb, #9ED8FF 50%, transparent),
-                0 20px 48px -14px color-mix(in srgb, #2F6BFF 95%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accento) 50%, transparent),
+                0 20px 48px -14px color-mix(in srgb, var(--azione) 95%, transparent);
   }
 
   .btn-fantasma { border-color: var(--bordo-forte); color: var(--bianco); background: transparent; }
-  .btn-fantasma:hover { border-color: color-mix(in srgb, #9ED8FF 50%, transparent); background: color-mix(in srgb, #9ED8FF 7%, transparent); }
+  .btn-fantasma:hover { border-color: color-mix(in srgb, var(--accento) 50%, transparent); background: color-mix(in srgb, var(--accento) 7%, transparent); }
 
   .chip {
     display: inline-flex;
@@ -250,7 +304,7 @@ a { color: inherit; text-decoration: none; }
     font-size: var(--step--2);
     font-weight: 500;
     border: 1px solid var(--bordo);
-    background: color-mix(in srgb, #9ED8FF 6%, transparent);
+    background: color-mix(in srgb, var(--accento) 6%, transparent);
     white-space: nowrap;
   }
 
@@ -283,7 +337,7 @@ a { color: inherit; text-decoration: none; }
   /* la stella della perdita: parte accesa e celeste, si spegne in arancione.
      Lo stato di base (senza supporto) e quello finale. */
   @keyframes spegni {
-    from { color: var(--celeste); opacity: 1; transform: scale(1.12); filter: drop-shadow(0 0 10px color-mix(in srgb, #9ED8FF 70%, transparent)); }
+    from { color: var(--celeste); opacity: 1; transform: scale(1.12); filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accento) 70%, transparent)); }
     to   { color: var(--arancio); opacity: 0.6; transform: scale(0.86); filter: none; }
   }
   .stella-perdita { color: var(--arancio); opacity: 0.6; transform: scale(0.86); }
@@ -549,11 +603,14 @@ html.volo .quadro--lato::before {
   transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .didascalia[data-vuota="true"] { opacity: 0; }
+/* telefono: il passo corrente prende il posto della riga di bordo, in alto,
+   cosi sotto la costellazione resta spazio per il suo nome */
+html:has(.didascalia[data-vuota="false"]) .bordo-mini { opacity: 0; }
 @media (max-aspect-ratio: 1/1) {
   .didascalia {
     left: 0;
     right: 0;
-    top: 47%;
+    top: 4.55rem;
     bottom: auto;
     max-width: none;
     padding-inline: 1.25rem;
@@ -655,7 +712,7 @@ html:not(.volo) .cost-statica {
   padding: 1.25rem;
   border: 1px solid var(--bordo);
   border-radius: 22px;
-  background-color: color-mix(in srgb, #0C1330 80%, transparent);
+  background-color: color-mix(in srgb, var(--notte) 80%, transparent);
 }
 html:not(.volo) .passi-statici {
   max-width: 1280px;

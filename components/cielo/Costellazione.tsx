@@ -73,8 +73,8 @@ export default function Costellazione({
     >
       <defs>
         <radialGradient id={aloneBianco}>
-          <stop offset="0%" stopColor="#9ED8FF" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#9ED8FF" stopOpacity="0" />
+          <stop offset="0%" style={{ stopColor: 'var(--accento)' }} stopOpacity="0.55" />
+          <stop offset="100%" style={{ stopColor: 'var(--accento)' }} stopOpacity="0" />
         </radialGradient>
         <radialGradient id={aloneGiallo}>
           <stop offset="0%" stopColor="#FFE24A" stopOpacity="0.7" />

@@ -42,9 +42,11 @@ const display = localFont({
  * 3 GB di memoria, niente WebGL2, grafica solo software (per esempio i
  * browser senza scheda grafica usati dai test automatici).
  * `?volo=forza` salta i controlli, per provarlo su qualsiasi macchina.
+ * `?palette=ciano` o `?palette=bianco` mostra le palette alternative (la base e l aurora).
  */
 const SCELTA_VOLO = `(function(){try{
 var d=document.documentElement,f=location.search.indexOf('volo=forza')>-1,n=navigator,c=n.connection;
+var p=/[?&]palette=(ciano|bianco)/.exec(location.search);if(p)d.setAttribute('data-palette',p[1]);
 if(!f){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 if((n.deviceMemory&&n.deviceMemory<3)||(n.hardwareConcurrency&&n.hardwareConcurrency<4)||(c&&c.saveData))return;}
 var cv=document.createElement('canvas'),gl=cv.getContext('webgl2');if(!gl)return;

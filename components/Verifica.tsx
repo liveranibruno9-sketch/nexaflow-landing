@@ -50,7 +50,7 @@ export default function Verifica() {
                 'Risposta entro due giorni lavorativi',
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3.5">
-                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,#2F6BFF_24%,transparent)]">
+                  <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--azione)_24%,transparent)]">
                     <svg width="11" height="9" viewBox="0 0 11 9" fill="none" aria-hidden="true">
                       <path
                         d="M1 4.6 L4 7.5 L10 1.2"

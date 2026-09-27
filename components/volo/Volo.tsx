@@ -335,7 +335,7 @@ export default function Volo() {
                 <div className="wrap text-center">
                   <span className="occhiello">Agenti Studio · automazioni per studi dentistici · Romagna</span>
                   <h1 className="display mx-auto mt-7 max-w-[15ch] text-[clamp(2.9rem,8.2vw,7.4rem)] leading-[0.94]">
-                    Colleghiamo i punti. <span className="text-[var(--blu-luce)]">Lei ritrova i pazienti.</span>
+                    Colleghiamo i punti. <span className="testo-sfumato">Lei ritrova i pazienti.</span>
                   </h1>
                   <p className="mx-auto mt-7 max-w-[46ch] text-s1 leading-[1.45] text-[color-mix(in_srgb,#F2F5FF_82%,transparent)]">
                     Chiamate senza risposta, preventivi fermi da mesi, poltrone vuote. Prima lo misuro sul suo studio. Poi

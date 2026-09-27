@@ -2,11 +2,13 @@ import {
   AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
+  CanvasTexture,
   CatmullRomCurve3,
   DataTexture,
   Group,
   LinearFilter,
   Mesh,
+  MeshBasicMaterial,
   PerspectiveCamera,
   PlaneGeometry,
   Points,
@@ -14,6 +16,7 @@ import {
   RGBAFormat,
   Scene,
   ShaderMaterial,
+  SRGBColorSpace,
   TubeGeometry,
   UnsignedByteType,
   Vector3,
@@ -27,16 +30,19 @@ import { TAPPE, passiAccesi, type Tappa } from './rotta'
  * La scena 3D del volo.
  *
  * La camera guarda sempre avanti (verso -z) e avanza lungo z in funzione di
- * `u`, i vh percorsi nella rotta. Tutto il resto e fermo nel mondo: le
- * costellazioni stanno su piani perpendicolari alla rotta, ognuna a 100 unita
- * dalla successiva, avvolte da nebulose.
+ * `u`, i vh percorsi nella rotta. Tutto il resto e fermo nel mondo:
+ * - quattro galassie a spirale, una per perdita, che la camera attraversa
+ * - sei costellazioni su piani perpendicolari alla rotta, avvolte da nebulose,
+ *   con il loro nome scritto all'angolo della figura
+ * - la scia della rotta e la nebulosa d'arrivo
  *
- * Costo per fotogramma: pochi draw call (un solo Points per le stelle di
- * fondo), attributi aggiornati solo per le costellazioni vicine, nessuna
- * allocazione. Le nebulose leggono una texture di rumore calcolata una volta.
+ * Colori: la palette si legge dalle variabili CSS (app/globals.css), quindi
+ * `?palette=ciano` o `?palette=bianco` cambiano anche la scena. Agli shader i
+ * colori arrivano come sRGB diretto, senza la gestione del colore di three.js,
+ * cosi in pagina si vede esattamente la palette del sito.
  *
- * Colori: passati agli shader come valori sRGB diretti, senza la gestione del
- * colore di three.js, per avere in pagina esattamente la palette del sito.
+ * Costo per fotogramma: pochi draw call, attributi aggiornati solo per le
+ * costellazioni vicine, oggetti lontani nascosti, nessuna allocazione.
  */
 
 /* ---------------------------------------------------------------------------
@@ -47,24 +53,56 @@ const FOV = 50
 const TAN = Math.tan(((FOV / 2) * Math.PI) / 180)
 const LATO = 5.4 // lato lungo di una costellazione, in unita del mondo
 const DISTANZA_MODULI = 100
-const Z_PRIMO_MODULO = -230
+const Z_PRIMO_MODULO = -290
 const AVVICINAMENTO = 40
-const zPerdita = (i: number) => -40 - i * 30
+const RAGGIO_GALASSIA = 13
+const zGalassia = (i: number) => -60 - i * 45
 const zModulo = (i: number) => Z_PRIMO_MODULO - i * DISTANZA_MODULI
 const Z_ROTTA = [zModulo(5) - 80, zModulo(5) - 115, zModulo(5) - 150]
 const Z_FINE = Z_ROTTA[2] - 30
 
-const COLORI = {
+/** colori fissi: non cambiano con la palette */
+const FISSI = {
   arancio: [1, 0.42, 0.172],
-  arancioScuro: [0.55, 0.16, 0.05],
   giallo: [1, 0.886, 0.29],
-  celeste: [0.62, 0.847, 1],
   bianco: [0.949, 0.961, 1],
-  blu: [0.169, 0.388, 0.961],
-  bluLuce: [0.431, 0.608, 1],
-  caldo: [1, 0.86, 0.72],
+}
+
+/** le quattro galassie delle perdite: una per colore */
+const GALASSIE = [
+  { nucleo: '#FFE2BE', bracci: '#FF6B2C', bordo: '#D81B60', nBracci: 2, giro: 0.36, inclinazione: 0.22, rotazione: 0.3 }, // fuoco
+  { nucleo: '#FFE0F7', bracci: '#FF3DCB', bordo: '#7B2CFF', nBracci: 3, giro: 0.42, inclinazione: 0.3, rotazione: 2.1 }, // magenta
+  { nucleo: '#DDFFF8', bracci: '#1FE3C4', bordo: '#1B5CFF', nBracci: 4, giro: 0.3, inclinazione: 0.18, rotazione: 4.0 }, // smeraldo
+  { nucleo: '#E6F0FF', bracci: '#5B8CFF', bordo: '#3A1CFF', nBracci: 5, giro: 0.48, inclinazione: 0.26, rotazione: 5.2 }, // ghiaccio
+]
+
+const hexRgb = (hex: string, riserva: number[] = [1, 1, 1]) => {
+  const h = hex.trim().replace('#', '')
+  if (h.length !== 6) return riserva
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
 }
 const v3 = (c: number[]) => new Vector3(c[0], c[1], c[2])
+
+/** la palette corrente, dalle variabili CSS */
+function leggiPalette() {
+  const cs = getComputedStyle(document.documentElement)
+  const grezzo = (nome: string, riserva: string) => cs.getPropertyValue(nome).trim() || riserva
+  const hex = {
+    accento: grezzo('--accento', '#3DF2FF'),
+    azioneLuce: grezzo('--azione-luce', '#B39BFF'),
+    nebula1: grezzo('--nebula-1', '#7B2CFF'),
+    nebula2: grezzo('--nebula-2', '#FF3DCB'),
+    nebula3: grezzo('--nebula-3', '#2D4BFF'),
+  }
+  return {
+    hex,
+    accento: hexRgb(hex.accento),
+    azioneLuce: hexRgb(hex.azioneLuce),
+    nebula1: hexRgb(hex.nebula1),
+    nebula2: hexRgb(hex.nebula2),
+    nebula3: hexRgb(hex.nebula3),
+  }
+}
 
 /* ---------------------------------------------------------------------------
    Shader
@@ -78,7 +116,7 @@ const VERT_UV = /* glsl */ `
   }
 `
 
-/** stelle delle costellazioni, delle perdite e della rotta */
+/** stelle delle costellazioni e delle tappe della rotta */
 const STELLE_VERT = /* glsl */ `
   attribute float aR;
   attribute float aLuce;
@@ -143,7 +181,7 @@ const CAMPO_VERT = /* glsl */ `
     vColore = aColore;
   }
 `
-const CAMPO_FRAG = /* glsl */ `
+const PUNTO_FRAG = /* glsl */ `
   varying vec3 vColore;
   varying float vAlfa;
   void main() {
@@ -151,6 +189,42 @@ const CAMPO_FRAG = /* glsl */ `
     if (r > 1.0) discard;
     float a = smoothstep(1.0, 0.0, r);
     gl_FragColor = vec4(vColore, a * a * vAlfa);
+  }
+`
+
+/** galassia: particelle sul piano del disco, rotazione differenziale (il centro gira piu in fretta) */
+const GALASSIA_VERT = /* glsl */ `
+  attribute float aR;
+  attribute float aDistanza;
+  attribute vec3 aColore;
+  uniform float uPx;
+  uniform float uTempo;
+  uniform float uAlfa;
+  varying vec3 vColore;
+  varying float vAlfa;
+  void main() {
+    float angolo = uTempo * 0.05 / (0.3 + aDistanza * 0.11);
+    float c = cos(angolo);
+    float s = sin(angolo);
+    vec3 p = vec3(position.x * c - position.y * s, position.x * s + position.y * c, position.z);
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    float d = max(-mv.z, 0.001);
+    gl_PointSize = clamp(aR * uPx / d, 1.0, 14.0);
+    gl_Position = projectionMatrix * mv;
+    vColore = aColore;
+    vAlfa = uAlfa * smoothstep(0.25, 1.8, d);
+  }
+`
+
+/** bagliore radiale (nucleo di una galassia) */
+const BAGLIORE_FRAG = /* glsl */ `
+  uniform vec3 uColore;
+  uniform float uAlfa;
+  varying vec2 vUv;
+  void main() {
+    float r = length(vUv - 0.5) * 2.0;
+    float a = exp(-r * r * 9.0) * 0.5 + exp(-r * r * 2.2) * 0.14;
+    gl_FragColor = vec4(uColore, a * uAlfa);
   }
 `
 
@@ -195,7 +269,7 @@ const LINEA_FRAG = /* glsl */ `
   }
 `
 
-/** la scia della rotta: svanisce vicino alla camera */
+/** la scia della rotta: svanisce vicino alla camera, altrimenti passa davanti all'obiettivo come un fascio enorme */
 const SCIA_VERT = /* glsl */ `
   varying vec2 vUv;
   varying float vProfondita;
@@ -309,8 +383,8 @@ type Impaginazione = {
   sosta: number
   xFigura: number
   yFigura: number
-  xPerdita: number
-  yPerdita: number
+  xGalassia: number
+  yGalassia: number
   ritratto: boolean
 }
 
@@ -319,13 +393,12 @@ function impagina(aspetto: number): Impaginazione {
     // schermo largo: testo a sinistra, costellazione nella meta destra
     const sosta = Math.max(LATO / (0.8 * TAN * aspetto), LATO / (0.75 * 2 * TAN))
     const mezzaLarghezza = sosta * TAN * aspetto
-    return { sosta, xFigura: mezzaLarghezza * 0.44, yFigura: 0, xPerdita: 3.2, yPerdita: 0.3, ritratto: false }
+    return { sosta, xFigura: mezzaLarghezza * 0.44, yFigura: 0, xGalassia: 1.4, yGalassia: 0.2, ritratto: false }
   }
-  // telefono: costellazione in alto, testo in basso
-  // la figura occupa al massimo il 32% dell altezza, centrata al 30% dall alto
+  // telefono: la figura occupa al massimo il 32% dell'altezza, centrata al 30% dall'alto
   const sosta = Math.max(LATO / (0.86 * 2 * TAN * aspetto), LATO / (0.64 * TAN))
   const mezzaAltezza = sosta * TAN
-  return { sosta, xFigura: 0, yFigura: mezzaAltezza * 0.4, xPerdita: 0.9, yPerdita: 2.2, ritratto: true }
+  return { sosta, xFigura: 0, yFigura: mezzaAltezza * 0.4, xGalassia: 0.4, yGalassia: 1.2, ritratto: true }
 }
 
 type Punto = { u: number; z: number }
@@ -337,8 +410,9 @@ function percorso(imp: Impaginazione): Punto[] {
     const f = (frazione: number) => t.inizio + frazione * t.durata
     if (t.tipo === 'partenza') punti.push({ u: f(0), z: 10 })
     if (t.tipo === 'perdita') {
-      const zf = zPerdita(t.indice)
-      punti.push({ u: f(0), z: zf + 16 }, { u: f(0.68), z: zf + 1.2 })
+      // si entra nella galassia e se ne attraversa il nucleo verso il 62% della tappa
+      const zg = zGalassia(t.indice)
+      punti.push({ u: f(0), z: zg + 26 }, { u: f(0.62), z: zg - 1 })
     }
     if (t.tipo === 'modulo') {
       const zc = zModulo(t.indice)
@@ -375,6 +449,74 @@ function zAl(punti: Punto[], u: number) {
 }
 
 /* ---------------------------------------------------------------------------
+   Il nome della costellazione, scritto nello spazio
+   --------------------------------------------------------------------------- */
+
+const CORPO = 150 // altezza del nome nel canvas, in pixel
+/** altezza del nome nel mondo: piu grande sul telefono, dove la camera sta piu lontana */
+const altezzaNome = (ritratto: boolean) => (ritratto ? 1.35 : 0.62)
+
+function disegnaNome(
+  canvas: HTMLCanvasElement,
+  nome: string,
+  sotto: string,
+  famiglie: { display: string; mono: string },
+  colori: { a: string; b: string },
+) {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return { w: 1, h: 1 }
+  const fontNome = `500 ${CORPO}px ${famiglie.display}`
+  const corpoSotto = Math.round(CORPO * 0.3)
+  const fontSotto = `500 ${corpoSotto}px ${famiglie.mono}`
+  const lettere = Array.from(nome.toUpperCase())
+  const spaziatura = CORPO * 0.14
+  const spaziaturaSotto = corpoSotto * 0.16
+
+  ctx.font = fontNome
+  const larghezzeNome = lettere.map((l) => ctx.measureText(l).width)
+  const larghezzaNome = larghezzeNome.reduce((t, x) => t + x, 0) + spaziatura * (lettere.length - 1)
+  ctx.font = fontSotto
+  const caratteriSotto = Array.from(sotto.toUpperCase())
+  const larghezzeSotto = caratteriSotto.map((c) => ctx.measureText(c).width)
+  const larghezzaSotto = larghezzeSotto.reduce((t, x) => t + x, 0) + spaziaturaSotto * (caratteriSotto.length - 1)
+
+  const margine = CORPO * 0.3
+  const w = Math.ceil(Math.max(larghezzaNome, larghezzaSotto) + margine * 2)
+  const h = Math.ceil(CORPO * 1.05 + corpoSotto * 1.9 + margine * 2)
+  canvas.width = w
+  canvas.height = h
+  ctx.clearRect(0, 0, w, h)
+
+  // il nome: sfumato con i colori della palette, con un alone morbido
+  ctx.font = fontNome
+  ctx.textBaseline = 'alphabetic'
+  const sfumatura = ctx.createLinearGradient(margine, 0, margine + larghezzaNome, 0)
+  sfumatura.addColorStop(0, colori.a)
+  sfumatura.addColorStop(1, colori.b)
+  ctx.fillStyle = sfumatura
+  ctx.shadowColor = colori.a
+  ctx.shadowBlur = CORPO * 0.22
+  const yNome = margine + CORPO * 0.8
+  let x = margine
+  lettere.forEach((l, i) => {
+    ctx.fillText(l, x, yNome)
+    x += larghezzeNome[i] + spaziatura
+  })
+
+  // sotto: sigla e coordinate, in mono
+  ctx.shadowBlur = 0
+  ctx.font = fontSotto
+  ctx.fillStyle = 'rgba(242, 245, 255, 0.72)'
+  x = margine
+  const ySotto = yNome + corpoSotto * 1.75
+  caratteriSotto.forEach((c, i) => {
+    ctx.fillText(c, x, ySotto)
+    x += larghezzeSotto[i] + spaziaturaSotto
+  })
+  return { w, h }
+}
+
+/* ---------------------------------------------------------------------------
    La scena
    --------------------------------------------------------------------------- */
 
@@ -399,10 +541,22 @@ type ModuloScena = {
   totale: number
   linee: { materiale: ShaderMaterial; passo: number }[]
   nebule: { materiale: ShaderMaterial; base: number }[]
+  nome: { mesh: Mesh; materiale: MeshBasicMaterial; w: number; h: number }
+  metaLarghezza: number
+  metaAltezza: number
+}
+
+type GalassiaScena = {
+  gruppo: Group
+  z: number
+  materiale: ShaderMaterial
+  bagliore: ShaderMaterial
+  alone: ShaderMaterial
 }
 
 export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; onPerso: () => void }): Scena {
   const { mobile } = opzioni
+  const P = leggiPalette()
   const renderer = new WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' })
   renderer.setClearColor(0x05070f, 1)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.6))
@@ -499,7 +653,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       raggi[i] = polvere ? 0.03 + caso() * 0.04 : 0.06 + Math.pow(caso(), 3) * 0.24
       fasi[i] = caso()
       const c = caso()
-      const tinta = c < 0.72 ? COLORI.bianco : c < 0.92 ? COLORI.celeste : c < 0.97 ? COLORI.giallo : COLORI.arancio
+      const tinta = c < 0.72 ? FISSI.bianco : c < 0.92 ? P.accento : c < 0.97 ? FISSI.giallo : P.nebula2
       const forza = polvere ? 0.45 : 1
       colori[i * 3] = tinta[0] * forza
       colori[i * 3 + 1] = tinta[1] * forza
@@ -511,7 +665,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     g.setAttribute('aFase', new BufferAttribute(fasi, 1))
     g.setAttribute('aColore', new BufferAttribute(colori, 3))
     eliminabili.push(g)
-    const campo = new Points(g, materiale(CAMPO_FRAG, CAMPO_VERT, { uPx, uTempo }))
+    const campo = new Points(g, materiale(PUNTO_FRAG, CAMPO_VERT, { uPx, uTempo }))
     campo.frustumCulled = false
     scena.add(campo)
   }
@@ -523,27 +677,71 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     scena.add(n.mesh)
     nebuleLibere.push({ materiale: n.materiale, base: n.base, z: args[2] })
   }
-  nebulaLibera(-6, 3, -75, 46, COLORI.blu, COLORI.celeste, 0.12, 1)
-  nebulaLibera(9, -5, -130, 60, COLORI.bluLuce, COLORI.blu, 0.1, 2)
-  nebulaLibera(-4, 2, Z_FINE - 45, 70, COLORI.blu, COLORI.celeste, 0.4, 3)
-  nebulaLibera(8, -3, Z_FINE - 62, 95, COLORI.bluLuce, COLORI.blu, 0.3, 4)
-  nebulaLibera(-10, 6, Z_FINE - 85, 120, COLORI.celeste, COLORI.bluLuce, 0.2, 5)
+  nebulaLibera(-8, 5, -120, 60, P.nebula3, P.nebula1, 0.12, 2)
+  nebulaLibera(-4, 2, Z_FINE - 45, 70, P.nebula1, P.nebula2, 0.4, 3)
+  nebulaLibera(8, -3, Z_FINE - 62, 95, P.nebula3, P.nebula1, 0.3, 4)
+  nebulaLibera(-10, 6, Z_FINE - 85, 120, P.nebula2, P.accento, 0.2, 5)
 
-  /* ----- le quattro perdite: stelle arancioni che si spengono ----- */
-  const perdite = stelle(
-    [0, 0, zPerdita(0), 0, 0, zPerdita(1), 0, 0, zPerdita(2), 0, 0, zPerdita(3)],
-    [1.25, 1.25, 1.25, 1.25],
-    { spento: COLORI.arancioScuro, acceso: COLORI.arancio, nucleo: COLORI.caldo, finale: COLORI.arancio },
-  )
-  scena.add(perdite.punti)
+  /* ----- le quattro galassie delle perdite ----- */
   const tappePerdita = TAPPE.filter((t) => t.tipo === 'perdita')
-  const nebulePerdita = tappePerdita.map((t, i) => {
-    const n = nebula(0, 0, zPerdita(i) - 4, 13, COLORI.arancioScuro, COLORI.arancio, 0.13, 10 + i)
-    scena.add(n.mesh)
-    return n
+  const galassie: GalassiaScena[] = GALASSIE.map((def, i) => {
+    const caso = mulberry32(100 + i)
+    const n = mobile ? 5500 : 9000
+    const pos = new Float32Array(n * 3)
+    const raggi = new Float32Array(n)
+    const distanze = new Float32Array(n)
+    const colori = new Float32Array(n * 3)
+    const cNucleo = hexRgb(def.nucleo)
+    const cBracci = hexRgb(def.bracci)
+    const cBordo = hexRgb(def.bordo)
+    const sparso = (k: number) => Math.pow(caso(), 3) * (caso() < 0.5 ? 1 : -1) * k
+    for (let k = 0; k < n; k++) {
+      const r = Math.pow(caso(), 1.45) * RAGGIO_GALASSIA
+      const t = r / RAGGIO_GALASSIA
+      const braccio = ((k % def.nBracci) / def.nBracci) * Math.PI * 2
+      const spirale = r * def.giro
+      const dispersione = 0.28 + t * 0.35
+      pos[k * 3] = Math.cos(braccio + spirale) * r + sparso(dispersione * r * 0.6)
+      pos[k * 3 + 1] = Math.sin(braccio + spirale) * r + sparso(dispersione * r * 0.6)
+      // disco sottile, rigonfio al centro
+      pos[k * 3 + 2] = sparso(0.25 + 1.4 * Math.pow(1 - t, 3))
+      distanze[k] = r
+      const giovane = caso() < 0.07
+      raggi[k] = 0.05 + Math.pow(caso(), 4) * 0.14 + (t < 0.12 ? 0.02 : 0) + (giovane ? 0.08 : 0)
+      const verso = liscia(0, 0.35, t)
+      const fuori = liscia(0.55, 1, t)
+      const luminosita = (0.6 + caso() * 0.4) * (giovane ? 1.2 : 1)
+      for (let c = 0; c < 3; c++) {
+        const base = cNucleo[c] + (cBracci[c] - cNucleo[c]) * verso
+        const col = base + (cBordo[c] - base) * fuori
+        colori[k * 3 + c] = Math.min(1, (giovane ? col * 0.6 + 0.4 : col) * luminosita)
+      }
+    }
+    const g = new BufferGeometry()
+    g.setAttribute('position', new BufferAttribute(pos, 3))
+    g.setAttribute('aR', new BufferAttribute(raggi, 1))
+    g.setAttribute('aDistanza', new BufferAttribute(distanze, 1))
+    g.setAttribute('aColore', new BufferAttribute(colori, 3))
+    eliminabili.push(g)
+    const mat = materiale(PUNTO_FRAG, GALASSIA_VERT, { uPx, uTempo, uAlfa: { value: 1 } })
+    const punti = new Points(g, mat)
+    punti.frustumCulled = false
+
+    const bagliore = materiale(BAGLIORE_FRAG, VERT_UV, { uColore: { value: v3(cNucleo) }, uAlfa: { value: 1 } })
+    const nucleo = new Mesh(pianoBase, bagliore)
+    nucleo.scale.set(RAGGIO_GALASSIA * 0.9, RAGGIO_GALASSIA * 0.9, 1)
+    const alone = nebula(0, 0, -0.2, RAGGIO_GALASSIA * 2.3, cBracci, cBordo, 0.14, 20 + i)
+
+    const gruppo = new Group()
+    gruppo.add(alone.mesh, punti, nucleo)
+    // prima la rotazione nel piano del disco, poi l'inclinazione verso chi guarda
+    gruppo.rotation.set(def.inclinazione, 0, def.rotazione)
+    scena.add(gruppo)
+    return { gruppo, z: zGalassia(i), materiale: mat, bagliore, alone: alone.materiale }
   })
 
   /* ----- le sei costellazioni ----- */
+  const famiglie = { display: 'sans-serif', mono: 'monospace' }
   const moduli: ModuloScena[] = TAPPE.filter((t) => t.tipo === 'modulo').map((tappa) => {
     const modulo = MODULI[tappa.indice]
     const cost = COSTELLAZIONI[modulo.cielo.chiave]
@@ -559,12 +757,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       posizioni.push(x, y, 0)
       raggi.push((s.r / 100) * LATO * 4.6)
     }
-    const st = stelle(posizioni, raggi, {
-      spento: COLORI.arancio,
-      acceso: COLORI.celeste,
-      nucleo: COLORI.bianco,
-      finale: COLORI.giallo,
-    })
+    const st = stelle(posizioni, raggi, { spento: FISSI.arancio, acceso: P.accento, nucleo: FISSI.bianco, finale: FISSI.giallo })
     gruppo.add(st.punti)
 
     const linee = cost.linee.map((l) => {
@@ -576,7 +769,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       const [x2, y2] = mondo(a.x, a.y)
       const m = materiale(LINEA_FRAG, VERT_UV, {
         uProg: { value: 0 },
-        uColore: { value: v3(COLORI.celeste) },
+        uColore: { value: v3(P.accento) },
         uAlfa: { value: 1 },
         uTratteggio: { value: l.tratteggiata ? 1 : 0 },
       })
@@ -589,11 +782,31 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     })
 
     const nebule = [
-      nebula(0.4, 0.2, -1.5, LATO * 2.6, COLORI.celeste, COLORI.bluLuce, 0.3, tappa.indice * 3 + 1),
-      nebula(-1.2, -0.6, -4.5, LATO * 3.5, COLORI.blu, COLORI.celeste, 0.22, tappa.indice * 3 + 2),
-      ...(mobile ? [] : [nebula(1.5, 1.2, -8, LATO * 4.6, COLORI.bluLuce, COLORI.celeste, 0.15, tappa.indice * 3 + 3)]),
+      nebula(0.4, 0.2, -1.5, LATO * 2.6, P.nebula1, P.nebula2, 0.3, tappa.indice * 3 + 1),
+      nebula(-1.2, -0.6, -4.5, LATO * 3.5, P.nebula3, P.nebula1, 0.22, tappa.indice * 3 + 2),
+      ...(mobile ? [] : [nebula(1.5, 1.2, -8, LATO * 4.6, P.nebula2, P.accento, 0.15, tappa.indice * 3 + 3)]),
     ]
     nebule.forEach((n) => gruppo.add(n.mesh))
+
+    // il nome: la texture si disegna quando i caratteri del sito sono pronti
+    const canvasNome = document.createElement('canvas')
+    const texturaNome = new CanvasTexture(canvasNome)
+    texturaNome.colorSpace = SRGBColorSpace
+    texturaNome.minFilter = LinearFilter
+    texturaNome.generateMipmaps = false
+    eliminabili.push(texturaNome)
+    const materialeNome = new MeshBasicMaterial({
+      map: texturaNome,
+      transparent: true,
+      depthWrite: false,
+      blending: AdditiveBlending,
+      opacity: 0,
+      toneMapped: false,
+    })
+    eliminabili.push(materialeNome)
+    const meshNome = new Mesh(pianoBase, materialeNome)
+    meshNome.visible = false
+    gruppo.add(meshNome)
 
     scena.add(gruppo)
     return {
@@ -609,6 +822,9 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       totale: cost.totale,
       linee,
       nebule: nebule.map((n) => ({ materiale: n.materiale, base: n.base })),
+      nome: { mesh: meshNome, materiale: materialeNome, w: 1, h: 1 },
+      metaLarghezza: ((cost.larghezza / 2 - 12) / 100) * LATO,
+      metaAltezza: ((cost.altezza / 2 - 12) / 100) * LATO,
     }
   })
 
@@ -628,7 +844,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     uProg: { value: 0 },
     uAlfa: { value: 1 },
     uTempo,
-    uColore: { value: v3(COLORI.celeste) },
+    uColore: { value: v3(P.accento) },
   })
   const scia = new Mesh(geometriaScia, materialeScia)
   scia.frustumCulled = false
@@ -636,13 +852,27 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
   const tappeRotta = stelle(
     [puntiRotta[1], puntiRotta[2], puntiRotta[3]].flatMap((p) => [p.x, p.y, p.z]),
     [0.5, 0.5, 0.62],
-    { spento: COLORI.arancio, acceso: COLORI.celeste, nucleo: COLORI.bianco, finale: COLORI.giallo },
+    { spento: FISSI.arancio, acceso: P.accento, nucleo: FISSI.bianco, finale: FISSI.giallo },
   )
   scena.add(tappeRotta.punti)
 
   /* ----- impaginazione e percorso ----- */
   let imp = impagina(1.6)
   let punti = percorso(imp)
+
+  /**
+   * Il nome: sullo schermo largo sta all'angolo in alto a sinistra della figura;
+   * sul telefono lo spazio sotto la figura e occupato dal testo, quindi diventa
+   * una filigrana grande e tenue dietro la costellazione.
+   */
+  const posizionaNome = (m: ModuloScena) => {
+    const k = altezzaNome(imp.ritratto) / CORPO
+    const w = m.nome.w * k
+    const h = m.nome.h * k
+    if (imp.ritratto) m.nome.mesh.position.set(0, 0, -1)
+    else m.nome.mesh.position.set(-m.metaLarghezza + w / 2, m.metaAltezza + 0.3 + h / 2, -0.6)
+    m.nome.mesh.scale.set(w, h, 1)
+  }
 
   const ridimensiona = () => {
     const w = contenitore.clientWidth || window.innerWidth
@@ -653,16 +883,44 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     uPx.value = (h * renderer.getPixelRatio()) / (2 * TAN)
     imp = impagina(camera.aspect)
     punti = percorso(imp)
-    for (const m of moduli) m.gruppo.position.set(imp.xFigura, imp.yFigura, m.z)
-    const posPerdite = perdite.geometria.getAttribute('position') as BufferAttribute
-    tappePerdita.forEach((_, i) => {
-      const lato = i % 2 === 0 ? 1 : -0.6
-      posPerdite.setXYZ(i, imp.xPerdita * lato, imp.yPerdita, zPerdita(i))
-      nebulePerdita[i].mesh.position.set(imp.xPerdita * lato, imp.yPerdita, zPerdita(i) - 4)
-    })
-    posPerdite.needsUpdate = true
+    for (const m of moduli) {
+      m.gruppo.position.set(imp.xFigura, imp.yFigura, m.z)
+      posizionaNome(m)
+    }
+    galassie.forEach((g, i) => g.gruppo.position.set(imp.xGalassia * (i % 2 === 0 ? 1 : -1), imp.yGalassia, g.z))
   }
   ridimensiona()
+
+  // i nomi delle costellazioni: stessi caratteri del sito, quando sono caricati
+  let chiusa = false
+  {
+    const display = document.querySelector('.display')
+    const mono = document.querySelector('.mono, .occhiello')
+    if (display) famiglie.display = getComputedStyle(display).fontFamily
+    if (mono) famiglie.mono = getComputedStyle(mono).fontFamily
+    const pronti: Promise<unknown> = document.fonts
+      ? Promise.all([
+          document.fonts.load(`500 ${CORPO}px ${famiglie.display}`),
+          document.fonts.load(`500 ${Math.round(CORPO * 0.3)}px ${famiglie.mono}`),
+        ]).catch(() => undefined)
+      : Promise.resolve()
+    pronti.then(() => {
+      if (chiusa) return
+      moduli.forEach((m) => {
+        const modulo = MODULI[m.tappa.indice]
+        const canvas = (m.nome.materiale.map as CanvasTexture).image as HTMLCanvasElement
+        const { w, h } = disegnaNome(canvas, modulo.cielo.nome, `${modulo.sigla} · ${COSTELLAZIONI[modulo.cielo.chiave].coordinate}`, famiglie, {
+          a: P.hex.accento,
+          b: P.hex.azioneLuce,
+        })
+        m.nome.w = w
+        m.nome.h = h
+        m.nome.materiale.map!.needsUpdate = true
+        m.nome.mesh.visible = true
+        posizionaNome(m)
+      })
+    })
+  }
 
   /* ----- stato e aggiornamento ----- */
   let uLiscio = 0
@@ -703,7 +961,12 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       l.materiale.uniforms.uProg.value = Math.max(prog, liscia(0.72, 0.82, frazione))
       l.materiale.uniforms.uAlfa.value = alfa
     }
-    for (const n of m.nebule) n.materiale.uniforms.uAlfa.value = n.base * liscia(230, 110, distanza) * liscia(2, 12, distanza) * (1 + 0.5 * (accesi / m.totale) + 0.6 * luce)
+    // la nebulosa si illumina man mano che la costellazione si completa
+    for (const n of m.nebule) {
+      n.materiale.uniforms.uAlfa.value = n.base * liscia(230, 110, distanza) * liscia(2, 12, distanza) * (1 + 0.5 * (accesi / m.totale) + 0.6 * luce)
+    }
+    // il nome compare quando le stelle cominciano a collegarsi
+    m.nome.materiale.opacity = (imp.ritratto ? 0.34 : 0.85) * liscia(0.3, 0.45, frazione) * alfa
   }
 
   const aggiorna = (u: number, dt: number, tempo: number) => {
@@ -713,7 +976,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     uTempo.value = tempo
 
     const z = zAl(punti, uLiscio)
-    velocita += ((Math.abs(z - zPrima) / Math.max(dt, 0.001)) - velocita) * 0.12
+    velocita += (Math.abs(z - zPrima) / Math.max(dt, 0.001) - velocita) * 0.12
     zPrima = z
     scarto.x += (mira.x - scarto.x) * 0.05
     scarto.y += (mira.y - scarto.y) * 0.05
@@ -736,13 +999,20 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
       if (vicino) aggiornaModulo(m, uLiscio, distanza)
     }
 
-    tappePerdita.forEach((t, i) => {
+    galassie.forEach((g, i) => {
+      const d = z - g.z
+      const vicina = d < 320 && d > -25
+      g.gruppo.visible = vicina
+      if (!vicina) return
+      // da lontano compare piano; dopo averla attraversata si spegne alle spalle
+      const t = tappePerdita[i]
       const f = (uLiscio - t.inizio) / t.durata
-      perdite.aLuce[i] = f < 0 ? 1 : f > 1 ? 0 : 1 - liscia(0.45, 0.95, f)
-      const d = z - zPerdita(i)
-      nebulePerdita[i].materiale.uniforms.uAlfa.value = nebulePerdita[i].base * liscia(200, 60, d) * liscia(1, 6, d) * (0.4 + 0.6 * perdite.aLuce[i])
+      const dopo = f > 0.62 ? 1 - liscia(0.62, 1.05, f) * 0.6 : 1
+      const alfa = liscia(320, 150, d) * dopo
+      g.materiale.uniforms.uAlfa.value = alfa * 0.62
+      g.bagliore.uniforms.uAlfa.value = alfa * liscia(1.5, 8, Math.abs(d))
+      g.alone.uniforms.uAlfa.value = 0.14 * alfa * liscia(1, 7, Math.abs(d))
     })
-    perdite.geometria.getAttribute('aLuce').needsUpdate = true
 
     for (const n of nebuleLibere) {
       const d = z - n.z
@@ -776,6 +1046,7 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
     },
     ridimensiona,
     distruggi: () => {
+      chiusa = true
       renderer.domElement.removeEventListener('webglcontextlost', alPerso)
       eliminabili.forEach((e) => e.dispose())
       renderer.dispose()

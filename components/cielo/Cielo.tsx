@@ -40,10 +40,17 @@ function mulberry32(seme: number) {
   }
 }
 
-function colore(caso: () => number) {
+/** il colore d'accento della palette (variabile CSS), come 'r,g,b' per il canvas */
+function accentoRgb() {
+  const hex = getComputedStyle(document.documentElement).getPropertyValue('--accento').trim().replace('#', '')
+  if (hex.length !== 6) return '158,216,255'
+  return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(',')
+}
+
+function colore(caso: () => number, accento: string) {
   const c = caso()
   if (c < 0.72) return '242,245,255' // bianco stella
-  if (c < 0.92) return '158,216,255' // celeste
+  if (c < 0.92) return accento // colore d'accento della palette
   if (c < 0.97) return '255,226,74' // giallo, raro
   return '255,107,44' // arancione, rarissimo
 }
@@ -56,7 +63,7 @@ const SCINTILLE = (() => {
     r: +(1 + caso() * 1.4).toFixed(2),
     durata: +(2.4 + caso() * 3.6).toFixed(2),
     ritardo: +(-caso() * 6).toFixed(2),
-    colore: caso() < 0.75 ? '#F2F5FF' : '#9ED8FF',
+    colore: caso() < 0.75 ? '#F2F5FF' : 'var(--accento)',
   }))
 })()
 
@@ -71,6 +78,7 @@ export default function Cielo() {
     const disegna = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
       const caso = mulberry32(20260927)
+      const accento = accentoRgb()
       tele.forEach((canvas, i) => {
         const ctx = canvas.getContext('2d')
         if (!ctx) return
@@ -88,7 +96,7 @@ export default function Cielo() {
           const alfa = s.alfaMin + caso() * (s.alfaMax - s.alfaMin)
           ctx.beginPath()
           ctx.arc(x, y, r, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(${colore(caso)},${alfa.toFixed(2)})`
+          ctx.fillStyle = `rgba(${colore(caso, accento)},${alfa.toFixed(2)})`
           ctx.fill()
         }
       })
