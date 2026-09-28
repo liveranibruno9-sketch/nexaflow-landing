@@ -9,7 +9,7 @@
  */
 
 export const CONTATTO = {
-  email: 'bruno@agentistudio.it',
+  email: 'bruno.liverani@agentistudio.it',
   telefono: '',
   zona: 'Romagna',
   formspree: 'https://formspree.io/f/mrednjvj',
