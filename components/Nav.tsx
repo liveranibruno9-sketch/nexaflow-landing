@@ -110,14 +110,7 @@ export default function Nav() {
   )
 }
 
-/** Il marchio: la A di Agenti, con la barra arancione. Due stelle ai piedi. */
+/** Il marchio: la A d'argento con l'orbita e la stella (public/marchio/a.png, sfondo trasparente). */
 function Marchio() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true" className="shrink-0">
-      <rect x="0.7" y="0.7" width="26.6" height="26.6" rx="7.6" stroke="var(--celeste)" strokeOpacity="0.35" strokeWidth="1.4" />
-      <path d="M8 19.5 L14 8 L20 19.5" stroke="var(--blu-luce)" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.7" strokeLinecap="round" />
-      <circle cx="14" cy="8" r="1.6" fill="var(--verde)" />
-    </svg>
-  )
+  return <img src="/marchio/a.png" width={47} height={34} alt="" aria-hidden="true" className="h-[34px] w-auto shrink-0" />
 }

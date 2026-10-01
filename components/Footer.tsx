@@ -8,12 +8,7 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-[1.3fr_1fr_1fr] md:gap-8">
           <div>
             <div className="flex items-center gap-2.5">
-              <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-                <rect width="28" height="28" rx="8" fill="var(--notte)" />
-                <path d="M8 19.5 L14 8 L20 19.5" stroke="var(--blu-luce)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M10.6 15 H17.4" stroke="var(--arancio)" strokeWidth="1.6" strokeLinecap="round" />
-                <circle cx="14" cy="8" r="1.6" fill="var(--verde)" />
-              </svg>
+              <img src="/marchio/a.png" width={44} height={32} alt="" aria-hidden="true" className="h-8 w-auto" />
               <span className="text-s0 font-medium tracking-[-0.02em]">Agenti Studio</span>
             </div>
             <p className="misura mt-5 text-s-1 leading-relaxed tenue">
