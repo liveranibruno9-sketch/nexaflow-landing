@@ -341,13 +341,13 @@ export default function Volo() {
             <div id="top" className="tappa tappa--partenza">
               <div className="quadro quadro--sfondo quadro--iniziale" {...finestra(T_PARTENZA, 0, 0.95)} data-subito>
                 <Image
-                  src="/cielo/carena.jpg"
+                  src="/cielo/esplosione.jpg"
                   alt=""
                   fill
                   priority
-                  quality={55}
+                  quality={70}
                   sizes="100vw"
-                  className="object-cover object-[50%_78%] opacity-70"
+                  className="object-cover object-center opacity-70"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,#05070F_0%,rgba(5,7,15,0.35)_30%,rgba(5,7,15,0.25)_60%,#05070F_100%)]" />
               </div>
