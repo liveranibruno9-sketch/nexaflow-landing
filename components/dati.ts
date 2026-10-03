@@ -51,7 +51,7 @@ export type Modulo = {
 
 export const MODULI: Modulo[] = [
   {
-    sigla: 'M1',
+    sigla: '01',
     slug: 'preventivi',
     nome: 'Recupero Preventivi',
     promessa: 'I preventivi fermi tornano a muoversi, senza che nessuno debba richiamare.',
@@ -106,7 +106,7 @@ export const MODULI: Modulo[] = [
     ],
   },
   {
-    sigla: 'M2',
+    sigla: '02',
     slug: 'segreteria',
     nome: 'Segreteria AI',
     promessa: 'Risponde alle chiamate che oggi si perdono, anche alle otto di sera.',
@@ -160,19 +160,19 @@ export const MODULI: Modulo[] = [
     ],
   },
   {
-    sigla: 'M3',
+    sigla: '03',
     slug: 'richiami',
-    nome: 'Richiami e Riattivazione',
-    promessa: 'I pazienti che non vede da un anno si ricordano che esistete.',
+    nome: 'Riattivazione Pazienti',
+    promessa: 'I pazienti che non vede da più di un anno tornano a sentire lo studio.',
     stato: 'verifica',
-    statoNota: 'Serve poter esportare lo storico visite',
+    statoNota: 'Basta un export settimanale dell’elenco pazienti dal gestionale',
     metrica: 'Pazienti riattivati e sedute prenotate',
     ore: '4–6 ore',
     oreNota: 'al mese di lavoro di lista che nessuno ha tempo di fare',
     euro: '1 paziente',
     euroNota: 'che torna vale una seduta di igiene, fino a 120 €, e spesso le cure che ne nascono: già pochi ritorni al mese coprono il servizio',
     inBreve: {
-      problema: 'Centinaia di pazienti dovevano tornare, e nessuno li richiama.',
+      problema: 'Pazienti che non vengono da più di un anno, e che nessuno ha ricontattato.',
       soluzione: 'Ogni settimana il sistema li ricontatta, con il tono giusto per ognuno.',
       risultato: '1 paziente che torna vale un’igiene, fino a 120 €, e le cure che ne nascono.',
     },
@@ -216,59 +216,7 @@ export const MODULI: Modulo[] = [
     ],
   },
   {
-    sigla: 'M4',
-    slug: 'no-show',
-    nome: 'Anti-No-Show',
-    promessa: 'Quando qualcuno disdice alle otto di sera, il posto si riempie da solo.',
-    stato: 'verifica',
-    statoNota: 'Serve accesso in lettura all’agenda',
-    metrica: 'Tasso di assenze e slot riempiti dalla lista d’attesa',
-    ore: '2–4 ore',
-    oreNota: 'al mese di telefonate per riempire i buchi',
-    euro: '1 ora',
-    euroNota: 'di poltrona riempita dopo una disdetta vale fra 80 e 200 €: due al mese coprono il servizio',
-    inBreve: {
-      problema: 'Una disdetta la sera prima lascia la poltrona vuota.',
-      soluzione: 'Il posto liberato va subito a chi è in lista d’attesa, anche di notte.',
-      risultato: '1 ora di poltrona riempita vale fra 80 e 200 €.',
-    },
-    cielo: {
-      chiave: 'cassiopea',
-      nome: 'Cassiopea',
-      perche: 'La regina seduta sul trono. Qui il trono è la poltrona, e non deve restare vuota.',
-      passi: [
-        'Promemoria a due giorni, con due pulsanti',
-        'Promemoria a un giorno, solo a chi non ha confermato',
-        'Il paziente disdice, anche alle otto di sera',
-        'Offre il posto alla lista d’attesa, per una seduta della stessa durata',
-        'La poltrona torna occupata',
-      ],
-    },
-    posts: [
-      {
-        titolo: 'Il problema',
-        testo:
-          'Il promemoria glielo manda già il gestionale. Il problema non è avvisare: è che quando uno disdice la sera prima, quel posto resta vuoto e nessuno lo riempie.',
-      },
-      {
-        titolo: 'Cosa fa',
-        testo:
-          'Manda il promemoria a due giorni e a un giorno, con due pulsanti: confermo, oppure non posso venire. Chi ha già confermato non viene disturbato una seconda volta.',
-      },
-      {
-        titolo: 'Come funziona',
-        testo:
-          'Se il paziente disdice, il sistema cerca subito nella lista d’attesa chi ha bisogno di una seduta della stessa durata, e gli propone quel posto. Anche di notte.',
-      },
-      {
-        titolo: 'Cosa ci guadagna',
-        testo:
-          'Un’ora di poltrona vale fra ottanta e duecento euro. Riempirne due al mese che prima restavano vuote copre il servizio e avanza.',
-      },
-    ],
-  },
-  {
-    sigla: 'M5',
+    sigla: '04',
     slug: 'recensioni',
     nome: 'Recensioni Google',
     promessa: 'Le recensioni arrivano da sole, e lei approva le risposte in dieci secondi.',
@@ -322,7 +270,7 @@ export const MODULI: Modulo[] = [
     ],
   },
   {
-    sigla: 'M6',
+    sigla: '05',
     slug: 'fondi',
     nome: 'Assistente Fondi Sanitari',
     promessa: 'Le pratiche dei fondi arrivano alla segreteria già pronte.',
@@ -407,16 +355,6 @@ export const PERDITE = [
     suffisso: ' €',
     datoNota: 'una seduta di igiene, più le cure che spesso ne nascono',
   },
-  {
-    n: '04',
-    titolo: 'La poltrona ferma',
-    testo:
-      'In sanità il no-show europeo si aggira intorno al 19%. Il promemoria lo manda già il gestionale: quello che manca è riempire il posto che si è liberato.',
-    valore: 200,
-    prefisso: 'fino a ',
-    suffisso: ' €',
-    datoNota: 'per ogni ora di poltrona ferma, ripetuto ogni settimana',
-  },
 ]
 
 export const PASSI = [
@@ -443,7 +381,7 @@ export const PASSI = [
     titolo: 'Si misura',
     durata: 'ogni mese, per iscritto',
     testo:
-      'Prima e dopo. Quante chiamate hanno ricevuto risposta, quanti preventivi fermi si sono mossi, quanti posti liberati sono stati riempiti. Se il numero non si muove, lo vede anche lei.',
+      'Prima e dopo. Quante chiamate hanno ricevuto risposta, quanti preventivi fermi si sono mossi, quanti pazienti sono tornati. Se il numero non si muove, lo vede anche lei.',
     dettaglio:
       'Il report mensile arriva anche quando i numeri sono brutti. È l’unico modo per capire se il servizio serve davvero.',
   },
@@ -475,7 +413,7 @@ export const CONFORMITA = [
 export const FAQ = [
   {
     d: 'Funziona con il mio gestionale?',
-    r: 'Dipende, e glielo dico prima di venderle qualcosa. Due dei moduli non hanno bisogno di toccare il gestionale e partono su qualsiasi studio. Gli altri due hanno bisogno di leggere l’agenda o lo storico visite: se il suo gestionale non lo permette, si usa un export settimanale, oppure non glieli propongo.',
+    r: 'Sì, perché il gestionale non lo tocchiamo. Recupero preventivi, segreteria, recensioni e fondi sanitari partono su qualsiasi studio, senza collegamenti. L’unico servizio che usa i suoi dati è la riattivazione dei pazienti: basta un export settimanale dell’elenco pazienti. Se il suo gestionale non lo permette, non glielo propongo.',
   },
   {
     d: 'I dati dei miei pazienti dove finiscono?',
