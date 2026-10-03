@@ -380,7 +380,7 @@ export default function Volo() {
               </div>
             </div>
 
-            {/* ================= LE QUATTRO PERDITE ================= */}
+            {/* ================= LE PERDITE ================= */}
             {T_PERDITE.map((t, i) => {
               const p = PERDITE[i]
               return (
@@ -388,7 +388,7 @@ export default function Volo() {
                   {i === 0 ? (
                     <div className="quadro quadro--lato" {...finestra(t, 0.02, 0.34)}>
                       <span className="occhiello text-[var(--arancio)]">Il problema</span>
-                      <h2 className="display mt-5 text-s4 leading-[1]">Quattro perdite. Nessuna compare nei report.</h2>
+                      <h2 className="display mt-5 text-s4 leading-[1]">Tre perdite. Nessuna compare nei report.</h2>
                       <p className="mt-6 max-w-[42ch] text-s0 tenue">
                         Non sono errori di qualcuno. Sono punti che nessuno ha il tempo di collegare, e ognuno si spegne in
                         silenzio, ogni settimana.
