@@ -42,7 +42,7 @@ export default function Telefono({
   return (
     <div className="mx-auto w-full max-w-[400px]">
       {conversazioni.length > 1 && (
-        <div data-lenis-prevent className="non-stampare mb-3 flex gap-2 overflow-x-auto pb-1">
+        <div data-lenis-prevent className="senza-barra non-stampare mb-3 flex gap-2 overflow-x-auto pb-1">
           {conversazioni.map((c) => (
             <button
               key={c.id}

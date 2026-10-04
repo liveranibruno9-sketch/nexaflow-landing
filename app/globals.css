@@ -886,3 +886,7 @@ html:not(.volo) .tappa--svolta { padding-block: clamp(4rem, 9vw, 7rem); text-ali
   body.stampa-attiva .in-stampa::before { display: none !important; }
   body.stampa-attiva .in-stampa .non-stampare { display: none !important; }
 }
+
+/* righe scorrevoli di chip nelle demo: si scorre col dito, senza la barra grigia del sistema */
+.senza-barra { scrollbar-width: none; }
+.senza-barra::-webkit-scrollbar { display: none; }
