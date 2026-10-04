@@ -420,12 +420,12 @@ export default function Volo() {
                 <div className="wrap text-center">
                   <span className="occhiello text-[var(--verde)]">Le soluzioni</span>
                   <h2 className="display mx-auto mt-6 max-w-[17ch] text-[clamp(2.5rem,6vw,5.6rem)] leading-[0.98]">
-                    Ecco la soluzione. <span className="testo-sfumato">Cinque servizi per il suo studio dentistico.</span>
+                    Ecco la soluzione. <span className="testo-sfumato">Un piano per recuperare il fatturato, in cinque moduli.</span>
                   </h2>
                   <p className="mx-auto mt-7 max-w-[60ch] text-s1 leading-[1.45] text-[color-mix(in_srgb,var(--bianco)_86%,transparent)]">
                     Una segreteria che risponde alle chiamate perse, il recupero dei preventivi, la riattivazione dei pazienti,
-                    le recensioni Google e le pratiche dei fondi sanitari. Nessuno tocca il suo gestionale, e ognuno
-                    si misura ogni mese.
+                    le recensioni Google e le pratiche dei fondi sanitari. Si parte da un modulo solo, quello che serve di più
+                    al suo studio. Nessuno tocca il suo gestionale, e ognuno si misura ogni mese.
                   </p>
                 </div>
               </div>
