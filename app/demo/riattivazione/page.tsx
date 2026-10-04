@@ -16,7 +16,7 @@ const MASSIMO_CONVERSAZIONI = 40
 
 const PASSI = [
   'Una volta a settimana esporta dal gestionale l’elenco pazienti con la data dell’ultima visita (Excel o CSV) e lo carica qui.',
-  'La prima volta, se il sistema non riconosce i nomi delle colonne, le abbina con i menu: poi resta così.',
+  'Se il sistema non riconosce i nomi delle colonne del file, le abbina con i menu che compaiono.',
   'Il sistema tiene solo chi non viene da più di 12 mesi e scarta, con il motivo, chi ha già un appuntamento, chi è stato ricontattato negli ultimi 6 mesi e chi non ha dato il consenso.',
   'Ai pazienti da riattivare arriva un messaggio informativo. Nessuno viene contattato due volte nello stesso semestre.',
   'Chi risponde “vorrei fissare” compare in cima all’analisi con il numero: lo richiama lei e fissa la visita.',

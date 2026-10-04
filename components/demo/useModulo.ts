@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ModuloDemo, RispostaDemo, StatoBase } from '@/lib/demo/tipi'
 
 const OGNI_MS = 2000
-const ARRENDITI_MS = 60000
+const PIU_LENTO_DOPO_MS = 60000
+const OGNI_MS_LENTO = 6000
 
 // Collega una pagina demo al suo workflow n8n. Mentre l'AI lavora (stato.lavorazione) interroga
 // lo stato ogni 2 secondi; la lettura non scrive mai sul server, quindi non può perdere i testi.
@@ -51,18 +52,23 @@ export function useModulo<S extends StatoBase>(modulo: ModuloDemo) {
   }, [chiama])
 
   const inLavorazione = !!stato?.lavorazione
+  // il server mostra come errore una lavorazione rimasta appesa oltre 120 s: qui basta continuare a chiedere
   useEffect(() => {
     if (!inLavorazione) return
     const inizio = Date.now()
-    const id = window.setInterval(() => {
-      if (Date.now() - inizio > ARRENDITI_MS) {
-        window.clearInterval(id)
-        setErrore('Il sistema ci sta mettendo più del solito: ricarica la pagina tra qualche secondo')
-        return
-      }
-      chiama('leggi', {}, true)
-    }, OGNI_MS)
-    return () => window.clearInterval(id)
+    let attivo = true
+    let timer = 0
+    const prossima = () => {
+      timer = window.setTimeout(async () => {
+        await chiama('leggi', {}, true)
+        if (attivo) prossima()
+      }, Date.now() - inizio > PIU_LENTO_DOPO_MS ? OGNI_MS_LENTO : OGNI_MS)
+    }
+    prossima()
+    return () => {
+      attivo = false
+      window.clearTimeout(timer)
+    }
   }, [inLavorazione, chiama])
 
   return {

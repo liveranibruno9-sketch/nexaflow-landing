@@ -28,7 +28,7 @@ export default function BarraDemo({
   messaggioLavoro?: string
 }) {
   return (
-    <header className="mb-6">
+    <header className="mb-6" data-prova="barra" data-occupato={String(occupato)}>
       <span className="occhiello">
         {sigla} · {nome}
       </span>
@@ -45,9 +45,8 @@ export default function BarraDemo({
         <button
           type="button"
           data-prova="ripristina"
-          disabled={occupato}
           onClick={onRipristina}
-          className="btn btn-fantasma !min-h-[44px] !px-5 !py-2.5 disabled:opacity-40"
+          className="btn btn-fantasma !min-h-[44px] !px-5 !py-2.5"
         >
           Ripristina demo
         </button>

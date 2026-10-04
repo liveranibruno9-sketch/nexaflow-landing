@@ -69,7 +69,7 @@ export default function CaricaExport({
       {daAbbinare && (
         <div className="mt-5 rounded-2xl border border-[var(--bordo-forte)] p-4">
           <p className="text-s0 font-medium text-[var(--bianco)]">Non riconosco alcune colonne: me le indica?</p>
-          <p className="mt-1 text-s-2 text-[var(--neutro)]">Basta farlo la prima volta: con lo stesso gestionale l’abbinamento resta uguale.</p>
+          <p className="mt-1 text-s-2 text-[var(--neutro)]">Indichi quale colonna del file contiene ciascun dato. Quelle con l’asterisco sono indispensabili.</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {CAMPI.map((c) => (
               <label key={c.chiave} className="block">

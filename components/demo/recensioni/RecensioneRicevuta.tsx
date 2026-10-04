@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { dataBreve } from '@/lib/demo/formato'
-import type { Recensione } from '@/lib/demo/tipi'
+import type { Recensione, RispostaDemo } from '@/lib/demo/tipi'
 
 // Una recensione arrivata su Google, con la bozza di risposta che il titolare approva o corregge.
 export default function RecensioneRicevuta({
@@ -12,9 +12,10 @@ export default function RecensioneRicevuta({
 }: {
   r: Recensione
   occupato: boolean
-  onApprova: (testo: string) => void
+  onApprova: (testo: string) => Promise<RispostaDemo<unknown>>
 }) {
   const [bozza, setBozza] = useState(r.bozza)
+  const [rifiuto, setRifiuto] = useState<string | null>(null)
   useEffect(() => setBozza(r.bozza), [r.bozza])
 
   return (
@@ -51,9 +52,23 @@ export default function RecensioneRicevuta({
                 Da rivedere prima di pubblicare: {r.problemi.join('; ')}
               </p>
             )}
-            <button type="button" data-prova="approva" disabled={occupato || !bozza.trim()} onClick={() => onApprova(bozza)} className="btn btn-primario mt-3 !min-h-[40px] !py-2 text-s-2 disabled:opacity-40">
+            <button
+              type="button"
+              data-prova="approva"
+              disabled={occupato || !bozza.trim()}
+              onClick={async () => {
+                const esito = await onApprova(bozza)
+                setRifiuto(esito.ok ? null : esito.errore ?? 'Non approvata, riprova')
+              }}
+              className="btn btn-primario mt-3 !min-h-[40px] !py-2 text-s-2 disabled:opacity-40"
+            >
               Approva e pubblica
             </button>
+            {rifiuto && (
+              <p role="alert" data-prova="rifiuto-approvazione" className="mt-2 text-s-2 text-[var(--arancio)]">
+                {rifiuto}
+              </p>
+            )}
           </>
         )}
       </div>
