@@ -745,9 +745,9 @@ export function creaScena(contenitore: HTMLElement, opzioni: { mobile: boolean; 
   nebulaLibera(8, -3, Z_FINE - 62, 95, P.nebula3, P.nebula1, 0.3, 4)
   nebulaLibera(-10, 6, Z_FINE - 85, 120, P.nebula2, P.accento, 0.2, 5)
 
-  /* ----- le quattro galassie delle perdite ----- */
+  /* ----- una galassia per ogni perdita (GALASSIE ha i colori, ne usa quante sono le perdite) ----- */
   const tappePerdita = TAPPE.filter((t) => t.tipo === 'perdita')
-  const galassie: GalassiaScena[] = GALASSIE.map((def, i) => {
+  const galassie: GalassiaScena[] = GALASSIE.slice(0, tappePerdita.length).map((def, i) => {
     const caso = mulberry32(100 + i)
     const n = mobile ? 5500 : 9000
     const pos = new Float32Array(n * 3)

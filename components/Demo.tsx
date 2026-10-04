@@ -27,7 +27,6 @@ export default function Demo() {
                 ['Il messaggio al paziente', 'scritto sul momento, non preconfezionato'],
                 ['Il riepilogo alla segreteria', 'cosa è partito, cosa no, e perché'],
                 ['Il controllo di conformità', 'blocca il messaggio se contiene parole vietate'],
-                ['Lo slot che si riempie', 'una disdetta, e il posto va alla lista d’attesa'],
               ].map(([t, s], i) => (
                 <li
                   key={t}

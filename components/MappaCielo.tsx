@@ -3,7 +3,7 @@ import { COSTELLAZIONI } from './cielo/stelle'
 import { MODULI } from './dati'
 
 /**
- * La mappa del cielo: l'indice dei sei moduli.
+ * La mappa del cielo: l'indice dei moduli.
  * Ogni costellazione e un collegamento alla sua sezione. Tutte disegnate per
  * intero: qui servono a riconoscerle, il racconto passo per passo viene dopo.
  */

@@ -74,12 +74,12 @@ export const metadata: Metadata = {
     template: '%s · Agenti Studio',
   },
   description:
-    'Recuperiamo il fatturato che il suo studio dentistico sta già perdendo: chiamate senza risposta, preventivi fermi, pazienti mai richiamati, poltrone vuote. Misurato prima e dopo.',
+    'Recuperiamo il fatturato che il suo studio dentistico sta già perdendo: chiamate senza risposta, preventivi fermi, pazienti che non tornano, recensioni ferme. Misurato prima e dopo.',
   keywords: [
     'automazione studio dentistico',
     'segreteria AI dentista',
     'recupero preventivi odontoiatria',
-    'anti no-show dentista',
+    'riattivazione pazienti dentista',
     'agenti AI studi dentistici',
     'Romagna',
   ],
@@ -91,13 +91,13 @@ export const metadata: Metadata = {
     siteName: 'Agenti Studio',
     title: 'Agenti Studio — automazioni AI per studi dentistici',
     description:
-      'Chiamate senza risposta, preventivi fermi, poltrone vuote. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
+      'Chiamate senza risposta, preventivi fermi, pazienti che non tornano. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Agenti Studio — automazioni AI per studi dentistici',
     description:
-      'Chiamate senza risposta, preventivi fermi, poltrone vuote. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
+      'Chiamate senza risposta, preventivi fermi, pazienti che non tornano. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
   },
   robots: { index: true, follow: true },
   alternates: { canonical: SITO },
