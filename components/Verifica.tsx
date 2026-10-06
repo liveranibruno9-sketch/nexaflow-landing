@@ -1,14 +1,6 @@
 import Image from 'next/image'
-import { CONTATTO } from './dati'
+import ModuloVerifica from './ModuloVerifica'
 
-const CAMPI = [
-  { id: 'studio', label: 'Nome dello studio', type: 'text', required: true, auto: 'organization' },
-  { id: 'titolare', label: 'Il suo nome', type: 'text', required: true, auto: 'name' },
-  { id: 'citta', label: 'Città', type: 'text', required: true, auto: 'address-level2' },
-  { id: 'telefono', label: 'Telefono dello studio', type: 'tel', required: true, auto: 'tel' },
-  { id: 'email', label: 'Email', type: 'email', required: true, auto: 'email' },
-  { id: 'gestionale', label: 'Gestionale in uso (se lo sa)', type: 'text', required: false, auto: 'off' },
-]
 
 /**
  * Arrivo: il modulo della verifica gratuita, l'unica azione della pagina.
@@ -68,52 +60,7 @@ export default function Verifica() {
           </div>
 
           <div className="rivela-scala">
-            <form action={CONTATTO.formspree} method="POST" className="vetro rounded-xl3 p-6 sm:p-8">
-              <div className="grid gap-5 sm:grid-cols-2">
-                {CAMPI.map((c) => (
-                  <div key={c.id} className={c.id === 'studio' || c.id === 'gestionale' ? 'sm:col-span-2' : ''}>
-                    <label htmlFor={c.id} className="occhiello !text-[var(--neutro)]">
-                      {c.label}
-                      {c.required ? <span className="text-[var(--blu-luce)]"> *</span> : null}
-                    </label>
-                    <input
-                      id={c.id}
-                      name={c.id}
-                      type={c.type}
-                      required={c.required}
-                      autoComplete={c.auto}
-                      className="mt-2 w-full rounded-xl border border-[var(--bordo-forte)] bg-[color-mix(in_srgb,#05070F_55%,transparent)] px-4 py-3 text-s0 text-[var(--bianco)] outline-none transition-colors focus:border-[var(--celeste)]"
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* campo trappola anti-spam, invisibile agli umani */}
-              <input type="text" name="_gotcha" tabIndex={-1} aria-hidden="true" className="hidden" />
-              <input type="hidden" name="_subject" value="Richiesta verifica gratuita — agentistudio.it" />
-
-              <label className="mt-7 flex cursor-pointer items-start gap-3">
-                <input type="checkbox" name="consenso" required className="mt-1 h-4 w-4 shrink-0 accent-[var(--blu)]" />
-                <span className="text-s-2 leading-relaxed tenue">
-                  Acconsento al trattamento dei dati per essere ricontattato su questa richiesta, come descritto nella{' '}
-                  <a href="/privacy" className="underline underline-offset-2 hover:text-[var(--blu-luce)]">
-                    privacy policy
-                  </a>
-                  .
-                </span>
-              </label>
-
-              <button type="submit" className="btn btn-primario mt-7 w-full">
-                Richiedi la verifica gratuita
-              </button>
-
-              <p className="mt-5 text-s-2 tenue">
-                Oppure scriva direttamente a{' '}
-                <a href={`mailto:${CONTATTO.email}`} className="underline underline-offset-2 hover:text-[var(--blu-luce)]">
-                  {CONTATTO.email}
-                </a>
-              </p>
-            </form>
+            <ModuloVerifica />
           </div>
         </div>
       </div>

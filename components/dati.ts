@@ -12,7 +12,6 @@ export const CONTATTO = {
   email: 'bruno.liverani@agentistudio.it',
   telefono: '',
   zona: 'Romagna',
-  formspree: 'https://formspree.io/f/mrednjvj',
 }
 
 import type { ChiaveCostellazione } from './cielo/stelle'
