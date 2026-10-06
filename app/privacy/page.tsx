@@ -54,17 +54,9 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
     titolo: 'Strumenti di terze parti',
     corpo: (
       <p>
-        Il modulo è gestito da Formspree Inc. (Stati Uniti), che inoltra il messaggio alla nostra casella e
-        agisce come responsabile del trattamento secondo i propri{' '}
-        <a
-          href="https://formspree.io/legal/privacy-policy/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-[var(--blu-luce)]"
-        >
-          termini privacy
-        </a>
-        . Il sito è ospitato su Vercel Inc. e usa Vercel Analytics, che raccoglie statistiche di traffico
+        Il modulo invia i dati al server di automazione di Agenti Studio (software n8n), ospitato da Hetzner
+        Online GmbH in Germania, che li registra e li inoltra alla nostra casella email, gestita da Aruba S.p.A.
+        in Italia. Entrambi agiscono come responsabili del trattamento. Il sito è ospitato su Vercel Inc. e usa Vercel Analytics, che raccoglie statistiche di traffico
         aggregate senza cookie e senza identificare i singoli visitatori. I caratteri tipografici sono serviti
         dal nostro dominio: nessuna richiesta viene inviata a Google al caricamento della pagina.
       </p>
