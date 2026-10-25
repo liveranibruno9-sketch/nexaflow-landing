@@ -65,7 +65,8 @@ const mono = localFont({
   adjustFontFallback: false,
 })
 
-const SITO = 'https://agentistudio.it'
+// Con www: è l'indirizzo finale, il dominio nudo fa redirect qui
+const SITO = 'https://www.agentistudio.it'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITO),
@@ -101,6 +102,7 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   alternates: { canonical: SITO },
+  verification: { google: 'fx_Z6ORU-XMLUH3dfJB1J0DrH52mF74qpbV81DSyl5U' },
 }
 
 export const viewport: Viewport = {
