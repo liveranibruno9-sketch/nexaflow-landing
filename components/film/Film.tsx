@@ -1,0 +1,154 @@
+'use client'
+
+// Il componente Film: markup della scena (poster, due canvas, atti e battute come testo HTML vero) e avvio del motore.
+// Senza JavaScript resta il poster fisso coi testi in fila (manca la classe `film-attivo` su <html>).
+// Ogni collegamento è un <a> semplice, mai next/link (Ruling 9: la classe `film` su <html> non si rimette in
+// navigazione morbida).
+import { Fragment, useEffect, useRef } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
+import type { Servizio } from './dati/contatti'
+import { scegliModo } from './modo'
+import { avviaFilm } from './motore'
+import type { Atto, Battuta, Regia } from './regia'
+
+type Props = {
+  regia: Regia
+  poster: { src: string; alt: string }
+  h1: string
+  corrente: 'home' | Servizio
+  children?: ReactNode
+}
+
+type Finestra = { 'data-da': number; 'data-a': number; 'data-s': number }
+
+const finestra = (da: number, a: number, s?: number): Finestra => ({ 'data-da': da, 'data-a': a, 'data-s': s ?? 0.18 })
+
+/** la frase con la parola d'accento colorata (la prima occorrenza di `accento` dentro `testo`) */
+function Testo({ testo, accento }: { testo: string; accento?: string }) {
+  const i = accento ? testo.indexOf(accento) : -1
+  if (!accento || i < 0) return <>{testo}</>
+  return (
+    <>
+      {testo.slice(0, i)}
+      <em className="accento">{accento}</em>
+      {testo.slice(i + accento.length)}
+    </>
+  )
+}
+
+/** la parola più lunga: serve al CSS per non far uscire dallo schermo i nomi lunghi (Prometheus) */
+const lettere = (testo: string) => Math.max(...testo.split(/\s+/).map((p) => p.length))
+
+function BattutaHtml({ b }: { b: Battuta }) {
+  const f = finestra(b.da, b.a, b.s)
+  switch (b.tipo) {
+    case 'nome':
+      // decorativo: l'H1 è la riga piccola (testi §6)
+      return (
+        <p className="battuta battuta-nome nome" aria-hidden="true" style={{ '--lettere': lettere(b.testo) } as CSSProperties} {...f}>
+          {b.testo}
+        </p>
+      )
+    case 'link':
+      return <a className="battuta battuta-link" href={b.href} {...f}><Testo testo={b.testo} accento={b.accento} /></a>
+    case 'cartolina':
+      return (
+        <a className="battuta cartolina" href={b.href} {...f}>
+          <span className="cartolina-testo"><Testo testo={b.testo} accento={b.accento} /></span>
+          {b.nota ? <span className="cartolina-nota">{b.nota}</span> : null}
+        </a>
+      )
+    case 'scorri':
+      return <p className="battuta scorri" {...f}><span className="scorri-linea" aria-hidden="true" />{b.testo}</p>
+    default:
+      return <p className={`battuta battuta-${b.tipo}`} {...f}><Testo testo={b.testo} accento={b.accento} /></p>
+  }
+}
+
+/** le frasi consecutive stanno nello stesso punto e si danno il cambio: si raggruppano in un .frasi */
+function gruppi(battute: Battuta[]): (Battuta | Battuta[])[] {
+  const out: (Battuta | Battuta[])[] = []
+  for (const b of battute) {
+    const ultimo = out[out.length - 1]
+    if (b.tipo === 'frase' && Array.isArray(ultimo)) ultimo.push(b)
+    else out.push(b.tipo === 'frase' ? [b] : b)
+  }
+  return out
+}
+
+function AttoHtml({ atto, h1, regia, ultimo }: { atto: Atto; h1?: string; regia: Regia; ultimo: boolean }) {
+  // l'H1 (riga piccola in mono) va sotto il nome del primo atto; acceso dall'arrivo fino alla fine dell'atto
+  const titolo = h1 ? <h1 className="battuta h1-piccolo" {...finestra(0, atto.a)}>{h1}</h1> : null
+  const conNome = atto.battute.some((b) => b.tipo === 'nome')
+  return (
+    <section className="atto" id={atto.id} data-id={atto.id} data-materia={atto.materia} aria-label={atto.nome}>
+      {conNome ? null : titolo}
+      {gruppi(atto.battute).map((g, i) =>
+        Array.isArray(g) ? (
+          <div className="frasi" key={i}>
+            {g.map((b, j) => <BattutaHtml b={b} key={j} />)}
+          </div>
+        ) : (
+          <Fragment key={i}>
+            <BattutaHtml b={g} />
+            {g.tipo === 'nome' && conNome && atto.battute.find((b) => b.tipo === 'nome') === g ? titolo : null}
+          </Fragment>
+        ),
+      )}
+      {ultimo && regia.pulsante ? (
+        // il pulsante nasce dalle materie (compito 7); qui è già un collegamento vero al suo posto finale
+        <div className="chiusura">
+          <a className="battuta pulsante" href={regia.pulsante.href} {...finestra(regia.pulsante.da, Infinity)}>{regia.pulsante.testo}</a>
+          <p className="battuta pulsante-sotto" {...finestra(regia.pulsante.da, Infinity)}>{regia.pulsante.sotto}</p>
+        </div>
+      ) : null}
+    </section>
+  )
+}
+
+export default function Film({ regia, poster, h1, corrente, children }: Props) {
+  const radice = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = radice.current
+    if (!el) return
+    const nav = navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string }
+      deviceMemory?: number
+    }
+    const modo = scegliModo({
+      ridotto: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      risparmioDati: !!(nav.connection && nav.connection.saveData),
+      memoriaGB: nav.deviceMemory,
+      core: nav.hardwareConcurrency || undefined,
+      rete: nav.connection ? nav.connection.effectiveType : undefined,
+      larghezza: window.innerWidth,
+      verticale: window.matchMedia('(orientation: portrait)').matches,
+    })
+    el.dataset.modo = modo.modo
+    return avviaFilm(el, regia, modo)
+  }, [regia])
+
+  const primo = regia.atti[0]
+  return (
+    <>
+      <div className="film-scena" ref={radice} style={{ '--T': regia.T } as CSSProperties}>
+        <div className="palco">
+          <picture className="locandina">
+            <img src={poster.src} alt={poster.alt} width={720} height={1280} fetchPriority="high" decoding="async" />
+          </picture>
+          <canvas className="tela" aria-hidden="true" />
+          <canvas className="tela-materia" aria-hidden="true" />
+          <div className="interfaccia">
+            {/* Testata con indice e menu: compito 5 (riceverà `corrente`) */}
+            <div className="testata" data-corrente={corrente} />
+            {regia.atti.map((at, i) => (
+              <AttoHtml atto={at} h1={at === primo ? h1 : undefined} regia={regia} ultimo={i === regia.atti.length - 1} key={at.id} />
+            ))}
+          </div>
+        </div>
+      </div>
+      {children}
+    </>
+  )
+}

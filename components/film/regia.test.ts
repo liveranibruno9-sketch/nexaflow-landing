@@ -2,6 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import * as C from './regia.ts'
+import { HOME } from './dati/home.ts'
 
 const scene = [{ nome: 'studio', da: 2, a: 8.4 }, { nome: 'atlas-1', da: 8, a: 9.4 }, { nome: 'atlas-2', da: 9.4, a: 10.9 }]
 
@@ -110,4 +111,25 @@ test('valida: regia della home (tempi reali)', () => {
     pulsante: { da: 31.7, testo: 'Richiedi un preventivo', href: '#preventivo', sotto: 'x' },
   }
   assert.deepEqual(C.valida(home), [])
+})
+
+test('HOME valida', () => assert.deepEqual(C.valida(HOME), []))
+
+test('HOME: battute di testi.md', () => {
+  const testi = JSON.stringify(HOME)
+  for (const f of ['Tu fai il tuo mestiere.', 'Il peso lo porto io.', 'Chi ti cerca, trova me.', 'Il bello c\'è già. Io lo accendo.', 'Porto da te chi ancora non ti conosce.', 'La prossima può essere la tua.']) assert.ok(testi.includes(f), f)
+})
+
+test('HOME: scene in ordine di da, apertura e studio dove dice la regia', () => {
+  HOME.scene.forEach((s, i) => { if (i > 0) assert.ok(s.da >= HOME.scene[i - 1].da, `${s.nome} prima di ${HOME.scene[i - 1].nome}`) })
+  const x = C.sceneAttive(HOME.scene, 2.3)                       // l'ultimo fotogramma del cerchio sfuma nello studio
+  assert.equal(x.a?.nome, 'apertura'); assert.equal(x.b?.nome, 'studio'); assert.ok(x.t > 0 && x.t < 1)
+  assert.equal(C.sceneAttive(HOME.scene, 5).a?.nome, 'studio')
+  const h = C.sceneAttive(HOME.scene, 28.2)                      // Hermes (fine 28,5) sfuma nello studio del finale
+  assert.equal(h.a?.nome, 'hermes-3'); assert.equal(h.b?.nome, 'studio')
+  assert.equal(C.sceneAttive(HOME.scene, 32).a?.nome, 'studio')
+})
+
+test('HOME: accenti dentro la frase', () => {
+  for (const at of HOME.atti) for (const b of at.battute) if (b.accento) assert.ok(b.testo.includes(b.accento), `${at.id}: ${b.testo}`)
 })
