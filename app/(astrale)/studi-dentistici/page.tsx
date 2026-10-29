@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Nav from '@/components/Nav'
 import Volo from '@/components/volo/Volo'
 import MappaCielo from '@/components/MappaCielo'
@@ -7,6 +8,30 @@ import Demo from '@/components/Demo'
 import Domande from '@/components/Domande'
 import Verifica from '@/components/Verifica'
 import Footer from '@/components/Footer'
+
+const DESCRIZIONE =
+  'Recuperiamo il fatturato che il suo studio dentistico sta già perdendo: chiamate senza risposta, preventivi fermi, pazienti che non tornano, recensioni ferme. Misurato prima e dopo.'
+
+export const metadata: Metadata = {
+  title: { absolute: 'Automazioni AI per studi dentistici | Agenti Studio' },
+  description: DESCRIZIONE,
+  alternates: { canonical: '/studi-dentistici' },
+  openGraph: {
+    type: 'website',
+    locale: 'it_IT',
+    url: '/studi-dentistici',
+    siteName: 'Agenti Studio',
+    title: 'Agenti Studio — automazioni AI per studi dentistici',
+    description:
+      'Chiamate senza risposta, preventivi fermi, pazienti che non tornano. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Agenti Studio — automazioni AI per studi dentistici',
+    description:
+      'Chiamate senza risposta, preventivi fermi, pazienti che non tornano. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
+  },
+}
 
 /**
  * Variante "profondita": prima il volo, poi l'orbita.

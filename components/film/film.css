@@ -1,0 +1,22 @@
+/* Base delle pagine film (gruppo di route `(film)`). */
+html.film,
+html.film body {
+  background: #000;
+}
+
+.film-radice {
+  /* colori d'accento (D23) */
+  --polvere: #5b8cff;
+  --vetro: #35e0f0;
+  --saette: #f4f1ff;
+  --saette-viola: #b48cff;
+  --cromo: #d9d4c7;
+  --blu: #5b8cff;
+  /* luce calda dello studio: usare come rgba(var(--luce), alfa) */
+  --luce: 242, 194, 122;
+
+  min-height: 100svh;
+  background: #000;
+  color: #f4f1ff;
+  font-family: var(--font-titoli), 'Archivo', system-ui, sans-serif;
+}

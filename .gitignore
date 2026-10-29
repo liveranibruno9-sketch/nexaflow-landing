@@ -6,3 +6,6 @@ out/
 
 # immagini originali scaricate, non servono al sito
 _sorgenti/
+
+# prove a occhio (catture), non si committano
+_controllo/
