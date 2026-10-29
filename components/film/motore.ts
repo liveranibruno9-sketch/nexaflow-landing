@@ -242,7 +242,8 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     window.removeEventListener('resize', alRidimensiona)
     window.removeEventListener('pageshow', alRitorno)
     caricatore.ferma()
-    html.classList.remove('film-attivo')
+    // via anche `film-js`: da sola terrebbe la pagina nello stato d'attesa (solo poster) senza motore
+    html.classList.remove('film-attivo', 'film-js')
     radice.classList.remove('pronto')
     for (const n of Object.keys(variabili)) radice.style.removeProperty(n)
     for (const b of battute) { b.el.style.removeProperty('opacity'); b.el.style.removeProperty('transform'); b.el.style.removeProperty('visibility') }

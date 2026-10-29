@@ -1,7 +1,9 @@
 /* Pagine film (gruppo di route `(film)`), portato da molino-nuovo/stile.css e tutto sotto `.film-radice`.
    Un'unica scena: il canvas a schermo pieno è sempre sotto, le battute (testo HTML vero) arrivano sopra in finestre di
    scroll precise. Nessun fondo pieno o gradiente sopra la scena (la misura della copertura li conterebbe come pagina).
-   Senza JavaScript manca la classe `film-attivo` su <html>: resta il poster fisso coi testi in fila. */
+   Senza JavaScript manca la classe `film-attivo` su <html>: resta il poster fisso coi testi in fila.
+   Con JavaScript lo script sincrono del layout mette `film-js` prima del primo disegno: il layout è già quello del film
+   (stato a u = 0) anche prima che il motore parta e metta `film-attivo`, quindi nessun salto. */
 html.film,
 html.film body {
   background: #000;
@@ -165,19 +167,19 @@ html.film {
 .film-radice .scorri { display: none; }
 
 /* ---------- Con il film acceso ---------- */
-.film-attivo .film-radice .film-scena { height: calc(100vh + var(--T) * 100vh); height: calc(100lvh + var(--T) * 100svh); }
-.film-attivo .film-radice .palco { position: sticky; top: 0; height: 100vh; height: 100lvh; min-height: 0; }
-.film-attivo .film-radice .locandina { position: absolute; }
-.film-attivo .film-radice .locandina img { opacity: 1; }
-.film-attivo .film-radice .pronto .locandina { visibility: hidden; }
-.film-attivo .film-radice .tela,
-.film-attivo .film-radice .tela-materia { display: block; }
-.film-attivo .film-radice .tela-materia { pointer-events: none; }
-.film-attivo .film-radice .interfaccia { position: absolute; top: 0; left: 0; right: 0; height: 100vh; height: 100svh; padding: 0; pointer-events: none; }
-.film-attivo .film-radice .interfaccia a { pointer-events: auto; }
-.film-attivo .film-radice .testata { position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
+:is(.film-attivo, .film-js) .film-radice .film-scena { height: calc(100vh + var(--T) * 100vh); height: calc(100lvh + var(--T) * 100svh); }
+:is(.film-attivo, .film-js) .film-radice .palco { position: sticky; top: 0; height: 100vh; height: 100lvh; min-height: 0; }
+:is(.film-attivo, .film-js) .film-radice .locandina { position: absolute; }
+:is(.film-attivo, .film-js) .film-radice .locandina img { opacity: 1; }
+:is(.film-attivo, .film-js) .film-radice .pronto .locandina { visibility: hidden; }
+:is(.film-attivo, .film-js) .film-radice .tela,
+:is(.film-attivo, .film-js) .film-radice .tela-materia { display: block; }
+:is(.film-attivo, .film-js) .film-radice .tela-materia { pointer-events: none; }
+:is(.film-attivo, .film-js) .film-radice .interfaccia { position: absolute; top: 0; left: 0; right: 0; height: 100vh; height: 100svh; padding: 0; pointer-events: none; }
+:is(.film-attivo, .film-js) .film-radice .interfaccia a { pointer-events: auto; }
+:is(.film-attivo, .film-js) .film-radice .testata { position: absolute; top: 0; left: 0; right: 0; z-index: 2; }
 
-.film-attivo .film-radice .atto {
+:is(.film-attivo, .film-js) .film-radice .atto {
   position: absolute;
   inset: 0;
   z-index: 1;
@@ -188,16 +190,18 @@ html.film {
 }
 /* ogni battuta la accende il motore (opacità, visibilità, translate3d). Niente will-change: con ~50 battute
    sarebbero ~50 livelli da comporre a ogni fotogramma (misurato: 42 → 69 fotogrammi al secondo senza) */
-.film-attivo .film-radice .battuta { opacity: 0; visibility: hidden; }
+:is(.film-attivo, .film-js) .film-radice .battuta { opacity: 0; visibility: hidden; }
+/* prima dell'idratazione: come a u = 0, accese solo le battute che partono da 0 (H1 e "Scorri") */
+html.film-js:not(.film-attivo) .film-radice .battuta[data-da='0'] { opacity: 1; visibility: visible; }
 /* le frasi di un atto stanno nello stesso punto, in basso, e si danno il cambio */
-.film-attivo .film-radice .frasi { display: grid; margin-top: auto; width: 100%; }
-.film-attivo .film-radice .frasi > .battuta { grid-area: 1 / 1; align-self: end; }
-.film-attivo .film-radice .frasi > .battuta-frase + .battuta-frase { margin-top: 0; }
-.film-attivo .film-radice .atto[data-id='apertura'] { justify-content: center; }
-.film-attivo .film-radice .atto[data-id='apertura'] .nome { margin-top: 0; }
-.film-attivo .film-radice .chiusura { margin-top: 1.4em; }
+:is(.film-attivo, .film-js) .film-radice .frasi { display: grid; margin-top: auto; width: 100%; }
+:is(.film-attivo, .film-js) .film-radice .frasi > .battuta { grid-area: 1 / 1; align-self: end; }
+:is(.film-attivo, .film-js) .film-radice .frasi > .battuta-frase + .battuta-frase { margin-top: 0; }
+:is(.film-attivo, .film-js) .film-radice .atto[data-id='apertura'] { justify-content: center; }
+:is(.film-attivo, .film-js) .film-radice .atto[data-id='apertura'] .nome { margin-top: 0; }
+:is(.film-attivo, .film-js) .film-radice .chiusura { margin-top: 1.4em; }
 
-.film-attivo .film-radice .scorri {
+:is(.film-attivo, .film-js) .film-radice .scorri {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -225,16 +229,16 @@ html.film {
 /* ---------- Computer: la scena 9:16 al centro, le frasi nel terzo sinistro, il nome sopra la colonna ---------- */
 @media (min-width: 901px) and (orientation: landscape) {
   .film-radice { --barra: 54px; }
-  .film-attivo .film-radice { --sotto: 90px; }
+  :is(.film-attivo, .film-js) .film-radice { --sotto: 90px; }
   .film-radice .locandina img { object-fit: contain; }
-  .film-attivo .film-radice .atto { padding-top: 96px; }
+  :is(.film-attivo, .film-js) .film-radice .atto { padding-top: 96px; }
   .film-radice .nome {
     font-size: min(clamp(110px, 12vw, 260px), calc(80vw / (var(--lettere, 6) * .47)));
   }
-  .film-attivo .film-radice .nome,
-  .film-attivo .film-radice .battuta-motto,
-  .film-attivo .film-radice .atto[data-id='apertura'] .h1-piccolo,
-  .film-attivo .film-radice .atto[data-id='apertura'] .battuta-etichetta {
+  :is(.film-attivo, .film-js) .film-radice .nome,
+  :is(.film-attivo, .film-js) .film-radice .battuta-motto,
+  :is(.film-attivo, .film-js) .film-radice .atto[data-id='apertura'] .h1-piccolo,
+  :is(.film-attivo, .film-js) .film-radice .atto[data-id='apertura'] .battuta-etichetta {
     align-self: stretch;
     text-align: center;
     margin-left: auto;
@@ -248,8 +252,8 @@ html.film {
     max-width: min(30vw, calc(50vw - 28.125svh - var(--margine) - 16px));
   }
   .film-radice .battuta-frase { font-size: clamp(32px, 2.6vw, 52px); max-width: none; }
-  .film-attivo .film-radice .frasi { margin-top: auto; margin-bottom: auto; }
-  .film-attivo .film-radice .frasi > .battuta { align-self: center; }
+  :is(.film-attivo, .film-js) .film-radice .frasi { margin-top: auto; margin-bottom: auto; }
+  :is(.film-attivo, .film-js) .film-radice .frasi > .battuta { align-self: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
