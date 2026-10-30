@@ -362,12 +362,12 @@ html.varco .film-radice .apertura-strato .apertura-righe {
 html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: center; max-width: 34ch; }
 html.varco .film-radice .apertura-strato .battuta-scorri { top: auto; bottom: calc(var(--sotto) + 18px); justify-content: center; }
 
-/* la squadra: le quattro mascotte riunite al centro, la frase sopra e la frase sotto */
+/* la squadra: le quattro mascotte abbracciate al centro dello schermo, la frase sopra e la frase sotto, centrate su ogni schermo */
 html.varco .film-radice .squadra-strato { position: absolute; inset: 0; z-index: 1; max-width: none; margin: 0; padding: 0; pointer-events: none; }
 html.varco .film-radice .squadra-strato .blocco { display: block; margin: 0; }
 html.varco .film-radice .squadra-strato .battuta { position: absolute; left: 6%; width: 88%; margin: 0; text-align: center; }
-html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 9%; }
-html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 75%; }
+html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 13%; }
+html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 64%; }
 
 /* ---------- telefono in orizzontale (844x390) e schermi bassi: tutto più basso ---------- */
 @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
@@ -380,9 +380,9 @@ html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 75%;
   html.varco .film-radice .battuta-titolo { font-size: clamp(22px, 7vh, 34px); }
   html.varco .film-radice .battuta-paragrafo { font-size: 14px; max-width: 34ch; }
   html.varco[data-blocco='mascotte'] .film-radice .fascia { top: 20%; height: 62%; }
-  html.varco .film-radice .squadra-strato .battuta { left: 42%; width: 52%; }
-  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 18%; }
-  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 66%; }
+  html.varco .film-radice .squadra-strato .battuta { left: 8%; width: 84%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 7%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 74%; }
   html.varco .film-radice .apertura-strato .apertura-righe { left: 6%; right: auto; width: 34%; top: 36%; align-items: flex-start; padding: 0; }
   html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: left; }
   html.varco .film-radice .apertura-strato .battuta-scorri { left: 6%; right: auto; bottom: calc(var(--sotto) + 6px); justify-content: flex-start; padding: 0; text-align: left; }
@@ -401,9 +401,9 @@ html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 75%;
   html.varco .film-radice .blocco[data-tipo='intro'] .battuta-titolo { font-size: clamp(52px, 5vw, 80px); }
   html.varco .film-radice .battuta-paragrafo { font-size: clamp(18px, 1.45vw, 22px); max-width: 40ch; }
   html.varco[data-blocco='mascotte'] .film-radice .fascia { top: 22%; height: 56%; }
-  html.varco .film-radice .squadra-strato .battuta { left: 45%; width: 45%; }
-  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 8%; }
-  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 81%; }
+  html.varco .film-radice .squadra-strato .battuta { left: 10%; width: 80%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 9%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 76%; }
   html.varco .film-radice .apertura-strato .apertura-righe { left: 6%; right: auto; width: 34%; top: 62%; align-items: flex-start; padding: 0; }
   html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: left; }
   html.varco .film-radice .apertura-strato .battuta-scorri { left: 6%; right: auto; justify-content: flex-start; padding: 0; text-align: left; }

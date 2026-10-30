@@ -1,4 +1,4 @@
-// Le regie dei blocchi di sezione della home v2: il titolo «I servizi che offriamo», i quattro servizi con la mascotte
+// Le regie dei blocchi di sezione della home v2: il titolo «I nostri servizi», i quattro servizi con la mascotte
 // (una fabbrica: cambiano materia e punti), la squadra che si riunisce, il finale verso il modulo. Funzioni pure (R18).
 import type { Regia } from '../kit.ts'
 import type { Materia, Vec2 } from '../tipi.ts'
@@ -13,7 +13,7 @@ const fuoco = (k: Parameters<Regia>[2], v: number, p: Vec2) => {
 }
 const CENTRO: Vec2 = [0.5, 0.5]
 
-/** «I servizi che offriamo»: le porte vengono incontro, la polvere dei fiumi si infittisce verso la camera */
+/** «I nostri servizi»: le mascotte girano accanto al titolo (le muove la coreografia), la polvere dei fiumi si infittisce verso la camera */
 export const intro: Regia = (t, f, k) => {
   k.getto('fiumi-in-arrivo', { da: CENTRO, verso: 'camera', colore: 'polvere', n: 100, ampiezza: 1.6 }, t.titolo)
   k.luce('soglia-servizi', { a: CENTRO, raggio: 0.5, colore: 'blu' }, 0.3 * liscia(0, 0.5, t.titolo) * (1 - liscia(0.7, 1, t.titolo)))
@@ -40,12 +40,15 @@ export const CENTRI: Record<'atlas' | 'janus' | 'prometheus' | 'hermes', Vec2> =
   hermes: [0.5, 0.48],
 }
 
-/** la squadra: le quattro mascotte si riuniscono al centro (il moto lo fa il mondo da `fasi.locale`); la luce calda le accoglie */
+/**
+ * la squadra: le quattro mascotte tornano dall'alto e si abbracciano al centro (il moto lo fa la coreografia); la luce calda le
+ * accoglie e il pavimento si accende di blu sotto i loro piedi. Questa regia vive nel quadro al centro dello schermo.
+ */
 export const squadra: Regia = (t, f, k) => {
   k.luce('raduno', { a: CENTRO, raggio: 0.6, colore: 'luce' }, 0.35 * liscia(0, 0.5, t.sopra))
-  k.luce('pavimento', { a: [0.5, 0.84], raggio: 0.55, colore: 'blu' }, 0.22 * liscia(0, 0.5, t.sotto))   // il pavimento si accende di blu sotto la squadra
-  fuoco(k, t.sopra, [0.5, 0.3])
-  fuoco(k, t.sotto, [0.5, 0.7])
+  k.luce('pavimento', { a: [0.5, 0.6], raggio: 0.32, colore: 'blu' }, 0.16 * liscia(0, 0.5, t.sotto))
+  fuoco(k, t.sopra, [0.5, 0.1])
+  fuoco(k, t.sotto, [0.5, 0.82])
 }
 
 /** il finale: le quattro materie si avvicinano al centro, si chiudono in un piccolo cerchio attorno al pulsante, che si accende */

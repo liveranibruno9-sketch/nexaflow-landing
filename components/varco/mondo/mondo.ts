@@ -12,7 +12,8 @@ import { creaFiumi, type Colori, type Fiumi } from './fiumi.ts'
 import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { creaStrati, type Strati } from './strati.ts'
 import { creaAnello, type Anello } from './anello.ts'
-import { creaSquadra, type Squadra } from './squadra.ts'
+import { creaCreature, type Creature } from './creature.ts'
+import { ALTEZZA_CREATURA, ORDINE, coreografia } from '../coreografia.ts'
 import { creaTratto, type Tratto } from './tratto.ts'
 
 export type Mondo = {
@@ -122,6 +123,9 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   // il quadro virtuale: dove stanno gli strati dei blocchi senza tratto (apertura, soglia, finale), fisso nella vista come un quadro a riposo
   const quadroVirtuale = new Group()
   camera.add(quadroVirtuale)
+  // lo stesso quadro ma al centro dello schermo: la squadra si riunisce lì, su ogni schermo (home v2.1)
+  const quadroCentro = new Group()
+  camera.add(quadroCentro)
 
   // l'anello delle quattro materie: il cerchio dell'apertura, il nome che si compone, le quattro porte della soglia
   let anello: Anello | null = null
@@ -152,14 +156,21 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     anelloFallito = true
   }
 
-  // la squadra: le quattro mascotte che si riuniscono (home v2), creata quando ci si avvicina al suo blocco
-  const bloccoSquadra = percorso.blocchi.find((b) => b.tipo === 'squadra')
-  let squadra: Squadra | null = null
-  let squadraChiesta = false
+  // le quattro mascotte in codice (home v2.1): un palco figlio della camera, alla distanza del quadro a riposo; la coreografia
+  // dice dove sta ognuna. Solo se il percorso ha i blocchi delle mascotte con i loro nomi.
+  const palco = new Group()
+  camera.add(palco)
+  const conMascotte = percorso.blocchi.some((b) => b.tipo === 'mascotte' && (ORDINE as readonly string[]).includes(b.id))
+  const creature: Creature | null = conMascotte ? creaCreature() : null
+  if (creature) for (const id of ORDINE) palco.add(creature[id].radice)
+  let creatureCompilate = !creature
+  let scorre = 0
+  const sguardi = ORDINE.map(() => ({ x: 0, y: 0 }))
   const tratti = new Map<string, Voce>()
 
   const gestisciTratti = (u: number) => {
-    const ids = trattiDaTenere(percorso, u)
+    // le mascotte non hanno più il tratto di particelle e foto: sono le creature in codice
+    const ids = trattiDaTenere(percorso, u).filter((id) => percorso.blocchi.find((b) => b.id === id)?.tipo === 'tratto')
     for (const id of ids) {
       if (tratti.has(id)) continue
       const indice = percorso.blocchi.findIndex((b) => b.id === id)
@@ -220,7 +231,10 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     const dRiposo = sosta(imp, FOV)
     const mezza = dRiposo * TAN
     quadroVirtuale.position.set((imp.cx * 2 - 1) * mezza * camera.aspect, (1 - imp.cy * 2) * mezza, -dRiposo)
+    quadroCentro.position.set(0, 0, -dRiposo)
+    palco.position.set(0, 0, -dRiposo)
     pxUnita = (altezza * dprCorrente) / (2 * TAN)
+    creature?.imposta(pxUnita)
     fiumi.imposta(pxUnita)
     strati.imposta(pxUnita)
     for (const v of Array.from(tratti.values())) v.tratto?.schermo(larghezza * dprCorrente, altezza * dprCorrente, imp.ritratto, pxUnita)
@@ -307,8 +321,8 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     strati.inizia()
     anello?.inizia()
     const regia = regie[bloccoCorrente.id]
-    const senzaTratto = !conSoggetto(bloccoCorrente)
-    quadroAttivo = quadroDelBlocco ?? (regia && senzaTratto ? quadroVirtuale : null)
+    const senzaTratto = bloccoCorrente.tipo !== 'tratto'
+    quadroAttivo = quadroDelBlocco ?? (regia && senzaTratto ? (bloccoCorrente.tipo === 'squadra' ? quadroCentro : quadroVirtuale) : null)
     if (regia && quadroAttivo) regia(tempi(bloccoCorrente, u), fasiBlocco(bloccoCorrente, u), kit)
     strati.fine(quadroAttivo, tempo)
 
@@ -331,25 +345,39 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       anello.aggiorna(tempo, passo, z, pxUnita, camera.position.x, camera.position.y)
     }
 
-    // la squadra: nasce quando ci si avvicina al suo blocco, si muove con la frazione del blocco, vive nel quadro virtuale
-    if (bloccoSquadra && !squadraChiesta && u > bloccoSquadra.da - 1.5) {
-      squadraChiesta = true
-      creaSquadra(bloccoSquadra.immagini ?? [], larghezza > 900 ? 1080 : 720)
-        .then((sq) => {
-          if (chiuso) {
-            sq.dispose()
-            return
-          }
-          squadra = sq
-          quadroVirtuale.add(sq.gruppo)
-        })
-        .catch((e) => console.error('varco: squadra non creata:', e))
-    }
-    if (squadra && bloccoSquadra) {
-      squadra.gruppo.scale.setScalar(imp.ritratto ? 0.6 : 0.58)
-      squadra.gruppo.position.y = imp.ritratto ? -0.42 : 0
-      if (bloccoCorrente.id === bloccoSquadra.id) squadra.aggiorna(fasiBlocco(bloccoSquadra, u).locale, tempo)
-      else squadra.gruppo.visible = false
+    // le mascotte: la coreografia dice dove stanno; mentre si scorre salutano, la testa segue il puntatore
+    if (creature) {
+      const bersaglio = clamp(velocita / 45, 0, 1)
+      scorre += (bersaglio - scorre) * (1 - Math.exp(-passo * (bersaglio > scorre ? 5 : 1.2)))
+      const pose = coreografia(percorso, u, tempo, { ritratto: imp.ritratto, aspetto: camera.aspect, basso: !imp.ritratto && altezza < 500 }, scorre)
+      const metaH = sostaCorrente * Math.tan((camera.fov * Math.PI) / 360)
+      ORDINE.forEach((id, i) => {
+        const c = creature[id]
+        const p = pose[id]
+        const sguardo = sguardi[i]
+        c.radice.visible = p.presenza > 0.001
+        if (c.radice.visible) {
+          c.radice.position.set((p.x * 2 - 1) * metaH * camera.aspect, (1 - p.y * 2) * metaH, p.z)
+          c.radice.scale.setScalar((p.altezza * 2 * metaH) / ALTEZZA_CREATURA)
+          c.radice.rotation.set(0, p.giro, p.inclina)
+        }
+        // lo sguardo: verso il puntatore quando si muove, altrimenti verso chi guarda
+        const gx = clamp(dito.x - (p.x * 2 - 1), -1, 1) * manoOn
+        const gy = clamp(dito.y - (p.y * 2 - 1), -1, 1) * manoOn
+        sguardo.x += (gx - sguardo.x) * (1 - Math.exp(-passo * 3))
+        sguardo.y += (gy - sguardo.y) * (1 - Math.exp(-passo * 3))
+        c.aggiorna(tempo, { ...p, sguardo: [sguardo.x, sguardo.y] })
+      })
+      // i programmi delle creature si preparano a pagina ferma, prima che servano (niente scatto quando compaiono)
+      if (!creatureCompilate && tempo > 1.5 && velocita < 0.3) {
+        creatureCompilate = true
+        for (const id of ORDINE) {
+          creature[id].radice.visible = true
+          creature[id].corpo.visible = true
+        }
+        renderer.compile(scena, camera)
+        for (const id of ORDINE) creature[id].radice.visible = pose[id].presenza > 0.001
+      }
     }
 
     renderer.render(scena, camera)
@@ -407,7 +435,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       chiuso = true
       renderer.domElement.removeEventListener('webglcontextlost', alPerso)
       anello?.dispose()
-      squadra?.dispose()
+      creature?.dispose()
       liberaTratti()
       strati.dispose()
       scena.remove(fiumi.oggetto)

@@ -1,6 +1,7 @@
 // Il percorso della home, versione 2 (brief di Bruno del 30/10 dopo il voto 5 all'anteprima A):
-// apertura (il nome si forma allo scroll) → soglia a due frasi → «I servizi che offriamo» → quattro servizi, ciascuno con la
-// sua mascotte (le creature restano, i loro nomi no), un titolo e un paragrafo → la squadra che si riunisce → il finale verso il modulo.
+// apertura (il nome si forma allo scroll) → soglia a due frasi → «I nostri servizi» con le quattro mascotte in giostra → quattro
+// servizi, ciascuno con la sua mascotte (le creature restano, i loro nomi no; dal 30/10 sera sono animaletti in codice, non foto),
+// un titolo e un paragrafo → la squadra che si riunisce abbracciata → il finale verso il modulo.
 // Unità `u` = schermate (1 = 100svh). I paragrafi sono PROVVISORI (li riscriverà l'agente dei copy): condensano testi.md §4.
 // Nessun prezzo (R4); nessun blocco «Lavori» finché la bacheca è vuota (R7). Modulo puro: lo importano anche i test di Node.
 import type { Battuta, Blocco, Immagine, Materia, Percorso } from '../tipi.ts'
@@ -31,10 +32,10 @@ const SOGLIA: Blocco = {
   ],
 }
 
-// ---------- i servizi · 2,6 → 3,4 il titolo di sezione, poi 3,2 schermate per servizio ----------
+// ---------- i servizi · 2,6 → 4,2 il titolo di sezione con le quattro mascotte che girano, poi 3,2 schermate per servizio ----------
 const INTRO: Blocco = {
-  id: 'servizi', tipo: 'intro', da: 2.6, a: 3.4, etichetta: 'I servizi',
-  battute: [{ tipo: 'titolo', testo: 'I servizi che offriamo', ruolo: 'titolo', da: 2.7, a: 3.4 }],
+  id: 'servizi', tipo: 'intro', da: 2.6, a: 4.2, etichetta: 'I servizi',
+  battute: [{ tipo: 'titolo', testo: 'I nostri servizi', ruolo: 'titolo', da: 2.7, a: 4.2 }],
 }
 
 type Mascotte = 'atlas' | 'janus' | 'prometheus' | 'hermes'
@@ -55,46 +56,46 @@ function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Mate
 }
 
 const SERVIZI: Blocco[] = [
-  servizio(3.4, {
+  servizio(4.2, {
     id: 'atlas', etichetta: '01 · Automazioni', materia: 'polvere', titolo: 'Automazioni aziendali',
     paragrafo: ['Rispondono ai messaggi e alle chiamate perse anche a negozio chiuso, ricontattano chi ha chiesto un preventivo ed è sparito, chiedono una recensione a ogni cliente. Tu smetti di rincorrere i messaggi: nessuno resta senza risposta.', 'senza risposta'],
     link: ['Le automazioni →', '/automazioni'],
   }),
-  servizio(6.6, {
+  servizio(7.4, {
     id: 'janus', etichetta: '02 · Siti web', materia: 'vetro', titolo: 'Sviluppo siti web e app',
     paragrafo: ["Un sito all'altezza di quello che fai: si apre come un film dal primo scroll, è bello prima dal telefono, è fatto per farti trovare su Google. Richieste e prenotazioni arrivano da sole. Chi arriva capisce, chi capisce prenota.", 'prenota'],
     link: ['I siti web →', '/siti-web'],
   }),
-  servizio(9.8, {
+  servizio(10.6, {
     id: 'prometheus', etichetta: '03 · Contenuti', materia: 'saette', titolo: 'Creazione contenuti',
     paragrafo: ["Post, caroselli e video brevi sulla tua attività, raccontata com'è davvero, con un piano chiaro su cosa pubblicare e quando. Ogni settimana i contenuti pronti arrivano sul tuo telefono: tu li approvi con un tocco.", 'un tocco'],
     link: ['I contenuti →', '/contenuti'],
   }),
-  servizio(13.0, {
+  servizio(13.8, {
     id: 'hermes', etichetta: '04 · Campagne', materia: 'cromo', titolo: 'Campagne pubblicitarie',
     paragrafo: ['Pubblicità su Instagram, Facebook e Google per le persone giuste, vicine o lontane, con un obiettivo chiaro. Ogni settimana guardiamo cosa funziona e spostiamo lì il budget: alla fine sai quanto ti è costato ogni nuovo contatto.', 'contatto'],
     link: ['Le campagne →', '/campagne'],
   }),
 ]
 
-// ---------- la squadra · 16,2 → 19,0: le quattro mascotte si riuniscono al centro, la frase sopra e sotto ----------
+// ---------- la squadra · 17,0 → 19,8: mentre si compone la seconda riga le mascotte tornano dall'alto e si abbracciano ----------
 const SQUADRA: Blocco = {
-  id: 'squadra', tipo: 'squadra', da: 16.2, a: 19.0, etichetta: 'La squadra',
+  id: 'squadra', tipo: 'squadra', da: 17.0, a: 19.8, etichetta: 'La squadra',
   immagini: ['atlas-2', 'janus-2', 'prometheus-2', 'hermes-2'],
   battute: [
-    frase('sopra', ['Più tempo per il tuo mestiere,', 'tempo'], 16.6, 18.8),
-    frase('sotto', ['più margine a fine mese.', 'margine'], 17.0, 18.8),
+    frase('sopra', ['Più tempo per il tuo mestiere,', 'tempo'], 17.4, 19.6),
+    frase('sotto', ['più margine a fine mese.', 'margine'], 17.8, 19.6),
   ],
 }
 
-// ---------- finale · 19,0 → 21,0: l'invito, poi il pulsante che resta acceso fino al modulo ----------
-const LUNGHEZZA = 21.0
+// ---------- finale · 19,8 → 21,8: l'invito, poi il pulsante che resta acceso fino al modulo ----------
+const LUNGHEZZA = 21.8
 const FINALE: Blocco = {
-  id: 'finale', tipo: 'finale', da: 19.0, a: LUNGHEZZA, etichetta: 'Il finale',
+  id: 'finale', tipo: 'finale', da: 19.8, a: LUNGHEZZA, etichetta: 'Il finale',
   battute: [
-    frase('1', ['Seguiamo poche attività alla volta.'], 19.1, 19.7),
-    frase('2', ['La prossima può essere la tua.', 'la tua'], 19.7, 20.3),
-    { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 20.3, a: LUNGHEZZA },
+    frase('1', ['Seguiamo poche attività alla volta.'], 19.9, 20.5),
+    frase('2', ['La prossima può essere la tua.', 'la tua'], 20.5, 21.1),
+    { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 21.1, a: LUNGHEZZA },
   ],
 }
 

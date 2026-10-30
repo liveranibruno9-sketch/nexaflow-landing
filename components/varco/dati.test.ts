@@ -9,8 +9,8 @@ const ruoliDi = (b: Blocco) => b.battute.map((x) => x.ruolo)
 const battuta = (b: Blocco, ruolo: string) => b.battute.find((x) => x.ruolo === ruolo)!
 const servizi = HOME.blocchi.filter((b) => b.tipo === 'mascotte')
 
-test('home v2: nove blocchi contigui, dall\'inizio alla lunghezza (21)', () => {
-  assert.equal(HOME.lunghezza, 21)
+test('home v2: nove blocchi contigui, dall\'inizio alla lunghezza (21,8)', () => {
+  assert.equal(HOME.lunghezza, 21.8)
   assert.deepEqual(HOME.blocchi.map((b) => b.id), ['apertura', 'soglia', 'servizi', 'atlas', 'janus', 'prometheus', 'hermes', 'squadra', 'finale'])
   assert.deepEqual(HOME.blocchi.map((b) => b.tipo), ['apertura', 'soglia', 'intro', 'mascotte', 'mascotte', 'mascotte', 'mascotte', 'squadra', 'finale'])
   assert.equal(HOME.blocchi[0].da, 0); assert.equal(HOME.blocchi[HOME.blocchi.length - 1].a, HOME.lunghezza)
@@ -59,7 +59,8 @@ test('servizi: titolo, mascotte, paragrafo e collegamento; niente nomi delle cre
     assert.ok(da('titolo') < da('paragrafo') && da('paragrafo') < da('link'), s.id)
     assert.ok(Math.abs(s.a - s.da - 3.2) < 1e-6)
   }
-  assert.equal(HOME.blocchi[2].battute[0].testo, 'I servizi che offriamo')
+  assert.equal(HOME.blocchi[2].battute[0].testo, 'I nostri servizi')
+  assert.ok(Math.abs(HOME.blocchi[2].a - HOME.blocchi[2].da - 1.6) < 1e-6, 'la schermata dei servizi dura 1,6: le quattro mascotte girano accanto al titolo')
 })
 
 test('squadra e finale: le frasi che restano della home (brief 30/10)', () => {
