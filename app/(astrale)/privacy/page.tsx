@@ -24,13 +24,14 @@ const SEZIONI: { id?: string; titolo: string; corpo: React.ReactNode }[] = [
     corpo: (
       <>
         <p>
-          Solo i dati che inserisce volontariamente nei moduli del sito. Nel modulo di verifica gratuita per gli
+          Solo i dati che inserisce volontariamente nei moduli del sito e, nell&apos;area demo, l&apos;impronta
+          dell&apos;indirizzo IP descritta nella sezione Cookie. Nel modulo di verifica gratuita per gli
           studi dentistici: nome dello studio, suo nome, città, telefono, indirizzo email e, se lo indica, il
           gestionale in uso. Nel modulo di richiesta di preventivo: nome, attività, telefono o email, servizio
           di interesse, fascia di budget e, se vuole, un messaggio.
         </p>
         <p className="mt-3">
-          Il sito non usa cookie di profilazione e non raccoglie dati di navigazione riconducibili alla persona.
+          Il sito non usa cookie di profilazione e, fuori dall&apos;area demo, non raccoglie dati di navigazione riconducibili alla persona.
         </p>
       </>
     ),
