@@ -8,6 +8,9 @@ import type { RegiePagina } from './comune.ts'
 const STELLE = 40
 
 const apertura: Regia = (t, f, k) => {
+  // le due cartoline si posano a destra della mascotte: un piccolo battito della materia per ciascuna
+  k.pulsa('cartolina-1', { a: [0.88, 0.2], raggio: 0.07, colore: 'polvere' }, t['foto-1'])
+  k.pulsa('cartolina-2', { a: [0.9, 0.5], raggio: 0.07, colore: 'polvere' }, t['foto-2'])
   const c = k.soggetto.centro
   // la polvere blu gira in un piccolo vortice ai piedi e compone Atlas; la luna calda dietro
   k.orbita('piedi', { centro: vicino(k, 0, 0.5), raggio: [largo(k, 0.3), 0.02], n: 30, colore: 'polvere' }, { accese: 30 * t.h1, ordine: 0.3 + 0.7 * t.sotto, velocita: 0.9, alfa: 0.35 + 0.5 * t.servizio })

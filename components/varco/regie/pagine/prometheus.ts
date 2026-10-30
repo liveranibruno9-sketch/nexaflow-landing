@@ -10,6 +10,9 @@ import type { RegiePagina } from './comune.ts'
 const GRIGLIA: [number, number, number][] = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => [((i % 3) - 1) * 0.2, (Math.floor(i / 3) - 1) * 0.2 * (2.25 / 4) * 1.4, 0.7])
 
 const apertura: Regia = (t, f, k) => {
+  // le due cartoline si posano a destra della mascotte: un piccolo battito della materia per ciascuna
+  k.pulsa('cartolina-1', { a: [0.88, 0.2], raggio: 0.07, colore: 'saette' }, t['foto-1'])
+  k.pulsa('cartolina-2', { a: [0.9, 0.5], raggio: 0.07, colore: 'saette' }, t['foto-2'])
   const c = k.soggetto.centro
   k.luce('prometheus', { a: c, raggio: 0.42, colore: 'saette' }, 0.1 + 0.2 * t.servizio)
   k.orbita('saette-piedi', { centro: vicino(k, 0, 0.5), raggio: [0.3 * k.soggetto.altezza * 1.78, 0.02], n: 30, colore: 'saette' }, { accese: 30 * t.h1, ordine: 0.3 + 0.7 * t.sotto, velocita: 1.1, alfa: 0.35 + 0.5 * t.indice })
@@ -21,11 +24,11 @@ const problema: Regia = (t, f, k) => {
   const c = k.soggetto.centro
   const g: Vec2 = [Math.max(0.22, c[0] - 0.42), c[1] - 0.04]
   // la griglia di nove cornici spente e impolverate (il profilo fermo)
-  k.punti('griglia', { punti: GRIGLIA, colore: 'saette' }, { centro: g, scala: 1, inclina: 0, accese: 3 * Math.sin(Math.PI * Math.min(1, t.r2 * 1.0)) * (1 - t.r3 * 0.0), alfa: 0.7 })
+  k.punti('griglia', { punti: GRIGLIA, colore: 'saette' }, { centro: g, scala: 1, inclina: 0, accese: 3 * Math.sin(Math.PI * Math.min(1, t.r2 * 1.0)) + 1 * t.r2, alfa: 0.6 + 0.1 * t.h2 })
   // 1: la polvere cade
   k.getto('polvere', { da: [g[0], -0.05], verso: [g[0], g[1] + 0.2], colore: 'saette', n: 30, ampiezza: 0.5, gravita: 0.8 }, t.r1)
   // 2: una cornice prova ad accendersi e si spegne
-  k.luce('prova', { a: g, raggio: 0.14, colore: 'saette' }, 0.4 * Math.sin(Math.PI * t.r2))
+  k.luce('prova', { a: g, raggio: 0.14, colore: 'saette' }, 0.4 * Math.sin(Math.PI * t.r2) + 0.1 * t.r2)
   // 3: «il bello c'è già»: una scintilla crepita davanti a Prometheus
   k.saetta('crepita', { da: vicino(k, -0.15, -0.1), a: [g[0] + 0.1, g[1]], rami: 1 }, 0.5 * lis(0, 0.5, t.r3))
   fuoco(k, t.r1, g); fuoco(k, t.r2, g); fuoco(k, t.r3, g)

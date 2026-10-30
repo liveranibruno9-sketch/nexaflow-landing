@@ -17,6 +17,9 @@ function lastraDi(k: Kit) {
 }
 
 const apertura: Regia = (t, f, k) => {
+  // le due cartoline si posano a destra della mascotte: un piccolo battito della materia per ciascuna
+  k.pulsa('cartolina-1', { a: [0.88, 0.2], raggio: 0.07, colore: 'vetro' }, t['foto-1'])
+  k.pulsa('cartolina-2', { a: [0.9, 0.5], raggio: 0.07, colore: 'vetro' }, t['foto-2'])
   const c = k.soggetto.centro
   k.luce('janus', { a: c, raggio: 0.42, colore: 'vetro' }, 0.1 + 0.2 * t.servizio)
   k.orbita('schegge', { centro: vicino(k, 0, 0.5), raggio: [largo(k, 0.3), 0.02], n: 30, colore: 'vetro' }, { accese: 30 * t.h1, ordine: 0.3 + 0.7 * t.sotto, velocita: 0.9, alfa: 0.35 + 0.5 * t.indice })
@@ -27,7 +30,7 @@ const apertura: Regia = (t, f, k) => {
 const problema: Regia = (t, f, k) => {
   const L = lastraDi(k)
   // la lastra è appannata: poco alfa, nessun calore; con l'ultima riga si pulisce
-  k.lastra('lastra', { a: L.a, larghezza: L.larghezza, altezza: L.altezza, colore: 'vetro' }, { ruota: 0, apri: 0, alfa: 0.22 + 0.4 * t.r3, calore: 0 })
+  k.lastra('lastra', { a: L.a, larghezza: L.larghezza, altezza: L.altezza, colore: 'vetro' }, { ruota: 0, apri: 0, alfa: (0.14 + 0.08 * t.h2) + 0.4 * t.r3, calore: 0 })
   // 1: scie di luce (chi cerca) arrivano alla lastra e tornano indietro
   k.raggi('scie', { da: [-0.1, 0.5], verso: L.a, apertura: 0.5, n: 10, colore: 'vetro' }, t.r1)
   // 2: vanno verso altre luci lontane (social, elenchi: casa d'altri)

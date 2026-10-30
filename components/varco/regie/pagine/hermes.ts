@@ -36,6 +36,9 @@ function posto(k: Kit): Vec2 {
 }
 
 const apertura: Regia = (t, f, k) => {
+  // le due cartoline si posano a destra della mascotte: un piccolo battito della materia per ciascuna
+  k.pulsa('cartolina-1', { a: [0.88, 0.2], raggio: 0.07, colore: 'cromo' }, t['foto-1'])
+  k.pulsa('cartolina-2', { a: [0.9, 0.5], raggio: 0.07, colore: 'cromo' }, t['foto-2'])
   const c = k.soggetto.centro
   k.luce('hermes', { a: c, raggio: 0.42, colore: 'cromo' }, 0.1 + 0.2 * t.servizio)
   k.orbita('gocce-piedi', { centro: vicino(k, 0, 0.5), raggio: [0.3 * k.soggetto.altezza * 1.78, 0.02], n: 30, colore: 'cromo' }, { accese: 30 * t.h1, ordine: 0.3 + 0.7 * t.sotto, velocita: 0.9, alfa: 0.35 + 0.5 * t.indice })
@@ -50,7 +53,7 @@ const problema: Regia = (t, f, k) => {
   k.getto('corona', { da: [0.5, -0.05], verso: [0.5, 0.55], colore: 'cromo', n: 8, ampiezza: 0.1 }, Math.min(1, t.r1 * 1.0))
   k.getto('corona-b', { da: [0.5, 0.5], verso: [0.5, 0.5], colore: 'cromo', n: 70 * lis(0.55, 1, t.r1), ampiezza: 2.4, gravita: 0.3 }, lis(0.5, 1, t.r1))
   // 2: qualche luce si accende un attimo e si spegne (i like)
-  k.punti('mappa', { punti: MAPPA_PARI, colore: 'cromo' }, { centro: p, scala: 0.7, inclina: 0, accese: 5 * Math.sin(Math.PI * t.r2), alfa: 0.35 * lis(0, 0.3, t.r2) })
+  k.punti('mappa', { punti: MAPPA_PARI, colore: 'cromo' }, { centro: p, scala: 0.7, inclina: 0, accese: 5 * Math.sin(Math.PI * t.r2), alfa: 0.25 * t.h2 + 0.35 * lis(0, 0.3, t.r2) })
   // 3: la stessa cifra, con un obiettivo: le gocce si raccolgono in una
   k.getto('raccolta', { da: [1.1, 0.9], verso: c, colore: 'cromo', n: 16, ampiezza: 1.2 }, t.r3)
   k.luce('goccia', { a: c, raggio: 0.2, colore: 'cromo' }, 0.3 * lis(0.2, 1, t.r3))
