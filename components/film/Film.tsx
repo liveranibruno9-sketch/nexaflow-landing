@@ -40,6 +40,27 @@ function Testo({ testo, accento }: { testo: string; accento?: string }) {
 /** la parola più lunga: serve al CSS per non far uscire dallo schermo i nomi lunghi (Prometheus) */
 const lettere = (testo: string) => Math.max(...testo.split(/\s+/).map((p) => p.length))
 
+/** ogni carattere in uno <span class="lettera"> (testo vero, già nell'HTML del server); gli spazi restano testo */
+function spezza(testo: string, chiave: string): ReactNode[] {
+  return Array.from(testo).map((c, i) => (/\s/.test(c) ? c : <span className="lettera" key={chiave + i}>{c}</span>))
+}
+
+/**
+ * Il testo in lettere, che il motore scrive una per volta con la materia (D26); la parola d'accento resta un <em>.
+ * Senza JavaScript, col movimento ridotto o senza particelle le lettere sono tutte accese (film.css).
+ */
+function Lettere({ testo, accento }: { testo: string; accento?: string }) {
+  const i = accento ? testo.indexOf(accento) : -1
+  if (!accento || i < 0) return <>{spezza(testo, 't')}</>
+  return (
+    <>
+      {spezza(testo.slice(0, i), 'p')}
+      <em className="accento">{spezza(accento, 'a')}</em>
+      {spezza(testo.slice(i + accento.length), 'd')}
+    </>
+  )
+}
+
 function BattutaHtml({ b }: { b: Battuta }) {
   const f = finestra(b.da, b.a, b.s)
   switch (b.tipo) {
@@ -47,7 +68,21 @@ function BattutaHtml({ b }: { b: Battuta }) {
       // decorativo: l'H1 è la riga piccola (testi §6)
       return (
         <p className="battuta battuta-nome nome" aria-hidden="true" style={{ '--lettere': lettere(b.testo) } as CSSProperties} {...f}>
-          {b.testo}
+          <Lettere testo={b.testo} />
+        </p>
+      )
+    case 'motto':
+      // chi usa un lettore di schermo sente il motto intero, non lettera per lettera
+      return (
+        <p className="battuta battuta-motto" {...f}>
+          <span className="solo-lettore">{b.testo}</span>
+          <span aria-hidden="true"><Lettere testo={b.testo} accento={b.accento} /></span>
+        </p>
+      )
+    case 'frase':
+      return (
+        <p className="battuta battuta-frase" data-burst={b.burst ? '1' : undefined} {...f}>
+          <Testo testo={b.testo} accento={b.accento} />
         </p>
       )
     case 'link':
@@ -97,7 +132,8 @@ function AttoHtml({ atto, h1, regia, ultimo }: { atto: Atto; h1?: string; regia:
         ),
       )}
       {ultimo && regia.pulsante ? (
-        // il pulsante nasce dalle materie (compito 7); qui è già un collegamento vero al suo posto finale
+        // il pulsante nasce dalle quattro materie che convergono (D22, motore + materia.ts): è un collegamento vero al suo
+        // posto finale, raggiungibile da tastiera anche prima di comparire (film.css)
         <div className="chiusura">
           <a className="battuta pulsante" href={regia.pulsante.href} {...finestra(regia.pulsante.da, Infinity)}>{regia.pulsante.testo}</a>
           <p className="battuta pulsante-sotto" {...finestra(regia.pulsante.da, Infinity)}>{regia.pulsante.sotto}</p>

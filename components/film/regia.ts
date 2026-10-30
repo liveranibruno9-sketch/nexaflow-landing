@@ -8,7 +8,8 @@ export type Scena = { nome: string; da: number; a: number; zoom?: [number, numbe
 /** fotogrammi 0..n-1 su [da, a], poi fermo sull'ultimo (home: { pieno: 96, leggero: 64, minimo: 32 }, da 0, a 2) */
 export type Apertura = { conteggio: Record<'pieno' | 'leggero' | 'minimo', number>; da: number; a: number }
 export type TipoBattuta = 'frase' | 'etichetta' | 'nome' | 'motto' | 'link' | 'passo' | 'cartolina' | 'scorri'
-export type Battuta = { tipo: TipoBattuta; testo: string; accento?: string; da: number; a: number; href?: string; nota?: string; s?: number }
+/** burst: la frase entra con un burst della materia dell'atto vicino alla creatura (pagine servizio, D28) */
+export type Battuta = { tipo: TipoBattuta; testo: string; accento?: string; da: number; a: number; href?: string; nota?: string; s?: number; burst?: boolean }
 /** x, y, w, h in frazioni del fotogramma X-2 */
 export type Creatura = { nome: string; da: number; a: number; ritaglio: [number, number, number, number] }
 export type Atto = { id: string; nome: string; etichetta: string; materia?: Materia; da: number; a: number; battute: Battuta[]; creatura?: Creatura }
