@@ -21,3 +21,10 @@ export type RegiaGioco = (s: { scelta: number; t: number }, k: Kit) => void
 /** l'eco sul pulsante dell'invito: t = 0..1 dall'ingresso della sezione */
 export type RegiaInvito = (t: number, k: Kit) => void
 export type RegiePagina = { film: Record<string, Regia>; gioco: RegiaGioco; invito: RegiaInvito }
+
+/** il punto d'arrivo di un lampo: lungo la direzione verso `a`, ma mai oltre 0,48 dal punto di partenza su ciascun asse (un lampo non copre più di un quarto dello schermo) */
+export const corta = (da: Vec2, a: Vec2): Vec2 => {
+  const dx = a[0] - da[0], dy = a[1] - da[1]
+  const k = Math.min(1, 0.48 / Math.max(Math.abs(dx), 1e-6), 0.48 / Math.max(Math.abs(dy), 1e-6))
+  return [da[0] + dx * k, da[1] + dy * k]
+}
