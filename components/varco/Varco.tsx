@@ -82,7 +82,7 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
     case 'nome':
       // il nome dell'apertura è decorativo (l'H1 è la riga piccola); quello di una creatura è un titolo vero
       return apertura
-        ? <p className={`${classe} nome-apertura`} aria-hidden="true" {...dati}><span>{b.testo}</span></p>
+        ? <p className={`${classe} nome-apertura`} aria-hidden="true" data-nascosto="si" {...dati}><span>{b.testo}</span></p>
         : <p className={classe} style={{ ['--lettere' as string]: b.testo.length }} {...dati}>{b.testo}</p>
     case 'etichetta':
       if (b.ruolo === 'servizi') {

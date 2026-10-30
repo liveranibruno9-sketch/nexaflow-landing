@@ -118,6 +118,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
   // l'anello delle quattro materie: il cerchio dell'apertura, il nome che si compone, le quattro porte della soglia
   let anello: Anello | null = null
+  let uUltima = 0 // l'ultima u vista: se il mondo nasce dopo l'apertura (salto, ricarica) l'anello salta l'intro
   let nomeSegnalato = false
   const dentroSoglia = percorso.blocchi.find((b) => b.tipo === 'soglia')
   const daPorte = dentroSoglia?.battute.find((b) => b.ruolo === '9')?.da ?? Infinity
@@ -137,7 +138,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
         a.porte(trattiBlocchi.map((b) => zCamera(b.da) - 2) as [number, number, number, number])
         scena.add(a.gruppo)
         kit = { ...strati.kit, anello: a.comandi }
-        a.avvia(performance.now() / 1000)
+        a.avvia(performance.now() / 1000 - (uUltima > 0.9 ? 10 : 0))
         contenitore.dispatchEvent(new CustomEvent('anello', { detail: 'pronto' }))
       })
       .catch((e) => console.error('varco: anello non creato:', e))
@@ -204,6 +205,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
   /* ----- il puntatore sposta appena l'inquadratura e, sul quadro, la mano scansa le particelle vicine ----- */
   const mira = { x: 0, y: 0 }
+  const dito = { x: 0, y: 0 }
   const scarto = { x: 0, y: 0 }
   let ultimoPuntatore = -1e9
   let manoOn = 0
@@ -215,6 +217,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   let quadroAttivo: Group | null = null
 
   const aggiorna = (u: number, dt: number, tempo: number): boolean => {
+    uUltima = u
     const z = zCamera(u)
     const passo = Math.max(dt, 0.001)
     velocita += (Math.abs(z - zPrima) / passo - velocita) * (1 - Math.exp(-passo * 5))
@@ -268,7 +271,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       const accanto = bl.uscita === 'accanto' ? SCIVOLA * liscia(0, 1, f.uscita) : 0
       t.quadro.position.set((imp.cx * 2 - 1) * halfH * camera.aspect + accanto, (1 - imp.cy * 2) * halfH, z - D)
       // il puntatore sul piano del quadro, per la mano
-      mano.set(mira.x * halfH * camera.aspect - t.quadro.position.x, -mira.y * halfH - t.quadro.position.y, 0)
+      mano.set(dito.x * halfH * camera.aspect - t.quadro.position.x, -dito.y * halfH - t.quadro.position.y, 0)
       const prossimo = percorso.blocchi[v.indice + 1]
       const verso = f.uscita > 0 && prossimo?.tipo === 'tratto' && prossimo.materia ? prossimo.materia : null
       const attuale = v.blocco.id === bloccoCorrente.id
@@ -330,9 +333,14 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
   return {
     aggiorna,
-    puntatore: (x, y) => {
-      mira.x = x
-      mira.y = y
+    puntatore: (x, y, tipo) => {
+      // la mano segue mouse e dito; l'inquadratura della camera solo il mouse (un dito che si ferma non la sposta per sempre)
+      dito.x = x
+      dito.y = y
+      if (tipo === 'mouse') {
+        mira.x = x
+        mira.y = y
+      }
       ultimoPuntatore = performance.now() / 1000
     },
     ridimensiona,

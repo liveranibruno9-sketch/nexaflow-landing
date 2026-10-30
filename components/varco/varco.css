@@ -235,7 +235,8 @@ html.varco .film-radice .varco-poster {
 }
 
 /* il nome dell'apertura aspetta le lettere di particelle: compare sotto, nello stesso punto, quando sono complete (D38) */
-html.varco .film-radice .nome-apertura[data-nascosto] { opacity: 0 !important; }
+html.varco .film-radice .nome-apertura[data-nascosto] { color: transparent; text-shadow: none; animation: nome-salvagente 0.01s 7s forwards; }
+@keyframes nome-salvagente { to { color: var(--perla); text-shadow: var(--ombra-grande); } }
 /* le parole dei servizi: grigio perla, poi il colore della materia quando il suo arco passa in alto */
 .film-radice .servizio-parola { transition: color 0.4s var(--curva); }
 .film-radice .servizio-parola[data-materia='polvere'] { --c: var(--polvere); }
@@ -335,7 +336,10 @@ html.varco .film-radice .apertura-strato .battuta-scorri { top: auto; bottom: ca
   html.varco .film-radice .battuta-motto { font-size: 18px; }
   html.varco .film-radice .battuta-frase,
   html.varco .film-radice .battuta-passo { font-size: clamp(20px, 5.4vh, 28px); }
-  html.varco .film-radice .nome-apertura { font-size: 22vh; }
+  html.varco .film-radice .nome-apertura { font-size: 12vh; font-size: 12svh; }
+  html.varco .film-radice .apertura-strato .apertura-righe { left: 6%; right: auto; width: 34%; top: 36%; align-items: flex-start; padding: 0; }
+  html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: left; }
+  html.varco .film-radice .apertura-strato .battuta-scorri { left: 6%; right: auto; bottom: calc(var(--sotto) + 6px); justify-content: flex-start; padding: 0; text-align: left; }
 }
 
 /* ---------- computer: la scena al centro-destra, il testo nella colonna di sinistra ---------- */

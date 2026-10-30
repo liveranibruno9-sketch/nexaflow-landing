@@ -83,7 +83,7 @@ test('home: soglia e finale, finestre del piano; il pulsante resta acceso fino a
 
 test('home: apertura, le battute con da = 0 sono visibili subito', () => {
   const ap = HOME.blocchi[0]
-  assert.deepEqual(['nome', 'luogo', 'servizi', 'scorri'].map((r) => [battuta(ap, r).da, battuta(ap, r).a]), [[0, 0.9], [0, 0.6], [0, 0.6], [0, 0.5]])
+  assert.deepEqual(['nome', 'luogo', 'servizi', 'scorri'].map((r) => [battuta(ap, r).da, battuta(ap, r).a]), [[0, 0.6], [0, 0.6], [0, 0.6], [0, 0.5]])
   assert.equal(battuta(ap, 'nome').testo, 'Agenti Studio'); assert.equal(battuta(ap, 'luogo').testo, 'Agenzia AI · Faenza, Romagna')
   assert.equal(battuta(ap, 'servizi').testo, 'Automazioni · Siti web · Contenuti · Campagne'); assert.equal(battuta(ap, 'scorri').testo, 'Scorri')
 })

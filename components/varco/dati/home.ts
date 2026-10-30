@@ -15,12 +15,12 @@ const frase = (ruolo: string, [testo, accento]: Frase, da: number, a: number): B
   accento ? { tipo: 'frase', testo, ruolo, accento, da, a } : { tipo: 'frase', testo, ruolo, da, a }
 
 // ---------- apertura · 0 → 0,6 ----------
-// Le battute con da = 0 sono visibili subito (nessuna entrata). Il nome vive fino a 0,9: il suo `ritorno` (le lettere che
-// tornano nell'anello) accompagna le prime righe della soglia.
+// Le battute con da = 0 sono visibili subito (nessuna entrata). Il nome finisce con il blocco (0,6): il suo `ritorno` (le lettere
+// che tornano nell'anello) si chiude dove la soglia lo tiene a 1, senza salti (revisione finale del Blocco A).
 const APERTURA: Blocco = {
   id: 'apertura', tipo: 'apertura', da: 0, a: 0.6, etichetta: '00 · Apertura',
   battute: [
-    { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 0.9 },
+    { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 0.6 },
     { tipo: 'etichetta', testo: 'Agenzia AI · Faenza, Romagna', ruolo: 'luogo', da: 0, a: 0.6 },
     { tipo: 'etichetta', testo: 'Automazioni · Siti web · Contenuti · Campagne', ruolo: 'servizi', da: 0, a: 0.6 },
     { tipo: 'scorri', testo: 'Scorri', ruolo: 'scorri', da: 0, a: 0.5 },
