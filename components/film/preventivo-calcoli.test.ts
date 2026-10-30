@@ -91,3 +91,45 @@ test('validaPreventivo: ogni errore ha un messaggio', () => {
     if (!r.ok) assert.ok(r.errore.length > 0)
   }
 })
+
+const CONTROLLI = /[\u0000-\u001f\u007f]/
+
+test('validaPreventivo: a capo e controlli nei campi a riga singola diventano uno spazio (niente intestazioni email)', () => {
+  const r = P.validaPreventivo({ ...BUONA, attivita: 'x\r\nBcc: v@e.it' })
+  assert.equal(r.ok, true)
+  if (r.ok) assert.equal(r.dati.attivita, 'x Bcc: v@e.it')
+  const s = P.validaPreventivo({ ...BUONA, nome: 'Ma\tria\u0000 Rossi\n', contatto: '350\t016\u00004456' })
+  assert.equal(s.ok, true)
+  if (s.ok) {
+    assert.equal(s.dati.nome, 'Ma ria Rossi')
+    assert.equal(s.dati.contatto, '350 016 4456')
+    for (const c of [s.dati.nome, s.dati.attivita, s.dati.contatto]) assert.ok(!CONTROLLI.test(c), c)
+  }
+  const t = P.validaPreventivo({ ...BUONA, nome: 'A\u007fB   C' })
+  assert.equal(t.ok && t.dati.nome, 'A B C')
+})
+
+test('validaPreventivo: nel messaggio restano gli a capo, spariscono gli altri controlli', () => {
+  const r = P.validaPreventivo({ ...BUONA, messaggio: '  riga uno\r\nriga\tdue\u0000\nriga tre  ' })
+  assert.equal(r.ok, true)
+  if (r.ok) assert.equal(r.dati.messaggio, 'riga uno\nrigadue\nriga tre')
+})
+
+test('validaPreventivo: i limiti di lunghezza valgono dopo la pulizia', () => {
+  // 203 caratteri grezzi, 200 dopo la pulizia: passa. Un controllo in mezzo diventa uno spazio (conta 1): 201, no
+  assert.equal(P.validaPreventivo({ ...BUONA, nome: '\u0001\u0002' + 'x'.repeat(200) + '\u0003' }).ok, true)
+  assert.equal(P.validaPreventivo({ ...BUONA, nome: 'x'.repeat(100) + '\u0001' + 'x'.repeat(100) }).ok, false)
+  assert.equal(P.validaPreventivo({ ...BUONA, messaggio: 'x'.repeat(500) + '\u0000\u0001\u0008' + 'x'.repeat(500) }).ok, true)
+  assert.equal(P.validaPreventivo({ ...BUONA, messaggio: 'x'.repeat(500) + '\n' + 'x'.repeat(500) }).ok, false)
+  // solo controlli = campo vuoto
+  assert.equal(P.validaPreventivo({ ...BUONA, nome: '\r\n\t\u0000' }).ok, false)
+})
+
+test('provaAmmessa: prova:true vale solo fuori dal dominio vero', () => {
+  for (const h of ['agentistudio.it', 'www.agentistudio.it', 'WWW.AGENTISTUDIO.IT:443', 'agentistudio.it.', 'www.agentistudio.it:8080']) {
+    assert.equal(P.provaAmmessa(h), false, h)
+  }
+  for (const h of ['localhost:3000', 'nexaflow-landing-git-agenzia-360-liveranibruno9-6207s-projects.vercel.app', 'evil-agentistudio.it', 'agentistudio.it.evil.com', 'sub.agentistudio.it', '']) {
+    assert.equal(P.provaAmmessa(h), true, h)
+  }
+})

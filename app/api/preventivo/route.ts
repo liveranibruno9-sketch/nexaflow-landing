@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { validaPreventivo } from '@/components/film/preventivo-calcoli'
+import { provaAmmessa, validaPreventivo } from '@/components/film/preventivo-calcoli'
 import { inviaRichiestaPreventivo } from '@/lib/demo/n8n'
 
 export const dynamic = 'force-dynamic'
@@ -27,8 +27,10 @@ export async function POST(req: NextRequest) {
   const v = validaPreventivo(corpo)
   if (!v.ok) return NextResponse.json({ ok: false, errore: v.errore }, { status: 422, headers: SENZA_CACHE })
 
-  // a n8n arrivano solo i campi controllati e ripuliti (niente campo trappola)
-  const risposta = await inviaRichiestaPreventivo(v.dati)
+  // a n8n arrivano solo i campi controllati e ripuliti (niente campo trappola). `prova: true` vale solo fuori dal dominio
+  // vero (anteprime Vercel, localhost): da un client sul dominio vero la richiesta conta come reale.
+  const dati = { ...v.dati, prova: v.dati.prova && provaAmmessa(req.headers.get('host') ?? '') }
+  const risposta = await inviaRichiestaPreventivo(dati)
   // gli errori di collegamento parlano di "demo": al visitatore basta sapere che l'invio non è riuscito
   const errore = risposta.ok ? undefined : /non disponibile|non configurata/i.test(risposta.errore ?? '') ? 'Invio non riuscito' : risposta.errore
   return NextResponse.json({ ok: risposta.ok, errore }, { status: risposta.ok ? 200 : 422, headers: SENZA_CACHE })

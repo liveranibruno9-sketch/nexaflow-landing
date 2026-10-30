@@ -48,10 +48,23 @@ export function tipoContatto(s: string): 'email' | 'telefono' | null {
   return null
 }
 
+/** testo a riga singola: caratteri di controllo (a capo, tabulazioni, NUL) diventano uno spazio, gli spazi si riducono a uno
+ *  (niente "\r\nBcc: …" che finisce in un'intestazione email), poi trim */
 function testo(v: unknown): string {
-  if (typeof v === 'string') return v.trim()
-  if (typeof v === 'number' && Number.isFinite(v)) return String(v)
-  return ''
+  const t = typeof v === 'string' ? v : typeof v === 'number' && Number.isFinite(v) ? String(v) : ''
+  return t.replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+/** testo libero (messaggio): via i caratteri di controllo tranne l'a capo; "\r\n" diventa "\n"; poi trim */
+function testoLibero(v: unknown): string {
+  const t = typeof v === 'string' ? v : typeof v === 'number' && Number.isFinite(v) ? String(v) : ''
+  return t.replace(/\r\n?/g, '\n').replace(/[\u0000-\u0009\u000b-\u001f\u007f]+/g, '').trim()
+}
+
+/** false sul dominio vero (agentistudio.it, www, con eventuale porta o punto finale): lì `prova: true` non vale.
+ *  Anteprime Vercel e localhost sì. Si guarda l'intestazione `host`, che Vercel imposta sul dominio richiesto. */
+export function provaAmmessa(host: string): boolean {
+  return !/^(www\.)?agentistudio\.it\.?(:\d+)?$/.test(String(host ?? '').trim().toLowerCase())
 }
 
 function fra<T extends string>(scelte: readonly T[], v: string): v is T {
@@ -69,7 +82,7 @@ export function validaPreventivo(corpo: unknown): { ok: true; dati: Richiesta } 
   const contatto = testo(c.contatto)
   const servizio = testo(c.servizio)
   const budget = testo(c.budget)
-  const messaggio = testo(c.messaggio)
+  const messaggio = testoLibero(c.messaggio)
 
   if (!nome) return { ok: false, errore: 'Manca il nome' }
   if (!attivita) return { ok: false, errore: "Manca l'attività" }

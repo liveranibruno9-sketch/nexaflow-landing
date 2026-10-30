@@ -222,8 +222,10 @@ test('pagine servizio: testi di testi.md §4 (prima e ultima frase, motto, passo
 })
 
 // Tutte le frasi (e le parole in grassetto) contro il file vero di testi.md, se c'è (nel repo pubblico non c'è: si salta).
-const TESTI_MD = 'C:/Users/Bruno/OneDrive/Desktop/CLAUDE.MD.PROGETTO/bruno-vault/20-projects/sito-agentistudio/agenzia-360/testi.md'
-test('pagine servizio: tutte le frasi uguali a testi.md §4 (se il file c\'è)', { skip: !existsSync(TESTI_MD) }, () => {
+// Per farlo girare si indica il percorso del file nella variabile TESTI_MD, ad esempio:
+//   TESTI_MD=<percorso>/agenzia-360/testi.md npm test
+const TESTI_MD = process.env.TESTI_MD ?? ''
+test('pagine servizio: tutte le frasi uguali a testi.md §4 (se il file c\'è)', { skip: !TESTI_MD || !existsSync(TESTI_MD) }, () => {
   const md = readFileSync(TESTI_MD, 'utf8')
   const sezione = md.slice(md.indexOf('## 4. Le pagine dei servizi'), md.indexOf('## 5. Il modulo'))
   const per: [string, C.Regia][] = [['### 4.1', AUTOMAZIONI], ['### 4.2', SITI_WEB], ['### 4.3', CONTENUTI], ['### 4.4', CAMPAGNE]]

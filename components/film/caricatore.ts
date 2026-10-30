@@ -29,7 +29,8 @@ function scarica(src: string, fine: (im: HTMLImageElement, ok: boolean) => void)
   const im = new Image()
   im.decoding = 'async'
   im.src = src
-  if (im.decode) im.decode().then(() => fine(im, true), () => fine(im, false))
+  // decode() può rifiutare senza che il file sia rotto (succede su WebKit): è un errore solo se l'immagine non risulta caricata
+  if (im.decode) im.decode().then(() => fine(im, true), () => fine(im, !!(im.complete && im.naturalWidth)))
   else { im.onload = () => fine(im, true); im.onerror = () => fine(im, false) }
   return im
 }
@@ -68,7 +69,11 @@ export function creaCaricatore(opz: { modo: Modo; misura: 720 | 1080; conteggio:
     scarica(`/film/scene/${nome}-${opz.misura}.webp`, (im, ok) => {
       scenaInCorso.delete(nome)
       if (fermo) return
-      if (ok) { scene.set(nome, im); opz.onPronto() } else fallite.add(nome)
+      if (ok) { scene.set(nome, im); opz.onPronto() } else {
+        // file mancante o guasto passeggero: per qualche secondo non si richiede (niente raffica a ogni disegno), poi si riprova
+        fallite.add(nome)
+        setTimeout(() => { if (!fermo) fallite.delete(nome) }, 4000)
+      }
       pompa()
     })
   }

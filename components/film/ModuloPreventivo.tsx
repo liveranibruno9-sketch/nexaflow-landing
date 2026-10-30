@@ -108,6 +108,9 @@ export default function ModuloPreventivo({ servizio }: { servizio?: Servizio }) 
           id={`${id}-contatto`}
           name="contatto"
           type="text"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           required
           maxLength={LUNGHEZZA_MASSIMA}
           placeholder="Telefono o email"
