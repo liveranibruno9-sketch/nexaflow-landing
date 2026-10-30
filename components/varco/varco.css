@@ -264,8 +264,6 @@ html.varco .film-radice .varco-poster {
 }
 
 /* il nome dell'apertura aspetta le lettere di particelle: compare sotto, nello stesso punto, quando sono complete (D38) */
-html.varco .film-radice .nome-apertura { transition: color 0.45s var(--curva), text-shadow 0.45s; }
-html.varco .film-radice .nome-apertura[data-nascosto] { color: transparent; text-shadow: none; }
 /* le parole dei servizi: grigio perla, poi il colore della materia quando il suo arco passa in alto */
 .film-radice .servizio-parola { transition: color 0.4s var(--curva); }
 .film-radice .servizio-parola[data-materia='polvere'] { --c: var(--polvere); }
@@ -435,151 +433,63 @@ html.varco .film-radice .varco-puntino {
 }
 @keyframes varco-puntino { 50% { transform: scale(1.7); } }
 
-/* il banner: chi siamo, cosa facciamo, dove siamo. Nella pagina normale è una fascia in colonna; nel varco passa sotto l'apertura */
-.film-radice .apertura-banner { display: grid; gap: 18px; margin: 2em auto; padding: 26px var(--margine); text-align: left; max-width: 560px; }
-.film-radice .banner-etichetta { font: 500 11px/1.3 var(--mono); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(244, 241, 255, 0.55); margin: 0 0 7px; }
-.film-radice .banner-h1,
-.film-radice .apertura-banner .battuta {
-  font-family: var(--titoli); font-stretch: 85%; font-weight: 500; font-size: clamp(19px, 5.2vw, 23px); line-height: 1.22;
-  letter-spacing: -0.005em; color: #f4f1ff; margin: 0; max-width: none; text-align: left;
+/* ---------- l'apertura v2.4 (D47): il nome lettera per lettera nel vortice, i servizi in breve sotto, il riquadro in un angolo ---------- */
+.film-radice { --nome-font: 19vw; }
+@media (min-aspect-ratio: 1/1) and (max-height: 520px) { .film-radice { --nome-font: 15vh; } }
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) { .film-radice { --nome-font: min(176px, 16vh); } }
+html.varco .film-radice .nome-apertura { font-size: var(--nome-font); }
+html.varco .film-radice .parola-nome { display: inline-block; white-space: nowrap; }
+/* ogni lettera la accende Varco quando le scaglie ci arrivano dentro (nome.ts) */
+html.varco .film-radice .lettera-nome { display: inline-block; opacity: 0; }
+
+/* i servizi in breve, sotto il nome: piccoli, una parola alla volta, ognuna col colore della sua materia */
+html.varco .film-radice .apertura-strato .battuta[data-ruolo='servizi'] {
+  position: absolute; left: 0; right: 0; top: calc(var(--cerchio-y) + var(--nome-font) * 1.02);
+  margin: 0; padding: 0 var(--margine); max-width: none; text-align: center;
+  font: 500 10.5px/1.4 var(--mono); letter-spacing: 0.13em; text-transform: uppercase; color: rgba(244, 241, 255, 0.6);
+  text-shadow: var(--ombra-piccolo); white-space: nowrap;
 }
-/* D46: banner nero con la polvere di stelle, un estratto della scena (nebulose delle quattro materie, punti che brillano) */
-html.varco .film-radice .apertura-banner {
-  position: absolute; left: 0; right: 0; top: 0; z-index: 2;
-  max-width: none; margin: 0; padding: 34px var(--margine) 38px;
-  background-color: #000;
-  background-image:
-    radial-gradient(1px 1px at 40.0% 58.9%, rgba(53,224,240,.9), transparent),
-    radial-gradient(2px 2px at 15.2% 53.8%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 6.9% 32.0%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 13.5% 92.0%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 96.8% 93.5%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 97.4% 47.9%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1.5px 1.5px at 46.6% 7.4%, rgba(255,255,255,.7), transparent),
-    radial-gradient(2px 2px at 61.9% 43.3%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 44.4% 71.6%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 59.5% 87.7%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 46.0% 40.6%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1px 1px at 35.7% 77.6%, rgba(91,140,255,.95), transparent),
-    radial-gradient(2px 2px at 24.8% 61.0%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 6.5% 28.4%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 56.0% 36.6%, rgba(255,255,255,.7), transparent),
-    radial-gradient(2px 2px at 63.8% 83.2%, rgba(255,255,255,.7), transparent),
-    radial-gradient(2px 2px at 18.9% 39.4%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 17.4% 0.1%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 86.7% 40.4%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 51.7% 72.9%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 36.6% 8.6%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1.5px 1.5px at 65.1% 13.6%, rgba(217,212,199,.9), transparent),
-    radial-gradient(2px 2px at 78.1% 82.0%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 37.7% 98.9%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1px 1px at 38.0% 38.1%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 19.9% 12.1%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 65.6% 72.5%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 5.7% 24.7%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1.5px 1.5px at 30.6% 55.6%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 89.9% 32.8%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 27.2% 5.7%, rgba(255,255,255,.7), transparent),
-    radial-gradient(2px 2px at 49.0% 6.1%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 64.0% 54.8%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 14.5% 81.2%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 1.6% 91.3%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 1.8% 55.2%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 8.8% 23.0%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 60.5% 74.0%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 65.4% 21.4%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 15.5% 49.6%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 62.6% 28.6%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 32.9% 29.7%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 99.4% 59.1%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 49.0% 47.5%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 24.0% 90.8%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1.5px 1.5px at 93.2% 53.0%, rgba(53,224,240,.9), transparent),
-    radial-gradient(2px 2px at 79.5% 93.6%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1px 1px at 12.6% 68.2%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1px 1px at 32.1% 59.9%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 18.8% 32.7%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 13.0% 57.5%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 48.8% 62.1%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1px 1px at 21.9% 30.0%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 35.0% 16.9%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 94.6% 68.6%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 63.2% 15.4%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 28.2% 55.7%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 15.5% 76.2%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 17.7% 20.7%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 0.2% 32.9%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 73.7% 58.2%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 39.6% 97.1%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 87.2% 63.4%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 93.7% 16.8%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 21.6% 75.5%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 34.9% 35.8%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 6.4% 74.9%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 38.4% 3.7%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 77.1% 18.8%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 93.7% 39.1%, rgba(255,255,255,.95), transparent),
-    radial-gradient(ellipse 38% 90% at 12% 55%, rgba(91,140,255,.16), transparent 70%),
-    radial-gradient(ellipse 30% 80% at 52% 40%, rgba(53,224,240,.07), transparent 70%),
-    radial-gradient(ellipse 34% 90% at 88% 50%, rgba(180,140,255,.13), transparent 70%);
-  border-top: 1px solid rgba(244, 241, 255, 0.07); border-bottom: 1px solid rgba(244, 241, 255, 0.07);
-  visibility: hidden; will-change: transform; overflow: hidden;
+/* un fondo scuro morbido dietro la riga, perché si legga anche sopra le scaglie */
+html.varco .film-radice .apertura-strato .battuta[data-ruolo='servizi']::before {
+  content: ''; position: absolute; left: 50%; top: 50%; width: min(96%, 520px); height: 2.6em; transform: translate(-50%, -50%); z-index: -1;
+  background: radial-gradient(closest-side, rgba(2, 4, 8, 0.75), transparent); pointer-events: none;
 }
-html.varco .film-radice .apertura-banner::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background-image:
-    radial-gradient(1px 1px at 2.0% 83.3%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 42.8% 13.3%, rgba(53,224,240,.9), transparent),
-    radial-gradient(2px 2px at 94.5% 98.9%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 34.2% 80.8%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 34.6% 59.5%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 98.8% 27.2%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 46.2% 79.7%, rgba(91,140,255,.95), transparent),
-    radial-gradient(2px 2px at 84.0% 19.8%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 23.8% 87.3%, rgba(217,212,199,.9), transparent),
-    radial-gradient(2px 2px at 8.9% 60.6%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 27.5% 15.7%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 16.9% 5.8%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 88.6% 10.6%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 77.1% 42.9%, rgba(91,140,255,.95), transparent),
-    radial-gradient(2px 2px at 71.5% 34.5%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1.5px 1.5px at 55.7% 38.0%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1.5px 1.5px at 84.3% 92.1%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 37.3% 13.4%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 33.4% 86.8%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 20.0% 62.0%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 18.7% 41.7%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1px 1px at 1.4% 90.2%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1px 1px at 65.1% 46.0%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 73.5% 8.8%, rgba(217,212,199,.9), transparent),
-    radial-gradient(2px 2px at 15.5% 18.8%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1px 1px at 39.8% 84.5%, rgba(53,224,240,.9), transparent),
-    radial-gradient(2px 2px at 72.8% 9.5%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 63.8% 84.1%, rgba(217,212,199,.9), transparent),
-    radial-gradient(1.5px 1.5px at 99.4% 10.6%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 11.1% 96.1%, rgba(91,140,255,.95), transparent),
-    radial-gradient(2px 2px at 11.1% 68.1%, rgba(255,255,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 59.1% 54.4%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 81.0% 19.2%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 11.5% 65.9%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 14.3% 77.5%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 19.0% 39.4%, rgba(180,140,255,.95), transparent),
-    radial-gradient(1px 1px at 38.3% 48.8%, rgba(91,140,255,.95), transparent),
-    radial-gradient(1.5px 1.5px at 41.1% 66.6%, rgba(180,140,255,.95), transparent),
-    radial-gradient(2px 2px at 55.1% 43.0%, rgba(53,224,240,.9), transparent),
-    radial-gradient(1px 1px at 35.3% 44.8%, rgba(53,224,240,.9), transparent);
-  animation: banner-brilla 3.2s ease-in-out infinite alternate;
-}
-html.varco .film-radice .apertura-banner .banner-voce { position: relative; z-index: 1; }
-@keyframes banner-brilla { from { opacity: 0.15; } to { opacity: 1; } }
+html.varco .film-radice .apertura-strato .servizio-parola { opacity: 0; transition: opacity 0.5s linear; }
+html.varco .film-radice .apertura-strato .battuta[data-attivo='true'] .servizio-parola { opacity: 1; }
+html.varco .film-radice .apertura-strato .servizio-parola:nth-child(2) { transition-delay: 0.12s; }
+html.varco .film-radice .apertura-strato .servizio-parola:nth-child(3) { transition-delay: 0.24s; }
+html.varco .film-radice .apertura-strato .servizio-parola:nth-child(4) { transition-delay: 0.36s; }
+html.varco .film-radice .apertura-strato .servizio-parola[data-materia='polvere'] { color: #a8c4ff; }
+html.varco .film-radice .apertura-strato .servizio-parola[data-materia='vetro'] { color: #9ff6ff; }
+html.varco .film-radice .apertura-strato .servizio-parola[data-materia='saette'] { color: #d8c4ff; }
+html.varco .film-radice .apertura-strato .servizio-parola[data-materia='cromo'] { color: #ece6d8; }
 @media (min-width: 901px) and (min-aspect-ratio: 1/1) {
-  html.varco .film-radice .apertura-banner { grid-template-columns: 1.25fr 1.35fr 0.8fr; gap: 0; padding: 44px 6% 46px; }
-  html.varco .film-radice .banner-voce { padding: 0 34px; border-left: 1px solid rgba(244, 241, 255, 0.12); }
-  html.varco .film-radice .banner-voce:first-child { padding-left: 0; border-left: 0; }
-  .film-radice .banner-h1, .film-radice .apertura-banner .battuta { font-size: clamp(22px, 1.9vw, 30px); }
+  html.varco .film-radice .apertura-strato .battuta[data-ruolo='servizi'] { font-size: 14px; letter-spacing: 0.26em; }
+}
+
+/* il riquadro: chi siamo (l'H1) e dove siamo, in un angolo della scena. Nella pagina normale sta in colonna */
+.film-radice .riquadro-apertura { margin: 2em auto; max-width: 560px; padding: 0 var(--margine); }
+.film-radice .riquadro-etichetta { font: 500 10px/1.3 var(--mono); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(244, 241, 255, 0.5); margin: 0 0 4px; }
+.film-radice .riquadro-h1 { font-family: var(--titoli); font-stretch: 85%; font-weight: 500; font-size: 15px; line-height: 1.3; color: #f4f1ff; margin: 0 0 10px; }
+.film-radice .riquadro-testo { font-family: var(--titoli); font-weight: 400; font-size: 13px; line-height: 1.3; color: rgba(244, 241, 255, 0.85); margin: 0; }
+html.varco .film-radice .riquadro-apertura {
+  position: absolute; left: var(--margine); bottom: calc(var(--sotto) + 14px); z-index: 2;
+  max-width: min(60vw, 300px); margin: 0; padding: 13px 15px 14px;
+  border-radius: 14px; background: rgba(4, 7, 14, 0.55); border: 1px solid rgba(244, 241, 255, 0.12);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .riquadro-apertura { left: 4%; bottom: calc(var(--sotto) + 8px); max-width: 330px; padding: 16px 18px 17px; }
+  .film-radice .riquadro-h1 { font-size: 18px; }
+  .film-radice .riquadro-testo { font-size: 14px; }
 }
 @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
-  html.varco .film-radice .apertura-banner { grid-template-columns: repeat(3, 1fr); gap: 22px; padding: 22px 6%; }
+  html.varco .film-radice .riquadro-apertura { bottom: 12px; max-width: 30vw; padding: 10px 12px; }
+}
+/* `Scorri` va nell'angolo opposto, in basso a destra */
+html.varco .film-radice .apertura-strato .battuta-scorri { left: auto; right: var(--margine); justify-content: flex-end; text-align: right; padding: 0; }
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .apertura-strato .battuta-scorri { right: 4%; }
 }
 
 /* le foto dei servizi (D46): niente cornice, i bordi sfumano nel buio della scena; due, a destra della mascotte, una sotto l'altra,
@@ -638,5 +548,5 @@ html.varco .film-radice .posti-strato { position: absolute; z-index: 0; left: 50
 .film-radice [data-posti='2'] .posti-tuo { opacity: 1; }
 .film-radice [data-posti='2'] .posti-pieno { opacity: 1; transform: scale(1); }
 @media (prefers-reduced-motion: reduce) {
-  html.varco .film-radice .varco-puntino, .film-radice .posti-onda, .film-radice .posti-campo, html.varco .film-radice .apertura-banner::before { animation: none; }
+  html.varco .film-radice .varco-puntino, .film-radice .posti-onda, .film-radice .posti-campo { animation: none; }
 }

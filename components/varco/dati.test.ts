@@ -9,8 +9,8 @@ const ruoliDi = (b: Blocco) => b.battute.map((x) => x.ruolo)
 const battuta = (b: Blocco, ruolo: string) => b.battute.find((x) => x.ruolo === ruolo)!
 const servizi = HOME.blocchi.filter((b) => b.tipo === 'mascotte')
 
-test('home v2: nove blocchi contigui, dall\'inizio alla lunghezza (23,2)', () => {
-  assert.equal(HOME.lunghezza, 23.2)
+test('home v2: nove blocchi contigui, dall\'inizio alla lunghezza (23)', () => {
+  assert.equal(HOME.lunghezza, 23)
   assert.deepEqual(HOME.blocchi.map((b) => b.id), ['apertura', 'soglia', 'servizi', 'atlas', 'janus', 'prometheus', 'hermes', 'squadra', 'finale'])
   assert.deepEqual(HOME.blocchi.map((b) => b.tipo), ['apertura', 'soglia', 'intro', 'mascotte', 'mascotte', 'mascotte', 'mascotte', 'squadra', 'finale'])
   assert.equal(HOME.blocchi[0].da, 0); assert.equal(HOME.blocchi[HOME.blocchi.length - 1].a, HOME.lunghezza)
@@ -39,10 +39,10 @@ test('home v2: ruoli unici nel blocco e conformi alla regola', () => {
   }
 })
 
-test('soglia: solo due frasi, «Tu fai il tuo mestiere.» e «Al resto pensiamo noi.» (brief 30/10)', () => {
+test('soglia (D47): due battute, la domanda e la risposta in una parola', () => {
   const soglia = HOME.blocchi[1]
-  assert.deepEqual(soglia.battute.map((b) => b.testo), ['Tu fai il tuo mestiere.', 'Al resto pensiamo noi.'])
-  assert.deepEqual(soglia.battute.map((b) => b.accento), ['mestiere', 'noi'])
+  assert.deepEqual(soglia.battute.map((b) => b.testo), ['Chi pensa al resto mentre lavori?', 'Noi.'])
+  assert.deepEqual(soglia.battute.map((b) => b.accento), ['resto', 'Noi'])
 })
 
 test('servizi: titolo, mascotte, paragrafo e collegamento; niente nomi delle creature come titoli', () => {
@@ -72,13 +72,14 @@ test('squadra e finale: le frasi che restano della home (brief 30/10)', () => {
   assert.equal(p.href, '#preventivo'); assert.equal(p.a, HOME.lunghezza); assert.equal(p.nota, 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.')
 })
 
-test('apertura (D45): il nome dura tutto il blocco, il banner arriva dopo che il nome si è formato e finisce prima della soglia', () => {
+test('apertura (D47): il nome dura tutto il blocco; i servizi brevi arrivano con le ultime lettere; il riquadro c\'è quasi subito', () => {
   const ap = HOME.blocchi[0]
   assert.deepEqual([battuta(ap, 'nome').da, battuta(ap, 'nome').a], [0, ap.a])
-  assert.equal(ap.a, 2.4)
-  for (const r of ['luogo', 'servizi']) assert.ok(battuta(ap, r).da >= 1 && battuta(ap, r).a < ap.a, r)
-  assert.ok(battuta(ap, 'scorri').a < battuta(ap, 'luogo').da)
-  assert.equal(battuta(ap, 'servizi').testo, 'Automazioni · Siti web · Contenuti · Campagne')
+  assert.equal(ap.a, 2.2)
+  assert.ok(battuta(ap, 'servizi').da >= 0.7 && battuta(ap, 'servizi').a < ap.a)
+  assert.ok(battuta(ap, 'luogo').da < 0.3 && battuta(ap, 'luogo').a < ap.a)
+  assert.ok(battuta(ap, 'scorri').a < battuta(ap, 'servizi').da)
+  assert.equal(battuta(ap, 'servizi').testo, 'Automazioni · Web · Social · Campagne')
 })
 
 test('cartoline (D46): due foto per servizio, una dopo l\'altra, con il file in public/film/cartoline e un testo alternativo', () => {
@@ -108,7 +109,8 @@ function trovaLavori(p: Percorso): string[] {
   for (const b of p.blocchi) {
     for (const [campo, valore] of [['id', b.id], ['etichetta', b.etichetta]] as const) if (lavori(valore)) trovati.push(`blocco ${b.id}: ${campo} «${valore}»`)
     for (const x of b.battute) {
-      if (lavori(x.testo)) trovati.push(`blocco ${b.id}: battuta «${x.testo}»`)
+      // nelle frasi "lavori" può essere il verbo («mentre lavori?»): conta solo il nome della sezione («i nostri lavori»)
+      if (x.tipo === 'frase' ? /\b(i|nostri|dei|ai|tuoi|vostri|miei)\s+lavori\b/i.test(x.testo) : lavori(x.testo)) trovati.push(`blocco ${b.id}: battuta «${x.testo}»`)
       if (x.href !== undefined && x.href.includes('/lavori')) trovati.push(`blocco ${b.id}: href «${x.href}»`)
     }
   }

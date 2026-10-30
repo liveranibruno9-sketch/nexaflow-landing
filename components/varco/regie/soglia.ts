@@ -1,8 +1,9 @@
-// La regia della soglia (home v2): due frasi sole, «Tu fai il tuo mestiere.» e «Al resto pensiamo noi.». L'anello si scalda
-// con la luce dello studio, poi si apre in quattro porte verso i servizi. PROVVISORIA: Bruno vuole un'animazione diversa qui
-// (un piano infografico che accompagni lo scroll), da studiare dopo con le skill giuste. Funzione pura (R18).
+// La regia della soglia (home v2.4, D47): «Chi pensa al resto mentre lavori?» / «Noi.». Arriva dopo la consegna: le quattro
+// correnti del vortice sono uscite dallo schermo e il centro è vuoto e calmo. Con la domanda si accende una sola luce calda al
+// centro (chi lavora); con «Noi.» le quattro materie tornano come luci dai quattro angoli verso il centro, da dove erano uscite,
+// e un'onda parte dalla parola. Funzione pura (R18).
 import type { Regia } from '../kit.ts'
-import type { Vec2 } from '../tipi.ts'
+import type { Materia, Vec2 } from '../tipi.ts'
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x)
 const liscia = (a: number, b: number, x: number) => {
@@ -10,23 +11,24 @@ const liscia = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t)
 }
 
-const ANELLO: Vec2 = [0.5, 0.5]
+const CENTRO: Vec2 = [0.5, 0.5]
+/** da dove erano uscite le quattro correnti (stesso ordine di scaglie.ts) */
+const ANGOLI: [Materia, Vec2][] = [['polvere', [0.08, 0.1]], ['vetro', [0.92, 0.1]], ['saette', [0.92, 0.9]], ['cromo', [0.08, 0.9]]]
 
 export const soglia: Regia = (t, f, k) => {
-  // le lettere sono già tornate nell'anello
-  k.anello.nome(0)
-  // 1 «Tu fai il tuo mestiere.»: si accende la luce calda in alto a sinistra e l'anello si scalda dal lato della lampada
-  k.anello.caldo(liscia(0, 0.8, t['1']))
-  k.luce('luce-studio', { a: [0.03, 0.06], raggio: 0.45, colore: 'luce' }, 0.45 * t['1'])
-  // 2 «Al resto pensiamo noi.»: le quattro materie si accendono, l'anello accelera e si apre in quattro porte in fila
-  for (const m of ['polvere', 'vetro', 'saette', 'cromo'] as const) k.anello.arco(m, 0.35 + 0.65 * t['2'])
-  k.anello.giro(0.5 + 1.0 * t['2'])
-  k.anello.apri(liscia(0.35, 1, t['2']))
-  k.getto('verso-i-servizi', { da: ANELLO, verso: 'camera', colore: 'polvere', n: 60, ampiezza: 1.2 }, liscia(0.5, 1, t['2']))
-
-  const fuoco = (v: number, p: Vec2) => {
-    if (v > 0.05 && v < 1) k.fuoco(p)
+  // 1: una luce calda sola, al centro: chi lavora
+  k.luce('chi-lavora', { a: CENTRO, raggio: 0.38, colore: 'luce' }, 0.35 * liscia(0, 0.4, t['1']) * (1 - 0.4 * liscia(0, 0.5, t['2'])))
+  // 2 «Noi.»: le quattro materie rientrano dagli angoli verso il centro, un'onda dalla parola
+  const v = liscia(0, 0.6, t['2'])
+  for (const [m, da] of ANGOLI) {
+    const a: Vec2 = [da[0] + (CENTRO[0] - da[0]) * 0.55 * v, da[1] + (CENTRO[1] - da[1]) * 0.55 * v]
+    k.luce(`rientra-${m}`, { a, raggio: 0.22, colore: m }, 0.45 * liscia(0, 0.3, t['2']))
   }
-  fuoco(t['1'], [0.3, 0.45])
-  fuoco(t['2'], ANELLO)
+  k.onda('noi', { a: CENTRO, raggio: 0.45, colore: 'blu' }, t['2'])
+
+  const fuoco = (p: number, dove: Vec2) => {
+    if (p > 0.05 && p < 1) k.fuoco(dove)
+  }
+  fuoco(t['1'], [0.45, 0.45])
+  fuoco(t['2'], CENTRO)
 }

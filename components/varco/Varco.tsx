@@ -11,6 +11,7 @@ import { creaTocco } from './tocco.ts'
 import { letteraVisibile } from '../film/materia-calcoli.ts'
 import type { Battuta, Blocco, Percorso } from './tipi.ts'
 import type { Mondo } from './mondo/mondo'
+import { lucelettera, voloLettere } from './nome.ts'
 
 /**
  * Il varco.
@@ -82,7 +83,15 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
     case 'nome':
       // il nome dell'apertura è decorativo (l'H1 è la riga piccola); quello di una creatura è un titolo vero
       return apertura
-        ? <p className={`${classe} nome-apertura`} aria-hidden="true" data-nascosto="si" {...dati}><span>{b.testo}</span></p>
+        ? (
+          <p className={`${classe} nome-apertura`} aria-hidden="true" {...dati}>
+            <span>
+              {b.testo.split(' ').map((parola, i) => (
+                <span className="parola-nome" key={i}>{Array.from(parola).map((c, j) => <span className="lettera-nome" key={j}>{c}</span>)}</span>
+              ))}
+            </span>
+          </p>
+        )
         : <p className={classe} style={{ ['--lettere' as string]: b.testo.length }} {...dati}>{b.testo}</p>
     case 'etichetta':
       if (b.ruolo === 'servizi') {
@@ -200,24 +209,18 @@ function Immagine({ nome, alt }: { nome: string; alt: string }) {
 
 function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
   if (bl.tipo === 'apertura') {
-    // il nome sta nel cerchio; sotto l'apertura passa il banner (chi siamo = l'H1, cosa facciamo, dove siamo, D45); `Scorri` in basso
+    // D47: il nome nel vortice, i servizi in breve sotto il nome, il riquadro in un angolo (chi siamo = l'H1, dove siamo); `Scorri`
     const di = (ruolo: string) => bl.battute.find((b) => b.ruolo === ruolo)!
+    const luogo = di('luogo')
     return (
       <div className="blocco" data-id={bl.id} data-tipo={bl.tipo}>
         <VoceBattuta b={di('nome')} apertura />
-        <div className="apertura-banner">
-          <div className="banner-voce">
-            <p className="banner-etichetta">Chi siamo</p>
-            <h1 className="banner-h1">{h1}</h1>
-          </div>
-          <div className="banner-voce">
-            <p className="banner-etichetta">Cosa facciamo</p>
-            <VoceBattuta b={di('servizi')} apertura />
-          </div>
-          <div className="banner-voce">
-            <p className="banner-etichetta">Dove siamo</p>
-            <VoceBattuta b={di('luogo')} apertura />
-          </div>
+        <VoceBattuta b={di('servizi')} apertura />
+        <div className="battuta riquadro-apertura" data-da={luogo.da} data-a={luogo.a} data-ruolo="riquadro">
+          <p className="riquadro-etichetta">Chi siamo</p>
+          <h1 className="riquadro-h1">{h1}</h1>
+          <p className="riquadro-etichetta">Dove siamo</p>
+          <p className="riquadro-testo">{luogo.testo}</p>
         </div>
         <VoceBattuta b={di('scorri')} apertura />
       </div>
@@ -280,9 +283,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     /* ----- misure: dove sta la traccia e quanto si scorre ----- */
     let inizio = 0
     let corsa = 1
-    let altezzaVista = window.innerHeight
     const misura = () => {
-      altezzaVista = window.innerHeight
       const r = tr.getBoundingClientRect()
       inizio = r.top + window.scrollY
       corsa = Math.max(1, tr.offsetHeight - pa.offsetHeight)
@@ -393,39 +394,24 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       const senzaAnello = senzaMondo || (mondo?.anelloFallito() ?? false)
       pa.style.setProperty('--poster', senzaAnello ? (1 - liscia(0.25, 0.9, u)).toFixed(3) : '0')
       pa.style.setProperty('--puntino', mondo?.anelloPronto() || senzaAnello ? '0' : '1')
-      // il banner passa come una fascia di pagina, un po' più veloce dello scroll
-      if (banner && bandaDa !== null) {
-        const y = (1 - 1.3 * (u - bandaDa)) * altezzaVista
-        const dentro = y < altezzaVista && y > -banner.offsetHeight
-        banner.style.visibility = dentro ? 'visible' : 'hidden'
-        if (dentro) banner.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`
-      }
       const fase = finale && u >= finale.da ? (u >= finale.due ? '2' : u >= finale.uno ? '1' : '0') : '0'
       if (fase !== pa.dataset.posti) pa.dataset.posti = fase
-      // il nome HTML compare sotto le lettere di particelle quando sono complete, e sparisce quando tornano nell'anello (D38)
-      const formato = mondo ? mondo.nomeFormato() : senzaMondo
-      if (formato !== nomeVisibile) {
-        nomeVisibile = formato
-        if (formato) nomeHtml?.removeAttribute('data-nascosto')
-        else nomeHtml?.setAttribute('data-nascosto', 'si')
-      }
-      // le parole dei servizi: quella dell'arco che passa in alto prende il colore della sua materia
-      const alto = mondo && bandaDa !== null && u < bandaDa + 1.3 ? mondo.arcoInAlto() : null
-      if (alto !== acceso) {
-        acceso = alto
-        for (const w of paroleServizi) w.dataset.acceso = String(w.dataset.materia === alto)
-      }
+      // D47: il nome si compone una lettera alla volta, quando le scaglie del vortice ci arrivano dentro (nome.ts)
+      const voli = voloLettere(u, lettereNome.length)
+      lettereNome.forEach((el, i) => {
+        const o = Math.round(lucelettera(voli[i]) * 100) / 100
+        if (el.dataset.o !== String(o)) {
+          el.dataset.o = String(o)
+          el.style.opacity = String(o)
+          el.style.transform = o < 1 ? `translate3d(0, ${(1 - o) * 0.12}em, 0) scale(${0.85 + 0.15 * o})` : ''
+        }
+      })
     }
 
-    /* ----- l'apertura: il nome HTML segue le lettere di particelle (mondo.nomeFormato); senza mondo dopo 8 s compare comunque ----- */
-    const nomeHtml = pa.querySelector<HTMLElement>('.nome-apertura')
-    const banner = pa.querySelector<HTMLElement>('.apertura-banner')
-    const bandaDa = percorso.blocchi[0]?.battute.find((b) => b.ruolo === 'servizi')?.da ?? null
+    /* ----- l'apertura: le lettere del nome (compaiono con lo scroll anche senza il mondo: dipendono solo da u) ----- */
+    const lettereNome = Array.from(pa.querySelectorAll<HTMLElement>('.nome-apertura .lettera-nome'))
     const bloccoFinale = percorso.blocchi.find((b) => b.tipo === 'finale')
     const finale = bloccoFinale ? { da: bloccoFinale.da, uno: bloccoFinale.battute.find((b) => b.ruolo === '1')?.da ?? Infinity, due: bloccoFinale.battute.find((b) => b.ruolo === '2')?.da ?? Infinity } : null
-    const paroleServizi = Array.from(pa.querySelectorAll<HTMLElement>('.servizio-parola'))
-    let acceso: string | null = null
-    let nomeVisibile = false
     let senzaMondo = false
     const salvagente = window.setTimeout(() => { if (!mondo) senzaMondo = true }, 8000)
 
@@ -455,7 +441,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       tocco?.svuota()
       for (const a of accenti) a.el.classList.remove('toccata')
       for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
-      nomeHtml?.removeAttribute('data-nascosto')
+      for (const el of lettereNome) { el.style.opacity = ''; el.style.transform = '' }
       delete html.dataset.tratti
       html.classList.remove('varco', 'in-orbita', 'porte')
     }
@@ -594,7 +580,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       tocco?.dispose()
       for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
       for (const a of accenti) a.el.classList.remove('toccata')
-      nomeHtml?.removeAttribute('data-nascosto')
+      for (const el of lettereNome) { el.style.opacity = ''; el.style.transform = '' }
       mondo?.distruggi()
     }
   }, [percorso, corrente])

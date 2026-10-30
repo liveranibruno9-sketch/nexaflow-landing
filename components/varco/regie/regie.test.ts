@@ -56,27 +56,27 @@ test('R18: ogni blocco della home ha la sua regia e passa il controllo', () => {
   assert.deepEqual(controllaR18(HOME, REGIE), [])
 })
 
-test('apertura (D45): da fermo l\'anello gira con più forza di quando si è scorso; il nome si compone subito scorrendo, resta a lungo, poi torna', () => {
-  const chiama = (nome: number) => {
+test('apertura (D47): il cuore del vortice si scalda mentre arrivano le lettere e si abbassa quando il nome torna nel vortice', () => {
+  const cuore = (nome: number) => {
     const { kit, chiamate } = kitFinto()
     REGIE.apertura!({ nome, luogo: 0, servizi: 0, scorri: 0 }, { locale: nome, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
-    const giro = chiamate.find((c) => c.metodo === 'anello.giro')!.valori[0]
-    const lettere = chiamate.find((c) => c.metodo === 'anello.nome')!.valori[0]
-    return { giro, lettere }
+    return chiamate.find((c) => c.metodo === 'luce' && c.id === 'cuore')!.valori[3]
   }
-  assert.ok(chiama(0).giro > chiama(1).giro)
-  assert.equal(chiama(0).lettere, 0); assert.equal(chiama(1).lettere, 0)
-  for (const t of [0.25, 0.35, 0.45, 0.54]) assert.equal(chiama(t).lettere, 1, `nome pieno a ${t}`)
-  assert.ok(chiama(0.12).lettere > 0 && chiama(0.12).lettere < 1)
+  assert.equal(cuore(0), 0)
+  assert.ok(cuore(0.5) > 0.2)
+  assert.ok(cuore(0.9) < cuore(0.5) / 2)
 })
 
-test('soglia: le porte si aprono con la seconda frase, non con la prima', () => {
-  const chiama = (t1: number, t2: number) => {
+test('soglia (D47): con «Noi.» le quattro materie rientrano dagli angoli verso il centro', () => {
+  const luci = (t1: number, t2: number) => {
     const { kit, chiamate } = kitFinto()
     REGIE.soglia!({ '1': t1, '2': t2 }, { locale: 0.5, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
-    return Math.max(0, ...chiamate.filter((c) => c.metodo === 'anello.apri').map((c) => c.valori[0]))
+    return chiamate.filter((c) => c.metodo === 'luce' && (c.id ?? '').startsWith('rientra-'))
   }
-  assert.equal(chiama(1, 0), 0); assert.equal(chiama(1, 1), 1)
+  assert.ok(luci(1, 0).every((c) => c.valori[3] === 0), 'con la domanda le materie sono ancora fuori')
+  const dentro = luci(1, 1)
+  assert.equal(dentro.length, 4)
+  for (const c of dentro) assert.ok(c.valori[3] > 0.3 && Math.abs(c.valori[0] - 0.5) < 0.3, c.id ?? '')
 })
 
 test('tutte le regie restano nei limiti del Kit (orbite ≤ 2, galassie ≤ 1, getti ≤ 6, n dei getti in 0-100)', () => {

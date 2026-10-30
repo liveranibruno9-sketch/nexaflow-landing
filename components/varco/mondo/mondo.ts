@@ -11,7 +11,7 @@ import type { Blocco, Livello, Materia, Percorso } from '../tipi.ts'
 import { creaFiumi, type Colori, type Fiumi } from './fiumi.ts'
 import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { creaStrati, type Strati } from './strati.ts'
-import { creaAnello, type Anello } from './anello.ts'
+import { creaScaglie, type Scaglie } from './scaglie.ts'
 import { creaCreature, type Creature } from './creature.ts'
 import { caricaMascotte } from './mascotte-glb.ts'
 import { ALTEZZA_CREATURA, ORDINE, coreografia } from '../coreografia.ts'
@@ -27,11 +27,9 @@ export type Mondo = {
   fuocoSchermo(): [number, number] | null
   /** apertura: la materia dell'arco che passa in alto */
   arcoInAlto(): Materia | null
-  /** apertura: le lettere di particelle del nome sono complete (o l'anello non c'è): il nome HTML può comparire */
-  nomeFormato(): boolean
-  /** l'anello di particelle è in scena: il poster può sparire */
+  /** il vortice di scaglie dell'apertura è in scena: il puntino e il poster possono sparire */
   anelloPronto(): boolean
-  /** l'anello non si è potuto creare: torna il poster */
+  /** il vortice non si è potuto creare: torna il poster */
   anelloFallito(): boolean
   impostaLivello(l: Livello): void
   distruggi(): void
@@ -130,34 +128,28 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   const quadroCentro = new Group()
   camera.add(quadroCentro)
 
-  // l'anello delle quattro materie: il cerchio dell'apertura, il nome che si compone, le quattro porte della soglia
-  let anello: Anello | null = null
-  let anelloFallito = false
-  const daPorte = ultimaSoglia ?? Infinity
-  const trattiBlocchi = soggetti
-  const ultimaPorta = trattiBlocchi.length ? trattiBlocchi[0].da + 0.2 : -Infinity
-  const elPoster = document.querySelector<HTMLImageElement>('.varco-poster img')
-  const elNome = document.querySelector<HTMLElement>('.nome-apertura')
-  const elQuadrato = document.querySelector<HTMLElement>('.varco-poster')
-  if (elPoster && elNome && elQuadrato && percorso.blocchi[0]?.tipo === 'apertura' && trattiBlocchi.length === 4) {
-    creaAnello({ livello, poster: elPoster, nome: elNome, quadrato: elQuadrato, colori: { ...P.colori, luce: P.luce } })
-      .then((a) => {
-        if (chiuso) {
-          a.dispose()
-          return
-        }
-        anello = a
-        a.porte(trattiBlocchi.map((b) => zCamera(b.da) - 2) as [number, number, number, number])
-        scena.add(a.gruppo)
-        kit = { ...strati.kit, anello: a.comandi }
-      })
-      .catch((e) => {
-        anelloFallito = true
-        console.error('varco: anello non creato:', e)
-      })
+  // D47: l'apertura è un vortice di scaglie di roccia stellare (scaglie.ts) che compone il nome e poi si apre in quattro correnti;
+  // l'anello di particelle (anello.ts) non si usa più
+  let scaglie: Scaglie | null = null
+  let scaglieFallite = false
+  if (percorso.blocchi[0]?.tipo === 'apertura') {
+    try {
+      const largo = contenitore.clientWidth || window.innerWidth
+      scaglie = creaScaglie(renderer, livello === 'minimo' ? 700 : largo > 900 ? 1800 : 1100)
+      camera.add(scaglie.gruppo)
+    } catch (e) {
+      scaglieFallite = true
+      console.error('varco: vortice non creato:', e)
+    }
   } else {
-    anelloFallito = true
+    scaglieFallite = true
   }
+  // le lettere del nome nel DOM: le scaglie ci volano dentro (si rimisurano quando cambia lo schermo)
+  const misuraLettere = () => {
+    const lettere = Array.from(document.querySelectorAll<HTMLElement>('.nome-apertura .lettera-nome'))
+    scaglie?.bersagli(lettere, contenitore.clientWidth || window.innerWidth, contenitore.clientHeight || window.innerHeight).catch((e) => console.error('varco: lettere del nome non misurate:', e))
+  }
+  misuraLettere()
 
   // le quattro mascotte (home v2.2: modelli 3D dalle foto; in codice se non arrivano): un palco figlio della camera, alla distanza
   // del quadro a riposo; la coreografia
@@ -253,6 +245,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     palco.position.set(0, 0, -dRiposo)
     pxUnita = (altezza * dprCorrente) / (2 * TAN)
     creature?.imposta(pxUnita)
+    if (typeof misuraLettere === 'function') misuraLettere()
     fiumi.imposta(pxUnita)
     strati.imposta(pxUnita)
     for (const v of Array.from(tratti.values())) v.tratto?.schermo(larghezza * dprCorrente, altezza * dprCorrente, imp.ritratto, pxUnita)
@@ -337,31 +330,16 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
     // la regia del blocco corrente comanda gli strati vivi; senza regia o senza quadro non si vede nulla
     strati.inizia()
-    anello?.inizia()
     const regia = regie[bloccoCorrente.id]
     const senzaTratto = bloccoCorrente.tipo !== 'tratto'
     quadroAttivo = quadroDelBlocco ?? (regia && senzaTratto ? (bloccoCorrente.tipo === 'squadra' ? quadroCentro : quadroVirtuale) : null)
     if (regia && quadroAttivo) regia(tempi(bloccoCorrente, u), fasiBlocco(bloccoCorrente, u), kit)
     strati.fine(quadroAttivo, tempo)
 
-    if (anello) {
-      // dall'1.9 fino all'ultimo tratto le quattro porte restano nel mondo, anche quando la regia non parla dell'anello
-      if (!anello.usato() && u >= daPorte && u < ultimaPorta) {
-        anello.comandi.apri(1)
-        anello.comandi.giro(0.25)
-        anello.comandi.ritorno(1)
-        for (const m of ['polvere', 'vetro', 'saette', 'cromo'] as const) anello.comandi.arco(m, 0.8)
-      }
-      // la posa: dal cerchio dell'apertura (grande, al centro) all'anello della soglia (più piccolo, in alto o a destra del centro)
-      // il cerchio dell'apertura è grande (il nome sta dentro, imponente); passa alla posa della soglia mentre passa il banner
-      const lato0 = imp.ritratto ? 0.94 * larghezza : 0.86 * altezza
-      const s = liscia(1.4, 2.4, u)
-      const mix = (a: number, b: number) => a + (b - a) * s
-      anello.posa({
-        cx: mix(0.5, imp.ritratto ? 0.5 : 0.62), cy: mix(imp.ritratto ? 0.4 : 0.5, imp.ritratto ? 0.34 : 0.5), lato: mix(lato0, lato0 * 0.75),
-        larghezza, altezza, fov: camera.fov, aspetto: camera.aspect,
-      })
-      anello.aggiorna(tempo, passo, z, pxUnita, camera.position.x, camera.position.y)
+    // il vortice: grande, al centro del cerchio dell'apertura; da fermo gira con forza, scorrendo appena meno
+    if (scaglie) {
+      scaglie.posa({ cx: 0.5, cy: imp.ritratto ? 0.4 : 0.5, raggio: imp.ritratto ? 0.47 * camera.aspect : 0.44, aspetto: camera.aspect, fov: camera.fov })
+      scaglie.aggiorna(u, tempo, passo, 1 - 0.25 * liscia(0, 0.5, u))
     }
 
     // le mascotte: i modelli si scaricano durante l'apertura; la coreografia dice dove stanno; mentre si scorre salutano
@@ -443,10 +421,9 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     },
     ridimensiona,
     fuocoSchermo,
-    arcoInAlto: () => anello?.arcoInAlto() ?? null,
-    nomeFormato: () => (anello ? anello.nomeFormato() : anelloFallito),
-    anelloPronto: () => anello !== null,
-    anelloFallito: () => anelloFallito,
+    arcoInAlto: () => null,
+    anelloPronto: () => scaglie !== null,
+    anelloFallito: () => scaglieFallite,
     impostaLivello: (l) => {
       if (l === livello) return
       livello = l
@@ -458,13 +435,13 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       liberaTratti()
       strati.dispose()
       strati = creaStrati(livello, coloriStrati)
-      kit = anello ? { ...strati.kit, anello: anello.comandi } : strati.kit
+      kit = strati.kit
       ridimensiona()
     },
     distruggi: () => {
       chiuso = true
       renderer.domElement.removeEventListener('webglcontextlost', alPerso)
-      anello?.dispose()
+      scaglie?.dispose()
       creature?.dispose()
       liberaTratti()
       strati.dispose()
