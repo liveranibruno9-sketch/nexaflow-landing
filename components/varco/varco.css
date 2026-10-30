@@ -330,7 +330,7 @@ html.varco .film-radice .apertura-strato .battuta-scorri { top: auto; bottom: ca
 
 /* ---------- telefono in orizzontale (844x390) e schermi bassi: tutto più basso ---------- */
 @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
-  html.varco .film-radice .fascia { top: 14%; height: 66%; left: 6%; width: 34%; }
+  html.varco .film-radice .fascia { top: 22%; height: 58%; left: 6%; width: 34%; }
   html.varco .film-radice .battuta-nome { font-size: min(16vh, calc(32vw / (var(--lettere, 6) * 0.47))); }
   html.varco .film-radice .battuta-motto { font-size: 18px; }
   html.varco .film-radice .battuta-frase,
