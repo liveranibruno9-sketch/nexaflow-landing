@@ -664,11 +664,8 @@ html:not(.film) .film-radice .menu-bottone { display: none; }
 /* la virgoletta di chiusura del motto arriva con l'ultima lettera */
 :is(.film-attivo, .film-js) .film-radice .materia-accesa .battuta-motto::after { transition: opacity .32s ease-out; }
 :is(.film-attivo, .film-js) .film-radice .materia-accesa .battuta-motto:not(.scritto)::after { opacity: 0; }
-/* il pulsante: spento ha opacità 0 e non prende clic (pointer-events dal motore), ma resta nel giro del tasto Tab;
-   col fuoco da tastiera si vede subito, al suo posto */
-:is(.film-attivo, .film-js) .film-radice .battuta.pulsante { visibility: visible; pointer-events: none; }
-:is(.film-attivo, .film-js) .film-radice .battuta.pulsante:focus-visible { opacity: 1 !important; transform: none !important; pointer-events: auto !important; }
-/* quando compare brilla delle quattro materie a bassa intensità, poi si ferma (D22): un giro solo */
+/* il pulsante del finale: spento è nascosto come le altre battute (visibility dal motore, fuori dal giro del Tab);
+   quando compare brilla delle quattro materie a bassa intensità, poi si ferma (D22): un giro solo */
 :is(.film-attivo, .film-js) .film-radice .materia-accesa .pulsante.brilla { animation: film-brilla 2.6s ease-out both; }
 @keyframes film-brilla {
   0% {

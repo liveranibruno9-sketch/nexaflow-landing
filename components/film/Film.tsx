@@ -133,7 +133,7 @@ function AttoHtml({ atto, h1, regia, ultimo }: { atto: Atto; h1?: string; regia:
       )}
       {ultimo && regia.pulsante ? (
         // il pulsante nasce dalle quattro materie che convergono (D22, motore + materia.ts): è un collegamento vero al suo
-        // posto finale, raggiungibile da tastiera anche prima di comparire (film.css)
+        // posto finale; come le altre battute, si raggiunge col Tab solo mentre è visibile
         <div className="chiusura">
           <a className="battuta pulsante" href={regia.pulsante.href} {...finestra(regia.pulsante.da, Infinity)}>{regia.pulsante.testo}</a>
           <p className="battuta pulsante-sotto" {...finestra(regia.pulsante.da, Infinity)}>{regia.pulsante.sotto}</p>

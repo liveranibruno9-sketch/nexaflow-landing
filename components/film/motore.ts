@@ -23,8 +23,8 @@ const ANTICIPO = 1.2                           // u: una scena si chiede al cari
 const SCRITTURA = 0.7                          // nome e motti si scrivono nel primo 70% della loro finestra
 const VELOCE = 3                               // u al secondo: oltre (scroll di più di 3 schermi al secondo) niente particelle nuove
 
-/** fuoco: il pulsante resta raggiungibile da tastiera anche spento (niente visibility: hidden, solo niente clic) */
-type StatoBattuta = { el: HTMLElement; da: number; a: number; s: number; o: number; y: number; vis: boolean | null; fuoco: boolean }
+/** ePulsante: il pulsante del finale, che quando compare brilla (classe `brilla`) */
+type StatoBattuta = { el: HTMLElement; da: number; a: number; s: number; o: number; y: number; vis: boolean | null; ePulsante: boolean }
 type Scrittura = { el: HTMLElement; da: number; fine: number; m: Materia | 'ciclo' }
 
 const eMateria = (m: string | undefined): m is Materia => !!m && (MATERIE as readonly string[]).includes(m)
@@ -71,7 +71,7 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
 
   const battute: StatoBattuta[] = Array.from(radice.querySelectorAll<HTMLElement>('.battuta[data-da][data-a]')).map((el) => ({
     el, da: Number(el.dataset.da), a: Number(el.dataset.a), s: el.dataset.s ? Number(el.dataset.s) : 0.18, o: -1, y: NaN, vis: null,
-    fuoco: el.classList.contains('pulsante'),
+    ePulsante: el.classList.contains('pulsante'),
   }))
   const numero = radice.querySelector<HTMLElement>('.indice-num')
   const nomeAtto = radice.querySelector<HTMLElement>('.indice-nome')
@@ -266,14 +266,15 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
       const vis = o > 0.004
       if (b.vis !== vis) {
         b.vis = vis
-        if (b.fuoco) {
-          // il pulsante: spento non si clicca ma resta raggiungibile da tastiera (il CSS lo mostra col fuoco);
-          // quando compare brilla delle quattro materie e poi si ferma (D22, animazione CSS)
+        // spenta = visibility: hidden, quindi fuori anche dal giro del tasto Tab (link, cartolina e pulsante)
+        b.el.style.visibility = vis ? 'visible' : 'hidden'
+        if (b.ePulsante) {
+          // il pulsante: quando compare brilla delle quattro materie e poi si ferma (D22, animazione CSS)
           b.el.style.pointerEvents = vis ? 'auto' : 'none'
           b.el.classList.toggle('brilla', vis)
-        } else b.el.style.visibility = vis ? 'visible' : 'hidden'
+        }
       }
-      if (!vis && !b.fuoco) continue   // il pulsante non ha visibility: la sua opacità va scritta anche a 0
+      if (!vis) continue
       const y = Math.round(((1 - sale) * SPOSTA - scende * SPOSTA) * 10) / 10
       if (b.o !== o) { b.o = o; b.el.style.opacity = String(o) }
       if (b.y !== y) { b.y = y; b.el.style.transform = `translate3d(0, ${y}px, 0)` }
@@ -415,7 +416,7 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     for (const n of Object.keys(variabili)) radice.style.removeProperty(n)
     for (const b of battute) {
       b.el.style.removeProperty('opacity'); b.el.style.removeProperty('transform'); b.el.style.removeProperty('visibility')
-      if (b.fuoco) { b.el.style.removeProperty('pointer-events'); b.el.classList.remove('brilla') }
+      if (b.ePulsante) { b.el.style.removeProperty('pointer-events'); b.el.classList.remove('brilla') }
     }
   }
 }
