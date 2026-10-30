@@ -60,7 +60,7 @@ const SEZIONI: { id?: string; titolo: string; corpo: React.ReactNode }[] = [
     titolo: 'Strumenti di terze parti',
     corpo: (
       <p>
-        Il modulo invia i dati al server di automazione di Agenti Studio (software n8n), ospitato da Hetzner
+        I moduli inviano i dati al server di automazione di Agenti Studio (software n8n), ospitato da Hetzner
         Online GmbH in Germania, che li registra e li inoltra alla nostra casella email, gestita da Aruba S.p.A.
         in Italia. Entrambi agiscono come responsabili del trattamento. Il sito è ospitato su Vercel Inc. e usa Vercel Analytics, che raccoglie statistiche di traffico
         aggregate senza cookie e senza identificare i singoli visitatori. I caratteri tipografici sono serviti
@@ -72,13 +72,20 @@ const SEZIONI: { id?: string; titolo: string; corpo: React.ReactNode }[] = [
     id: 'cookie',
     titolo: 'Cookie',
     corpo: (
-      <p>
-        Il sito non usa cookie di profilazione né cookie pubblicitari. L’unico cookie è un cookie tecnico, che
-        serve solo a chi entra nell’area riservata delle demo con il codice ricevuto da noi: si chiama{' '}
-        <code>demo_accesso</code>, contiene una firma che attesta l’inserimento del codice corretto, non
-        contiene dati personali e dura 30 giorni. Chi non entra nell’area demo non riceve alcun cookie dal sito.
-        Trattandosi di un cookie tecnico non è richiesto il consenso.
-      </p>
+      <>
+        <p>
+          Il sito non usa cookie di profilazione né cookie pubblicitari. L’unico cookie è un cookie tecnico, che
+          serve solo a chi entra nell’area riservata delle demo con il codice ricevuto da noi: si chiama{' '}
+          <code>demo_accesso</code>, contiene una firma che attesta l’inserimento del codice corretto, non
+          contiene dati personali e dura 30 giorni. Chi non entra nell’area demo non riceve alcun cookie dal sito.
+          Trattandosi di un cookie tecnico non è richiesto il consenso.
+        </p>
+        <p className="mt-3">
+          Nell’area demo, a ogni inserimento del codice il server invia al nostro sistema n8n (Hetzner)
+          un’impronta non reversibile dell’indirizzo IP, usata solo per bloccare l’accesso dopo dieci tentativi
+          sbagliati in un’ora e non associata ad altri dati.
+        </p>
+      </>
     ),
   },
   {
