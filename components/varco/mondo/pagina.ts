@@ -269,7 +269,8 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     }
 
     /* ---- chi comanda la scena ---- */
-    const film = u < L - 0.05
+    // il film dura finché il palco è fermo: con `dopo` > 0 le sezioni normali hanno preso il posto (e il mondo resta acceso in quiete)
+    const film = s.dopo < 0.02
     const anc = tutte ? (s.ancoreMascotte?.atlas ?? null) : s.ancora
     pesoAncora += ((!film && (anc || (tutte && s.modo === 'servizi')) ? 1 : 0) - pesoAncora) * (1 - Math.exp(-passo * 6))
     const bl = percorso.blocchi[bloccoAl(percorso, uf)]
