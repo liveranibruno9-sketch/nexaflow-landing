@@ -10,6 +10,8 @@ export const APERTURA = {
   scioglie: [1.35, 1.6] as const,
   /** il vortice si apre in quattro correnti che escono dallo schermo */
   consegna: [1.5, 2.2] as const,
+  /** D50: con «Noi.» (soglia, battuta 2) le correnti rientrano a metà dagli angoli e riescono portandosi via le parole del resto */
+  spazzata: [3.0, 3.6] as const,
 }
 /** quanto dura il volo di una lettera, in frazione del tratto del nome (le lettere si accavallano un po') */
 const VOLO = 0.2
@@ -34,5 +36,16 @@ export function voloLettere(u: number, n: number): number[] {
 /** quanto si vede la lettera HTML: compare quando le scaglie sono quasi arrivate, si spegne quando tornano nel vortice */
 export const lucelettera = (volo: number) => liscia(0.72, 1, volo)
 
-/** la consegna: 0 = vortice intero, 1 = le quattro correnti sono uscite dallo schermo */
-export const consegna = (u: number) => liscia(APERTURA.consegna[0], APERTURA.consegna[1], u)
+/** la consegna: 0 = vortice intero, 1 = le quattro correnti sono uscite dallo schermo; con «Noi.» rientrano a metà e riescono */
+export const consegna = (u: number) => {
+  const [a, b] = APERTURA.spazzata
+  const dentro = liscia(a, a + 0.22 * (b - a) / 0.6, u) * (1 - liscia(a + 0.25 * (b - a) / 0.6, b, u))
+  return Math.max(0, liscia(APERTURA.consegna[0], APERTURA.consegna[1], u) - 0.5 * dentro)
+}
+
+/** D50: la parola i del resto (su n) viene portata via fra 0 e 1, una dopo l'altra, mentre le correnti riescono */
+export function portataVia(u: number, i: number, n: number): number {
+  const [a, b] = APERTURA.spazzata
+  const parte = a + 0.08 + (i / Math.max(1, n - 1)) * 0.2
+  return u > b + 0.5 ? 1 : liscia(parte, parte + 0.32, u)
+}

@@ -1,7 +1,8 @@
 // npm test  ·  il nome dell'apertura una lettera alla volta, il ritorno nel vortice, la consegna in quattro correnti
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { APERTURA, consegna, lucelettera, voloLettere } from './nome.ts'
+import { APERTURA, consegna, lucelettera, portataVia, voloLettere } from './nome.ts'
+import { HOME } from './dati/home.ts'
 
 const N = 12 // «AgentiStudio»
 
@@ -29,4 +30,17 @@ test('il nome torna nel vortice, poi il vortice si apre: nell\'ordine', () => {
   assert.equal(consegna(1.4), 0)
   assert.ok(consegna(1.85) > 0 && consegna(1.85) < 1)
   assert.equal(consegna(APERTURA.consegna[1]), 1)
+})
+
+test('D50 · con «Noi.» le correnti rientrano a metà e riescono, e si portano via le parole del resto una dopo l\'altra', () => {
+  const noi = HOME.blocchi.find((b) => b.id === 'soglia')!.battute.find((b) => b.ruolo === '2')!
+  assert.equal(APERTURA.spazzata[0], noi.da, 'la spazzata parte con «Noi.»')
+  assert.equal(consegna(APERTURA.spazzata[0] - 0.05), 1)
+  assert.ok(consegna(APERTURA.spazzata[0] + 0.2) < 0.7, 'le correnti rientrano')
+  assert.equal(consegna(APERTURA.spazzata[1] + 0.05), 1, 'e riescono')
+  const n = HOME.blocchi.find((b) => b.id === 'soglia')!.parole!.length
+  assert.ok(n >= 8)
+  assert.equal(portataVia(APERTURA.spazzata[0], 0, n), 0)
+  assert.ok(portataVia(APERTURA.spazzata[0] + 0.3, 0, n) > portataVia(APERTURA.spazzata[0] + 0.3, n - 1, n), 'una dopo l\'altra')
+  for (let i = 0; i < n; i++) assert.equal(portataVia(APERTURA.spazzata[1] + 0.1, i, n), 1)
 })

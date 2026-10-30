@@ -7,6 +7,8 @@ export type V3 = [number, number, number]
 export type PosaOssa = {
   presenza: number; saluto: number; lato: Lato; abbraccio: number; abbraccioSx: boolean; abbraccioDx: boolean
   felice?: number; sguardo?: [number, number]
+  /** D50: il braccio dal lato `lato` indica verso il centro (il pulsante del finale) */
+  indica?: number
 }
 export type Mire = {
   braccio: [V3, V3]
@@ -43,6 +45,12 @@ export function mire(p: PosaOssa, tempo: number, fase: number): Mire {
     if (saluta && s > 0) {
       b = verso(b, [L * 0.55, 0.78, 0.3], s)
       a = verso(a, [L * 0.08 + 0.62 * Math.sin(tempo * BATTITO + fase), 0.8, 0.32], s)
+    }
+    // indicare: il braccio dal lato `lato` si alza verso il centro, l'avambraccio teso come un dito puntato
+    const ind = clamp01(p.indica ?? 0)
+    if (ind > 0 && latoSaluto === L) {
+      b = verso(b, [L * 0.9, 0.28, 0.32], ind)
+      a = verso(a, [L * 0.95, 0.12, 0.28], ind)
     }
     // l'abbraccio: il braccio va verso il vicino passandogli dietro la schiena, l'avambraccio gira in avanti sulla sua spalla
     if (abbraccia && h > 0) {

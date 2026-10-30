@@ -11,7 +11,7 @@ import type { Mascotte, Posa } from '../coreografia.ts'
 import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { AURA_FRAG, AURA_VERT, LUCE_FRAG, PELLE_FRAG, PELLE_VERT } from './shader-creature.ts'
 
-export type PosaCorpo = Pick<Posa, 'presenza' | 'saluto' | 'lato' | 'abbraccio' | 'abbraccioSx' | 'abbraccioDx'> & { felice?: number; sguardo?: [number, number] }
+export type PosaCorpo = Pick<Posa, 'presenza' | 'saluto' | 'lato' | 'abbraccio' | 'abbraccioSx' | 'abbraccioDx'> & { felice?: number; sguardo?: [number, number]; indica?: number }
 
 export type Creatura = {
   id: Mascotte

@@ -11,7 +11,7 @@ import { creaTocco } from './tocco.ts'
 import { letteraVisibile } from '../film/materia-calcoli.ts'
 import type { Battuta, Blocco, Percorso } from './tipi.ts'
 import type { Mondo } from './mondo/mondo'
-import { lucelettera, voloLettere } from './nome.ts'
+import { lucelettera, portataVia, voloLettere } from './nome.ts'
 
 /**
  * Il varco.
@@ -139,6 +139,22 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
   }
 }
 
+/** D50: dove galleggiano le parole del resto (sopra e sotto la domanda, mai sopra il testo) e verso quale angolo le porta la loro corrente */
+const POSTI_RESTO: [number, number][] = [[16, 21], [44, 15], [74, 22], [30, 31], [62, 30], [20, 68], [52, 73], [81, 66], [36, 81], [68, 83]]
+const ANGOLO: Record<string, [string, string]> = { polvere: ['-70vw', '-70vh'], vetro: ['70vw', '-70vh'], saette: ['70vw', '70vh'], cromo: ['-70vw', '70vh'] }
+function ParoleResto({ parole }: { parole: NonNullable<Blocco['parole']> }) {
+  return (
+    <div className="resto solo-varco" aria-hidden="true">
+      {parole.map((p, i) => {
+        const [x, y] = POSTI_RESTO[i % POSTI_RESTO.length]
+        const [dx, dy] = ANGOLO[p.materia]
+        const stile = { '--x': `${x}%`, '--y': `${y}%`, '--dx': dx, '--dy': dy, '--r': `${((i * 37) % 11) - 5}deg`, '--i': i } as Record<string, string | number>
+        return <span className="parola-resto" data-materia={p.materia} style={stile} key={p.testo}><span>{p.testo}</span></span>
+      })}
+    </div>
+  )
+}
+
 /** le immagini della pagina normale: la creatura (X-2) e il beneficio (X-3), con la sfumatura nel nero */
 function Immagine({ nome, alt }: { nome: string; alt: string }) {
   return (
@@ -195,6 +211,7 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
           {bl.tipo === 'mascotte' && b.ruolo === 'titolo' && mascotte ? <Immagine nome={mascotte} alt={`La mascotte di ${b.testo.toLowerCase()}`} /> : null}
         </Fragment>
       ))}
+      {bl.parole ? <ParoleResto parole={bl.parole} /> : null}
     </div>
   )
 }
@@ -353,8 +370,21 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         const p = piedi?.find((x) => x.id === el.dataset.mascotte)
         const o = p ? Math.round(p.luce * 100) / 100 : 0
         el.style.opacity = String(o)
-        if (p && o > 0) el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0) translate(-50%, 0) scale(${p.scala.toFixed(3)})`
+        // nella giostra il nome sta più staccato dai piedi; nei servizi subito sotto
+        const stacco = bl.tipo === 'intro' ? 24 : 8
+        if (p && o > 0) el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${(p.y + stacco).toFixed(1)}px, 0) translate(-50%, 0) scale(${p.scala.toFixed(3)})`
       }
+      // D50: le parole del resto entrano con la domanda e le correnti se le portano via con «Noi.»
+      paroleResto.forEach((el, i) => {
+        const via = portataVia(u, i, paroleResto.length)
+        const o = Math.round(liscia(domandaDa, domandaDa + 0.3, u) * (1 - via) * 100) / 100
+        if (el.dataset.o !== String(o)) {
+          el.dataset.o = String(o)
+          el.style.opacity = String(o)
+          el.style.visibility = o > 0 ? 'visible' : 'hidden'
+        }
+        el.style.setProperty('--via', via.toFixed(3))
+      })
       // D47: il nome si compone una lettera alla volta, quando le scaglie del vortice ci arrivano dentro (nome.ts)
       const voli = voloLettere(u, lettereNome.length)
       lettereNome.forEach((el, i) => {
@@ -370,6 +400,8 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     /* ----- l'apertura: le lettere del nome (compaiono con lo scroll anche senza il mondo: dipendono solo da u) ----- */
     const lettereNome = Array.from(pa.querySelectorAll<HTMLElement>('.nome-apertura .lettera-nome'))
     const nomiMascotte = Array.from(pa.querySelectorAll<HTMLElement>('.nome-mascotte'))
+    const paroleResto = Array.from(pa.querySelectorAll<HTMLElement>('.parola-resto'))
+    const domandaDa = percorso.blocchi.find((b) => b.tipo === 'soglia')?.battute.find((b) => b.ruolo === '1')?.da ?? Infinity
     const bloccoFinale = percorso.blocchi.find((b) => b.tipo === 'finale')
     const finale = bloccoFinale ? { da: bloccoFinale.da, uno: bloccoFinale.battute.find((b) => b.ruolo === '1')?.da ?? Infinity, due: bloccoFinale.battute.find((b) => b.ruolo === '2')?.da ?? Infinity } : null
     let senzaMondo = false

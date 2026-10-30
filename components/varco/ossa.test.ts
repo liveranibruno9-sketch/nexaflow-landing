@@ -50,3 +50,10 @@ test('abbraccio: il braccio va verso il vicino dietro la sua schiena, l\'avambra
 test('lo sguardo gira la testa verso il puntatore', () => {
   assert.ok(mire(posa({ sguardo: [1, 0] }), 0, 0).testa.giro > mire(posa({ sguardo: [-1, 0] }), 0, 0).testa.giro + 0.8)
 })
+
+test('D50 · indicare: il braccio dal lato chiesto si alza verso il centro, teso', () => {
+  const d = mire(posa({ indica: 1, lato: 'destro' }), 1, 0)
+  assert.ok(d.braccio[1][0] > 0.8 && d.braccio[1][1] > 0.1, `braccio: ${d.braccio[1]}`)
+  assert.ok(d.avambraccio[1][0] > 0.85, 'avambraccio teso')
+  assert.ok(d.braccio[0][1] < -0.8, "l'altro braccio resta giù")
+})

@@ -13,6 +13,8 @@ export type Lato = 'destro' | 'sinistro'
 export type Posa = {
   x: number; y: number; altezza: number; z: number; giro: number; inclina: number
   presenza: number; saluto: number; lato: Lato; abbraccio: number; abbraccioSx: boolean; abbraccioDx: boolean; felice: number
+  /** D50: indica col braccio dal lato `lato` (il pulsante del finale) */
+  indica?: number
 }
 export type Schermo = { ritratto: boolean; aspetto: number; basso: boolean }
 
@@ -124,12 +126,42 @@ function posaSquadra(i: number, u: number, b: Blocco, s: Schermo): Posa {
 }
 
 /**
+ * D50 · «la squadra ti fa posto»: dopo l'abbraccio le quattro restano, piccole, in fila stretta sotto «Seguiamo poche attività alla
+ * volta.»; con «La prossima può essere la tua.» si aprono ad arco attorno al pulsante, lasciano il posto vuoto nel mezzo e lo indicano.
+ */
+function posaFinale(i: number, u: number, f: Blocco, s: Schermo): Posa {
+  const due = f.battute.find((x) => x.ruolo === '2')?.da ?? f.da + 0.7
+  const apre = liscia(due, due + 0.45, u)
+  const tel = s.ritratto
+  const strette = tel ? [0.29, 0.43, 0.57, 0.71] : [0.4, 0.467, 0.533, 0.6]
+  // sul telefono il pulsante prende quasi tutta la larghezza: le due esterne salgono nella fascia vuota sopra di lui,
+  // le due interne restano sotto la riga piccola, e il pulsante resta incorniciato dalle quattro
+  const aperte = tel ? [0.18, 0.3, 0.7, 0.82] : [0.3, 0.38, 0.62, 0.7]
+  const yStrette = tel ? 0.8 : 0.78
+  const yAperte = tel ? [0.515, 0.81, 0.81, 0.515][i] : [0.6, 0.74, 0.74, 0.6][i]
+  const x = mix(strette[i], aperte[i], apre)
+  const c = i - (ORDINE.length - 1) / 2
+  return {
+    ...NASCOSTA,
+    x,
+    y: mix(yStrette, yAperte, apre),
+    altezza: tel ? mix(0.15, 0.13, apre) : 0.22,
+    // si girano verso il pulsante, al centro
+    giro: -0.06 * c - (x - 0.5) * 1.1 * apre,
+    presenza: 1,
+    lato: x < 0.5 ? 'destro' : 'sinistro',
+    indica: apre,
+  }
+}
+
+/**
  * La posa di ogni mascotte a u. `scorre` 0..1 = quanto in fretta si sta scorrendo: mentre si scorre le mascotte in scena salutano.
  * Senza blocchi `mascotte` con il loro nome (le altre pagine) restano tutte nascoste.
  */
 export function coreografia(p: Percorso, u: number, tempo: number, s: Schermo, scorre = 0): Record<Mascotte, Posa> {
   const intro = p.blocchi.find((b) => b.tipo === 'intro')
   const squadra = p.blocchi.find((b) => b.tipo === 'squadra')
+  const finale = p.blocchi.find((b) => b.tipo === 'finale')
   const out = {} as Record<Mascotte, Posa>
   ORDINE.forEach((id, i) => {
     const proprio = p.blocchi.find((b) => b.id === id && b.tipo === 'mascotte')
@@ -148,10 +180,17 @@ export function coreografia(p: Percorso, u: number, tempo: number, s: Schermo, s
       const g = posaGiostra(i, u, tempo, intro, s)
       const via = liscia(intro.a - 0.35, intro.a + 0.1, u)
       posa = { ...g, y: g.y - 0.75 * via * via, presenza: g.presenza * (1 - liscia(0.7, 1, via)) }
+    } else if (squadra && finale && u >= squadra.a - 0.4) {
+      // D50: dalla squadra abbracciata alla fila sotto la frase del finale, poi ad arco attorno al pulsante
+      const e = liscia(squadra.a - 0.4, squadra.a + 0.3, u)
+      const q = posaSquadra(i, Math.min(u, squadra.a - 0.4), squadra, s)
+      const f = posaFinale(i, u, finale, s)
+      posa = { ...f, x: mix(q.x, f.x, e), y: mix(q.y, f.y, e), altezza: mix(q.altezza, f.altezza, e), giro: mix(q.giro, f.giro, e), inclina: q.inclina * (1 - e), abbraccio: q.abbraccio * (1 - e), abbraccioSx: q.abbraccioSx, abbraccioDx: q.abbraccioDx, felice: q.felice * (1 - e), saluto: q.saluto * (1 - e) }
     } else if (squadra && u >= squadra.da && u < squadra.a + 0.1) {
       posa = posaSquadra(i, u, squadra, s)
     }
-    out[id] = posa.presenza > 0 ? { ...posa, saluto: clamp01(Math.max(posa.saluto, 0.9 * clamp01(scorre))) } : posa
+    // mentre si scorre salutano, tranne quando indicano il pulsante
+    out[id] = posa.presenza > 0 && (posa.indica ?? 0) < 0.5 ? { ...posa, saluto: clamp01(Math.max(posa.saluto, 0.9 * clamp01(scorre))) } : posa
   })
   return out
 }

@@ -29,6 +29,14 @@ const APERTURA: Blocco = {
 // ---------- soglia · 2,2 → 3,8: due battute, riscritte con la skill del copy (D47): domanda e risposta in una parola ----------
 const SOGLIA: Blocco = {
   id: 'soglia', tipo: 'soglia', da: 2.2, a: 3.8, etichetta: 'Lo studio',
+  // D50 · scena «il resto che vola via»: le cose del resto galleggiano attorno alla domanda; con «Noi.» le quattro correnti
+  // rientrano dagli angoli e ognuna si porta via le sue (stessa materia)
+  parole: [
+    { testo: 'messaggi', materia: 'polvere' }, { testo: 'chiamate perse', materia: 'polvere' }, { testo: 'preventivi', materia: 'polvere' },
+    { testo: 'recensioni', materia: 'polvere' }, { testo: 'sito', materia: 'vetro' }, { testo: 'prenotazioni', materia: 'vetro' },
+    { testo: 'post', materia: 'saette' }, { testo: 'video', materia: 'saette' }, { testo: 'pubblicità', materia: 'cromo' },
+    { testo: 'clienti nuovi', materia: 'cromo' },
+  ],
   battute: [
     frase('1', ['Chi pensa al resto mentre lavori?', 'resto'], 2.3, 3.0),
     frase('2', ['Noi.', 'Noi'], 3.0, 3.8),

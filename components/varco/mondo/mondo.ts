@@ -388,9 +388,11 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
           pd.x = ((vPiede.x + 1) / 2) * larghezza
           pd.y = ((1 - vPiede.y) / 2) * altezza
           const r = ribalta({ ritratto: imp.ritratto, aspetto: camera.aspect, basso: !imp.ritratto && altezza < 500 })
-          pd.scala = Math.min(1, Math.max(0.7, Math.sqrt(p.altezza / r.altezza)))
-          // chi sta dietro nella giostra ha il nome più tenue
-          pd.luce = p.presenza * (0.35 + 0.65 * Math.min(1, Math.max(0, (p.z + 0.6) / 1.2)))
+          pd.scala = Math.min(1, Math.max(0.85, Math.sqrt(p.altezza / r.altezza)))
+          // chi sta dietro nella giostra perde il nome: altrimenti si leggerebbe sopra la mascotte davanti
+          // (z va da -0.6 dietro a 0.6 davanti; ai lati e nei servizi è 0 e il nome è pieno; nella metà dietro sparisce)
+          const t = Math.min(1, Math.max(0, (p.z + 0.16) / 0.16))
+          pd.luce = p.presenza * t * t * (3 - 2 * t)
         } else pd.luce = 0
       })
       // i programmi delle creature si preparano a pagina ferma, prima che servano (niente scatto quando compaiono)

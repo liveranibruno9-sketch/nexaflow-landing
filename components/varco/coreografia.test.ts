@@ -94,3 +94,25 @@ test('le altre pagine (senza mascotte) non hanno creature', () => {
   const c = coreografia({ lunghezza: 2, blocchi: [{ id: 'x', tipo: 'soglia', da: 0, a: 2, etichetta: 'x', battute: [] }] }, 1, 1, TELEFONO)
   for (const id of ORDINE) assert.equal(c[id].presenza, 0)
 })
+
+test('D50 · la squadra ti fa posto: in fila sotto la prima frase del finale, poi ad arco con il posto vuoto al centro, e indicano il pulsante', () => {
+  const finale = HOME.blocchi.find((b) => b.tipo === 'finale')!
+  const uno = finale.battute.find((b) => b.ruolo === '1')!.da
+  const due = finale.battute.find((b) => b.ruolo === '2')!.da
+  for (const s of [TELEFONO, COMPUTER]) {
+    const fila = coreografia(HOME, uno + 0.3, 2, s)
+    const xs = ORDINE.map((id) => fila[id].x)
+    assert.ok(ORDINE.every((id) => fila[id].presenza > 0.99), 'ci sono tutte')
+    assert.ok(xs[3] - xs[0] < 0.45, 'fila stretta')
+    const arco = coreografia(HOME, due + 0.7, 2, s)
+    const xa = ORDINE.map((id) => arco[id].x)
+    assert.ok(xa[1] < 0.42 && xa[2] > 0.58, 'il posto vuoto al centro, dove sta il pulsante')
+    for (const id of ORDINE) {
+      assert.ok((arco[id].indica ?? 0) > 0.99, `${id} indica`)
+      assert.equal(arco[id].lato, arco[id].x < 0.5 ? 'destro' : 'sinistro', `${id} indica verso il centro`)
+      assert.ok(arco[id].y + arco[id].altezza / 2 < 0.95, `${id} resta nello schermo`)
+    }
+    // indicando non salutano nemmeno se si scorre
+    assert.equal(coreografia(HOME, due + 0.7, 2, s, 1).atlas.saluto, 0)
+  }
+})

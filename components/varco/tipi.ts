@@ -14,6 +14,8 @@ export type Blocco = {
   materia?: Materia; immagini?: Immagine[]; uscita?: 'entra' | 'accanto'
   sfuma?: Partial<Record<Immagine, { alto?: number; basso?: number }>> // zone da sfumare oltre ai bordi (storyboard 5.4)
   battute: Battuta[]
+  /** D50: parole che galleggiano nella scena (la soglia: le cose del «resto», ognuna della sua materia) */
+  parole?: { testo: string; materia: Materia }[]
 }
 export type Percorso = { lunghezza: number; blocchi: Blocco[] }
 /** stato del soggetto del blocco: composto = particelle raccolte (0 sparse), forma 0..2 = problema→creatura→beneficio, foto = opacità delle tre foto, uscita = 0..1 dentro la finestra d'uscita */
