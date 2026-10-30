@@ -61,6 +61,29 @@ test('Atlas ha la sua regia e ogni sua battuta ha un\'àncora, un fuoco sulle pa
   assert.deepEqual(controllaR18(solo, REGIE), [])
 })
 
+test('apertura e soglia hanno la loro regia: ogni frase ha un\'àncora e ogni parola d\'accento il suo fuoco (R18)', () => {
+  for (const id of ['apertura', 'soglia']) {
+    assert.ok(REGIE[id], `la regia di ${id} non è registrata`)
+    const solo = { lunghezza: HOME.lunghezza, blocchi: HOME.blocchi.filter((b) => b.id === id) }
+    assert.deepEqual(controllaR18(solo, REGIE), [], id)
+  }
+})
+
+test('soglia: la barra si divide e le porte si aprono solo dall\'1.9; l\'anello si scalda dall\'1.1', () => {
+  const soglia = HOME.blocchi.find((b) => b.id === 'soglia')!
+  const chiamateA = (ruolo: string, v: number) => {
+    const { kit, chiamate } = kitFinto()
+    const t = Object.fromEntries(soglia.battute.map((b) => [b.ruolo, b.ruolo === ruolo ? v : Number(b.ruolo) < Number(ruolo) ? 1 : 0]))
+    REGIE.soglia!(t, { locale: 0.5, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
+    return chiamate
+  }
+  const apri = (c: ReturnType<typeof chiamateA>) => c.filter((x) => x.metodo === 'anello.apri').map((x) => x.valori[0])
+  assert.ok(Math.max(0, ...apri(chiamateA('8', 1))) === 0, 'le porte non si aprono prima dell\'1.9')
+  assert.ok(Math.max(0, ...apri(chiamateA('9', 1))) === 1, 'all\'1.9 le porte si aprono')
+  const caldo = (c: ReturnType<typeof chiamateA>) => c.filter((x) => x.metodo === 'anello.caldo').map((x) => x.valori[0])
+  assert.ok(Math.max(0, ...caldo(chiamateA('1', 1))) === 1)
+})
+
 test('Atlas: i getti, le orbite e le luci stanno nei limiti del Kit', () => {
   const atlas = HOME.blocchi.find((b) => b.id === 'atlas')!
   const { kit, chiamate } = kitFinto()

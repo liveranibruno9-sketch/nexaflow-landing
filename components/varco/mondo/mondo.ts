@@ -1,16 +1,17 @@
 // Il mondo del varco: renderer, camera, ciclo, quadro, tratti, regie (piano-costruzione-v2, compiti 4-6).
 // Lo scheletro è quello del volo dei dentisti (components/volo/scena.ts, non si tocca): una posizione `u` in schermate
 // letta da testo e scena, camera a velocità costante, le cose vengono incontro.
-import { AdditiveBlending, Mesh, PerspectiveCamera, PlaneGeometry, Scene, ShaderMaterial, Vector3, WebGLRenderer } from 'three'
+import { AdditiveBlending, Group, Mesh, PerspectiveCamera, PlaneGeometry, Scene, ShaderMaterial, Vector3, WebGLRenderer } from 'three'
 import { CONTEGGI } from '../livello.ts'
 import { impagina, sosta } from '../impagina.ts'
 import { VELOCITA, bloccoAl, fasiBlocco, fasiTratto, pesiMateria, profiloDistanza, tempi, trattiDaTenere, zAl, zCamera } from '../percorso.ts'
 import type { Curva } from '../percorso.ts'
-import type { Regia } from '../kit.ts'
+import type { Kit, Regia } from '../kit.ts'
 import type { Blocco, Livello, Materia, Percorso } from '../tipi.ts'
 import { creaFiumi, type Colori, type Fiumi } from './fiumi.ts'
 import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { creaStrati, type Strati } from './strati.ts'
+import { creaAnello, type Anello } from './anello.ts'
 import { creaTratto, type Tratto } from './tratto.ts'
 
 export type Mondo = {
@@ -108,6 +109,39 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
   /* ----- gli strati vivi del Kit e i tratti (uno solo in memoria, più il successivo in preparazione) ----- */
   let strati: Strati = creaStrati(livello, coloriStrati)
+  let kit: Kit = strati.kit
+  let chiuso = false
+
+  // il quadro virtuale: dove stanno gli strati dei blocchi senza tratto (apertura, soglia, finale), fisso nella vista come un quadro a riposo
+  const quadroVirtuale = new Group()
+  camera.add(quadroVirtuale)
+
+  // l'anello delle quattro materie: il cerchio dell'apertura, il nome che si compone, le quattro porte della soglia
+  let anello: Anello | null = null
+  let nomeSegnalato = false
+  const dentroSoglia = percorso.blocchi.find((b) => b.tipo === 'soglia')
+  const daPorte = dentroSoglia?.battute.find((b) => b.ruolo === '9')?.da ?? Infinity
+  const trattiBlocchi = percorso.blocchi.filter((b) => b.tipo === 'tratto')
+  const ultimaPorta = trattiBlocchi.length ? trattiBlocchi[trattiBlocchi.length - 1].da : -Infinity
+  const elPoster = document.querySelector<HTMLImageElement>('.varco-poster img')
+  const elNome = document.querySelector<HTMLElement>('.nome-apertura')
+  const elQuadrato = document.querySelector<HTMLElement>('.varco-poster')
+  if (elPoster && elNome && elQuadrato && percorso.blocchi[0]?.tipo === 'apertura' && trattiBlocchi.length === 4) {
+    creaAnello({ livello, poster: elPoster, nome: elNome, quadrato: elQuadrato, colori: { ...P.colori, luce: P.luce } })
+      .then((a) => {
+        if (chiuso) {
+          a.dispose()
+          return
+        }
+        anello = a
+        a.porte(trattiBlocchi.map((b) => zCamera(b.da) - 2) as [number, number, number, number])
+        scena.add(a.gruppo)
+        kit = { ...strati.kit, anello: a.comandi }
+        a.avvia(performance.now() / 1000)
+        contenitore.dispatchEvent(new CustomEvent('anello', { detail: 'pronto' }))
+      })
+      .catch((e) => console.error('varco: anello non creato:', e))
+  }
   const tratti = new Map<string, Voce>()
 
   const gestisciTratti = (u: number) => {
@@ -158,6 +192,9 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     camera.updateProjectionMatrix()
     imp = impagina(larghezza / altezza, altezza)
     profilo = profiloDistanza(sosta(imp, FOV))
+    const dRiposo = sosta(imp, FOV)
+    const mezza = dRiposo * TAN
+    quadroVirtuale.position.set((imp.cx * 2 - 1) * mezza * camera.aspect, (1 - imp.cy * 2) * mezza, -dRiposo)
     pxUnita = (altezza * dprCorrente) / (2 * TAN)
     fiumi.imposta(pxUnita)
     strati.imposta(pxUnita)
@@ -175,6 +212,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   let velocita = 0
   const centroFuoco = new Vector3()
   let quadroDelBlocco: Tratto['quadro'] | null = null
+  let quadroAttivo: Group | null = null
 
   const aggiorna = (u: number, dt: number, tempo: number): boolean => {
     const z = zCamera(u)
@@ -240,9 +278,35 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
     // la regia del blocco corrente comanda gli strati vivi; senza regia o senza quadro non si vede nulla
     strati.inizia()
+    anello?.inizia()
     const regia = regie[bloccoCorrente.id]
-    if (regia && quadroDelBlocco) regia(tempi(bloccoCorrente, u), fasiBlocco(bloccoCorrente, u), strati.kit)
-    strati.fine(quadroDelBlocco, tempo)
+    const senzaTratto = bloccoCorrente.tipo === 'apertura' || bloccoCorrente.tipo === 'soglia' || bloccoCorrente.tipo === 'finale'
+    quadroAttivo = quadroDelBlocco ?? (regia && senzaTratto ? quadroVirtuale : null)
+    if (regia && quadroAttivo) regia(tempi(bloccoCorrente, u), fasiBlocco(bloccoCorrente, u), kit)
+    strati.fine(quadroAttivo, tempo)
+
+    if (anello) {
+      // dall'1.9 fino all'ultimo tratto le quattro porte restano nel mondo, anche quando la regia non parla dell'anello
+      if (!anello.usato() && u >= daPorte && u < ultimaPorta) {
+        anello.comandi.apri(1)
+        anello.comandi.giro(0.25)
+        anello.comandi.ritorno(1)
+        for (const m of ['polvere', 'vetro', 'saette', 'cromo'] as const) anello.comandi.arco(m, 0.8)
+      }
+      // la posa: dal cerchio dell'apertura (grande, al centro) all'anello della soglia (più piccolo, in alto o a destra del centro)
+      const lato0 = imp.ritratto ? 0.92 * larghezza : 0.7 * altezza
+      const s = liscia(0.3, 1.3, u)
+      const mix = (a: number, b: number) => a + (b - a) * s
+      anello.posa({
+        cx: mix(0.5, imp.ritratto ? 0.5 : 0.62), cy: mix(imp.ritratto ? 0.4 : 0.5, imp.ritratto ? 0.34 : 0.5), lato: mix(lato0, lato0 * 0.75),
+        larghezza, altezza, fov: camera.fov, aspetto: camera.aspect,
+      })
+      anello.aggiorna(tempo, passo, z, pxUnita, camera.position.x, camera.position.y)
+      if (!nomeSegnalato && anello.nomeFormato()) {
+        nomeSegnalato = true
+        contenitore.dispatchEvent(new CustomEvent('anello', { detail: 'nome' }))
+      }
+    }
 
     renderer.render(scena, camera)
     return velocita > 0.3
@@ -250,10 +314,10 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
   const fuocoSchermo = (): [number, number] | null => {
     const p = strati.fuoco()
-    if (!p || !quadroDelBlocco) return null
-    quadroDelBlocco.updateWorldMatrix(true, false)
+    if (!p || !quadroAttivo) return null
+    quadroAttivo.updateWorldMatrix(true, false)
     centroFuoco.set((p[0] - 0.5) * 2.25, (0.5 - p[1]) * 4, 0.05)
-    quadroDelBlocco.localToWorld(centroFuoco)
+    quadroAttivo.localToWorld(centroFuoco)
     camera.updateMatrixWorld()
     centroFuoco.project(camera)
     return [((centroFuoco.x + 1) / 2) * larghezza, ((1 - centroFuoco.y) / 2) * altezza]
@@ -273,7 +337,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     },
     ridimensiona,
     fuocoSchermo,
-    arcoInAlto: () => null,
+    arcoInAlto: () => anello?.arcoInAlto() ?? null,
     impostaLivello: (l) => {
       if (l === livello) return
       livello = l
@@ -285,10 +349,13 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       liberaTratti()
       strati.dispose()
       strati = creaStrati(livello, coloriStrati)
+      kit = anello ? { ...strati.kit, anello: anello.comandi } : strati.kit
       ridimensiona()
     },
     distruggi: () => {
+      chiuso = true
       renderer.domElement.removeEventListener('webglcontextlost', alPerso)
+      anello?.dispose()
       liberaTratti()
       strati.dispose()
       scena.remove(fiumi.oggetto)

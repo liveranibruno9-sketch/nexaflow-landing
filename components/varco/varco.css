@@ -227,11 +227,23 @@ html.varco .film-radice .varco-poster {
   margin: 0;
   transform: translate(-50%, -50%);
   opacity: var(--poster, 1);
+  transition: opacity 0.8s linear;
   pointer-events: none;
 }
 @media (min-aspect-ratio: 1/1) {
   html.varco .film-radice .varco-poster { top: 50%; width: 70vh; width: 70svh; }
 }
+
+/* il nome dell'apertura aspetta le lettere di particelle: compare sotto, nello stesso punto, quando sono complete (D38) */
+html.varco .film-radice .nome-apertura[data-nascosto] { opacity: 0 !important; }
+/* le parole dei servizi: grigio perla, poi il colore della materia quando il suo arco passa in alto */
+.film-radice .servizio-parola { transition: color 0.4s var(--curva); }
+.film-radice .servizio-parola[data-materia='polvere'] { --c: var(--polvere); }
+.film-radice .servizio-parola[data-materia='vetro'] { --c: var(--vetro); }
+.film-radice .servizio-parola[data-materia='saette'] { --c: var(--saette-viola); }
+.film-radice .servizio-parola[data-materia='cromo'] { --c: var(--cromo); }
+.film-radice .servizio-parola[data-acceso='true'] { color: var(--c); }
+html:not(.varco) .film-radice .servizio-parola { color: var(--c); }
 
 /* le battute: spente finché Varco non le accende (opacità, visibilità, salita, sfocatura dalla stessa u).
    Niente will-change: con ~60 battute sarebbero ~60 livelli da comporre a ogni fotogramma. */

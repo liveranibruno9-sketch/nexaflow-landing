@@ -80,6 +80,21 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
       return apertura
         ? <p className={`${classe} nome-apertura`} aria-hidden="true" {...dati}><span>{b.testo}</span></p>
         : <p className={classe} style={{ ['--lettere' as string]: b.testo.length }} {...dati}>{b.testo}</p>
+    case 'etichetta':
+      if (b.ruolo === 'servizi') {
+        const materie = ['polvere', 'vetro', 'saette', 'cromo']
+        return (
+          <p className={classe} {...dati}>
+            {b.testo.split(' · ').map((parola, i) => (
+              <Fragment key={parola}>
+                {i > 0 ? ' · ' : null}
+                <span className="servizio-parola" data-materia={materie[i]}>{parola}</span>
+              </Fragment>
+            ))}
+          </p>
+        )
+      }
+      return <p className={classe} {...dati}>{b.testo}</p>
     case 'passo':
       return (
         <div className={classe} {...dati}>
@@ -227,8 +242,29 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       }
       html.classList.toggle('in-orbita', window.scrollY > inizio + corsa + window.innerHeight * 0.3)
       // il poster del cerchio si dissolve con lo scroll finché l'apertura in codice non lo sostituisce (compito 6)
-      pa.style.setProperty('--poster', (1 - liscia(0.25, 0.9, u)).toFixed(3))
+      pa.style.setProperty('--poster', anelloPronto ? '0' : (1 - liscia(0.25, 0.9, u)).toFixed(3))
+      // le parole dei servizi: quella dell'arco che passa in alto prende il colore della sua materia
+      const alto = mondo && u < 0.7 ? mondo.arcoInAlto() : null
+      if (alto !== acceso) {
+        acceso = alto
+        for (const w of paroleServizi) w.dataset.acceso = String(w.dataset.materia === alto)
+      }
     }
+
+    /* ----- l'apertura: il poster resta finché l'anello è pronto, il nome HTML compare sotto le lettere complete (D38) ----- */
+    const nomeHtml = pa.querySelector<HTMLElement>('.nome-apertura')
+    const paroleServizi = Array.from(pa.querySelectorAll<HTMLElement>('.servizio-parola'))
+    let anelloPronto = false
+    let acceso: string | null = null
+    nomeHtml?.setAttribute('data-nascosto', 'si')
+    // se l'anello non arriva (grafica lenta o rotta) il nome compare comunque dopo 6 secondi
+    const salvagente = window.setTimeout(() => nomeHtml?.removeAttribute('data-nascosto'), 6000)
+    const alAnello = (e: Event) => {
+      const fase = (e as CustomEvent<string>).detail
+      if (fase === 'pronto') anelloPronto = true
+      if (fase === 'nome') nomeHtml?.removeAttribute('data-nascosto')
+    }
+    contenitore.addEventListener('anello', alAnello)
 
     /* ----- il mondo, caricato quando il browser è libero ----- */
     let mondo: Mondo | null = null
@@ -253,6 +289,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         q.el.style.filter = ''
       }
       pa.style.removeProperty('--poster')
+      nomeHtml?.removeAttribute('data-nascosto')
       delete html.dataset.tratti
       html.classList.remove('varco', 'in-orbita', 'porte')
     }
@@ -381,6 +418,9 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       window.removeEventListener('pointermove', alPuntatore)
       document.removeEventListener('visibilitychange', allaVisibilita)
       document.removeEventListener('click', alClic, true)
+      window.clearTimeout(salvagente)
+      contenitore.removeEventListener('anello', alAnello)
+      nomeHtml?.removeAttribute('data-nascosto')
       mondo?.distruggi()
     }
   }, [percorso, corrente])

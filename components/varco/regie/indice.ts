@@ -4,9 +4,11 @@ import { kitFinto } from '../kit-finto.ts'
 import { fasiBlocco } from '../percorso.ts'
 import type { Regia, Tempi } from '../kit.ts'
 import type { Battuta, Percorso } from '../tipi.ts'
+import { apertura } from './apertura.ts'
 import { atlas } from './atlas.ts'
+import { soglia } from './soglia.ts'
 
-export const REGIE: Partial<Record<string, Regia>> = { atlas }
+export const REGIE: Partial<Record<string, Regia>> = { apertura, soglia, atlas }
 
 /** tempi di tutte le battute del blocco: quelle prima della i a 1, quelle dopo a 0, la i a `ti` */
 function tempiCon(ordinate: Battuta[], i: number, ti: number): Tempi {
