@@ -346,6 +346,15 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       pa.style.setProperty('--puntino', mondo?.anelloPronto() || senzaAnello ? '0' : '1')
       const fase = finale && u >= finale.da ? (u >= finale.due ? '2' : u >= finale.uno ? '1' : '0') : '0'
       if (fase !== pa.dataset.posti) pa.dataset.posti = fase
+      // D49: i nomi delle mascotte sotto i piedi, solo nella giostra e nei servizi
+      const conNomi = bl.tipo === 'intro' || bl.tipo === 'mascotte'
+      const piedi = mondo && conNomi ? mondo.piediMascotte() : null
+      for (const el of nomiMascotte) {
+        const p = piedi?.find((x) => x.id === el.dataset.mascotte)
+        const o = p ? Math.round(p.luce * 100) / 100 : 0
+        el.style.opacity = String(o)
+        if (p && o > 0) el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0) translate(-50%, 0) scale(${p.scala.toFixed(3)})`
+      }
       // D47: il nome si compone una lettera alla volta, quando le scaglie del vortice ci arrivano dentro (nome.ts)
       const voli = voloLettere(u, lettereNome.length)
       lettereNome.forEach((el, i) => {
@@ -360,6 +369,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
 
     /* ----- l'apertura: le lettere del nome (compaiono con lo scroll anche senza il mondo: dipendono solo da u) ----- */
     const lettereNome = Array.from(pa.querySelectorAll<HTMLElement>('.nome-apertura .lettera-nome'))
+    const nomiMascotte = Array.from(pa.querySelectorAll<HTMLElement>('.nome-mascotte'))
     const bloccoFinale = percorso.blocchi.find((b) => b.tipo === 'finale')
     const finale = bloccoFinale ? { da: bloccoFinale.da, uno: bloccoFinale.battute.find((b) => b.ruolo === '1')?.da ?? Infinity, due: bloccoFinale.battute.find((b) => b.ruolo === '2')?.da ?? Infinity } : null
     let senzaMondo = false
@@ -565,6 +575,10 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
                   {bl.battute.filter((b) => b.tipo === 'foto').map((b) => <VoceBattuta key={b.ruolo} b={b} apertura={false} />)}
                 </div>
               ))}
+            </div>
+            {/* D49: il nome di ogni mascotte, piccolo, sotto i piedi (giostra e servizi); segue il personaggio */}
+            <div className="nomi-mascotte solo-varco" aria-hidden="true">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'mascotte').map((bl) => <span className="nome-mascotte" data-mascotte={bl.id} key={bl.id}>{bl.id.charAt(0).toUpperCase() + bl.id.slice(1)}</span>)}
             </div>
             {/* D48: la domanda e la risposta della soglia, l'invito e il pulsante del finale: al centro, con il battito */}
             <div className="cuore-strato">

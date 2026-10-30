@@ -459,3 +459,11 @@ html:not(.js) .film-radice .menu-bottone { display: none; }
   .film-radice .ritratto { width: 100%; }
   .film-radice .coda .coda-frase { font-size: clamp(32px, 3vw, 52px); max-width: 26ch; }
 }
+
+/* D49: i tasti di contatto nell'angolo in basso a destra, su ogni pagina: sul telefono due pillole compatte a destra (la sinistra
+   resta libera per il riquadro dell'apertura), sul computer la pillola doppia nell'angolo invece che al centro */
+.film-radice .barra-contatti { left: auto; right: 0; justify-content: flex-end; }
+.film-radice .barra-contatti a { flex: none; padding: 0 18px; }
+@media (min-width: 901px) and (orientation: landscape) {
+  .film-radice .barra-contatti { left: auto; right: 28px; transform: none; }
+}

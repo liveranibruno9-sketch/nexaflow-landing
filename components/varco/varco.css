@@ -489,7 +489,19 @@ html.varco .film-radice .riquadro-apertura {
 /* `Scorri` va nell'angolo opposto, in basso a destra */
 html.varco .film-radice .apertura-strato .battuta-scorri { left: auto; right: var(--margine); justify-content: flex-end; text-align: right; padding: 0; }
 @media (min-width: 901px) and (min-aspect-ratio: 1/1) {
-  html.varco .film-radice .apertura-strato .battuta-scorri { right: 4%; }
+  /* D49: in basso a destra ci sono i tasti di contatto: `Scorri` torna al centro */
+  html.varco .film-radice .apertura-strato .battuta-scorri { left: 0; right: 0; justify-content: center; text-align: center; }
+}
+
+/* D49: il nome di ogni mascotte, sotto i piedi: un dettaglio, nel carattere dei titoli, centrato, né grande né minuscolo */
+html.varco .film-radice .nomi-mascotte { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+html.varco .film-radice .nome-mascotte {
+  position: absolute; left: 0; top: 0; opacity: 0; transform-origin: 50% 0;
+  font-family: var(--titoli); font-stretch: 70%; font-weight: 500; font-size: 17px; line-height: 1; letter-spacing: 0.05em;
+  color: rgba(244, 241, 255, 0.9); text-shadow: var(--ombra-piccolo); white-space: nowrap;
+}
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .nome-mascotte { font-size: 21px; }
 }
 
 /* le foto dei servizi (D46): niente cornice, i bordi sfumano nel buio della scena; due, a destra della mascotte, una sotto l'altra,

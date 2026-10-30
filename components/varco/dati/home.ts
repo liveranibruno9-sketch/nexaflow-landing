@@ -2,7 +2,8 @@
 // apertura (il nome si forma allo scroll) → soglia a due frasi → «I nostri servizi» con le quattro mascotte in giostra → quattro
 // servizi, ciascuno con la sua mascotte (le creature restano, i loro nomi no; dal 30/10 sera sono animaletti in codice, non foto),
 // un titolo e un paragrafo → la squadra che si riunisce abbracciata → il finale verso il modulo.
-// Unità `u` = schermate (1 = 100svh). I paragrafi sono PROVVISORI (li riscriverà l'agente dei copy): condensano testi.md §4.
+// Unità `u` = schermate (1 = 100svh). I paragrafi dei servizi (D49) sono riscritti con le skill di copy: brevi, chiari, una parola
+// chiave per servizio; la spiegazione lunga sta nelle pagine dedicate.
 // Nessun prezzo (R4); nessun blocco «Lavori» finché la bacheca è vuota (R7). Modulo puro: lo importano anche i test di Node.
 import type { Battuta, Blocco, Immagine, Materia, Percorso } from '../tipi.ts'
 
@@ -61,7 +62,7 @@ function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Mate
 const SERVIZI: Blocco[] = [
   servizio(5.4, {
     id: 'atlas', etichetta: '01 · Automazioni', materia: 'polvere', titolo: 'Automazioni aziendali',
-    paragrafo: ['Rispondono ai messaggi e alle chiamate perse anche a negozio chiuso, ricontattano chi ha chiesto un preventivo ed è sparito, chiedono una recensione a ogni cliente. Tu smetti di rincorrere i messaggi: nessuno resta senza risposta.', 'senza risposta'],
+    paragrafo: ['Un assistente virtuale risponde a messaggi e chiamate anche fuori orario, ricontatta chi ha chiesto un preventivo e chiede le recensioni. Nessun cliente resta senza risposta.', 'senza risposta'],
     link: ['Le automazioni →', '/automazioni'],
     foto: [
       { nome: 'automazioni-1', alt: 'Una conversazione con l\'assistente virtuale sul telefono' },
@@ -70,7 +71,7 @@ const SERVIZI: Blocco[] = [
   }),
   servizio(8.6, {
     id: 'janus', etichetta: '02 · Siti web', materia: 'vetro', titolo: 'Sviluppo siti web e app',
-    paragrafo: ["Un sito all'altezza di quello che fai: si apre come un film dal primo scroll, è bello prima dal telefono, è fatto per farti trovare su Google. Richieste e prenotazioni arrivano da sole. Chi arriva capisce, chi capisce prenota.", 'prenota'],
+    paragrafo: ['Siti web e app pensati prima per il telefono e per farti trovare su Google. Chi arriva capisce subito cosa fai, e ti scrive o prenota.', 'prenota'],
     link: ['I siti web →', '/siti-web'],
     foto: [
       { nome: 'siti-1', alt: 'Un sito aperto sul portatile' },
@@ -79,7 +80,7 @@ const SERVIZI: Blocco[] = [
   }),
   servizio(11.8, {
     id: 'prometheus', etichetta: '03 · Contenuti', materia: 'saette', titolo: 'Creazione contenuti',
-    paragrafo: ["Post, caroselli e video brevi sulla tua attività, raccontata com'è davvero, con un piano chiaro su cosa pubblicare e quando. Ogni settimana i contenuti pronti arrivano sul tuo telefono: tu li approvi con un tocco.", 'un tocco'],
+    paragrafo: ['Post, caroselli e video brevi per i tuoi social, con un piano chiaro. Ogni settimana li ricevi pronti sul telefono: li approvi con un tocco.', 'un tocco'],
     link: ['I contenuti →', '/contenuti'],
     foto: [
       { nome: 'contenuti-1', alt: 'Un video di cucina girato col telefono sul treppiede' },
@@ -88,7 +89,7 @@ const SERVIZI: Blocco[] = [
   }),
   servizio(15.0, {
     id: 'hermes', etichetta: '04 · Campagne', materia: 'cromo', titolo: 'Campagne pubblicitarie',
-    paragrafo: ['Pubblicità su Instagram, Facebook e Google per le persone giuste, vicine o lontane, con un obiettivo chiaro. Ogni settimana guardiamo cosa funziona e spostiamo lì il budget: alla fine sai quanto ti è costato ogni nuovo contatto.', 'contatto'],
+    paragrafo: ['Pubblicità su Instagram, Facebook e Google rivolta alle persone giuste, con budget e risultati sotto controllo. Sai quanto ti costa ogni nuovo contatto.', 'contatto'],
     link: ['Le campagne →', '/campagne'],
     foto: [
       { nome: 'campagne-1', alt: 'Una pubblicità su Facebook vista dal telefono' },

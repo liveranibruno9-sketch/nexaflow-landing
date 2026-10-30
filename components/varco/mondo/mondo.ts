@@ -14,7 +14,7 @@ import { creaStrati, type Strati } from './strati.ts'
 import { creaScaglie, type Scaglie } from './scaglie.ts'
 import { creaCreature, type Creature } from './creature.ts'
 import { caricaMascotte } from './mascotte-glb.ts'
-import { ALTEZZA_CREATURA, ORDINE, coreografia } from '../coreografia.ts'
+import { ALTEZZA_CREATURA, ORDINE, coreografia, ribalta } from '../coreografia.ts'
 import { creaTratto, type Tratto } from './tratto.ts'
 
 export type Mondo = {
@@ -27,6 +27,8 @@ export type Mondo = {
   fuocoSchermo(): [number, number] | null
   /** apertura: la materia dell'arco che passa in alto */
   arcoInAlto(): Materia | null
+  /** D49: i piedi di ogni mascotte sullo schermo (px CSS), quanto è grande rispetto alla sua posa nel servizio, quanto si vede */
+  piediMascotte(): { id: string; x: number; y: number; scala: number; luce: number }[]
   /** il vortice di scaglie dell'apertura è in scena: il puntino e il poster possono sparire */
   anelloPronto(): boolean
   /** il vortice non si è potuto creare: torna il poster */
@@ -176,6 +178,8 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   }
   let scorre = 0
   const sguardi = ORDINE.map(() => ({ x: 0, y: 0 }))
+  const piedi = ORDINE.map((id) => ({ id, x: 0, y: 0, scala: 1, luce: 0 }))
+  const vPiede = new Vector3()
   const tratti = new Map<string, Voce>()
 
   const gestisciTratti = (u: number) => {
@@ -374,6 +378,20 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
         sguardo.x += (gx - sguardo.x) * (1 - Math.exp(-passo * 3))
         sguardo.y += (gy - sguardo.y) * (1 - Math.exp(-passo * 3))
         c.aggiorna(tempo, { ...p, sguardo: [sguardo.x, sguardo.y] })
+        // il nome sta sotto i piedi: si proietta il punto dei piedi (base del modello) sullo schermo
+        const pd = piedi[i]
+        if (c.radice.visible) {
+          c.radice.updateWorldMatrix(true, false)
+          vPiede.set(0, -ALTEZZA_CREATURA / 2 - 0.05, 0)
+          c.radice.localToWorld(vPiede)
+          vPiede.project(camera)
+          pd.x = ((vPiede.x + 1) / 2) * larghezza
+          pd.y = ((1 - vPiede.y) / 2) * altezza
+          const r = ribalta({ ritratto: imp.ritratto, aspetto: camera.aspect, basso: !imp.ritratto && altezza < 500 })
+          pd.scala = Math.min(1, Math.max(0.7, Math.sqrt(p.altezza / r.altezza)))
+          // chi sta dietro nella giostra ha il nome più tenue
+          pd.luce = p.presenza * (0.35 + 0.65 * Math.min(1, Math.max(0, (p.z + 0.6) / 1.2)))
+        } else pd.luce = 0
       })
       // i programmi delle creature si preparano a pagina ferma, prima che servano (niente scatto quando compaiono)
       if (!creatureCompilate && velocita < 0.3) {
@@ -424,6 +442,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     arcoInAlto: () => null,
     anelloPronto: () => scaglie !== null,
     anelloFallito: () => scaglieFallite,
+    piediMascotte: () => piedi,
     impostaLivello: (l) => {
       if (l === livello) return
       livello = l
