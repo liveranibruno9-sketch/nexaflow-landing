@@ -525,28 +525,70 @@ html.varco .film-radice .battuta-foto[data-ruolo='foto-2'] { right: 7%; top: 31%
   html.varco .film-radice .battuta-foto[data-ruolo='foto-2'] { right: auto; left: 84%; top: 48%; }
 }
 
-/* i posti del finale: il campo di attività nel buio, il riflettore, quattro punti che entrano, il posto libero che pulsa */
-html.varco .film-radice .posti-strato { position: absolute; z-index: 0; left: 50%; top: 34%; width: min(92vw, 52vh); transform: translate(-50%, -50%); pointer-events: none; }
-@media (min-width: 901px) and (min-aspect-ratio: 1/1) { html.varco .film-radice .posti-strato { left: 64%; top: 50%; width: min(44vw, 82vh); } }
-@media (min-aspect-ratio: 1/1) and (max-height: 520px) { html.varco .film-radice .posti-strato { left: 68%; top: 50%; width: 62vh; } }
-.film-radice .posti { display: block; width: 100%; height: auto; overflow: visible; }
-.film-radice .posti-campo { fill: rgba(244, 241, 255, 0.5); opacity: 0; transition: opacity 0.8s linear; animation: posti-brilla 3s ease-in-out infinite; }
-.film-radice .posti-luce, .film-radice .posti-bordo { opacity: 0; transform: scale(0.6); transform-origin: 0 0; transition: opacity 0.9s linear, transform 1s var(--curva); }
-.film-radice .posti-bordo { fill: none; stroke: rgba(244, 241, 255, 0.4); stroke-width: 0.8; stroke-dasharray: 2 3; }
-.film-radice .posti-dentro { opacity: 0; transform: translate(var(--da-x), var(--da-y)); transition: transform 1.1s var(--curva), opacity 0.5s linear; }
-.film-radice .posti-punto { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8)); }
-.film-radice .posti-tuo { opacity: 0; transition: opacity 0.6s linear; }
-.film-radice .posti-libero { fill: none; stroke: rgba(244, 241, 255, 0.75); stroke-width: 0.8; stroke-dasharray: 2.2 2.2; }
-.film-radice .posti-pieno { opacity: 0; transform: scale(0.3); transform-origin: 0 30px; transition: opacity 0.6s linear 0.5s, transform 0.9s cubic-bezier(0.2, 1.4, 0.3, 1) 0.5s; }
-.film-radice .posti-onda { fill: none; stroke: rgba(244, 241, 255, 0.6); stroke-width: 0.6; transform-origin: 0 30px; animation: posti-onda 1.8s ease-out infinite; }
-@keyframes posti-brilla { 50% { fill-opacity: 0.35; } }
-@keyframes posti-onda { from { transform: scale(1); opacity: 0.8; } to { transform: scale(2.6); opacity: 0; } }
-.film-radice [data-posti='1'] .posti-campo, .film-radice [data-posti='2'] .posti-campo { opacity: 1; }
-.film-radice [data-posti='1'] .posti-luce, .film-radice [data-posti='2'] .posti-luce,
-.film-radice [data-posti='1'] .posti-bordo, .film-radice [data-posti='2'] .posti-bordo { opacity: 1; transform: scale(1); }
-.film-radice [data-posti='1'] .posti-dentro, .film-radice [data-posti='2'] .posti-dentro { opacity: 1; transform: translate(0, 0); }
-.film-radice [data-posti='2'] .posti-tuo { opacity: 1; }
-.film-radice [data-posti='2'] .posti-pieno { opacity: 1; transform: scale(1); }
+/* ==========================================================================================================================
+   D48 · le frasi al centro con il battito (skill animate + design-taste): la domanda e «Noi.» della soglia, l'invito e il pulsante
+   del finale. Carattere stretto molto grande, al massimo due righe, interlinea stretta; il battito è un «tum-tum» (colpo forte,
+   colpo debole, pausa) a circa 55 al minuto fatto solo di scala, quattro volte e poi si ferma (niente movimento automatico oltre
+   5 s); dietro, una luce bassa della scena che batte con la frase. Movimento ridotto: niente battito, resta la luce ferma.
+   ========================================================================================================================== */
+.film-radice { --battito: 1.1s; --battito-sale: cubic-bezier(0.23, 1, 0.32, 1); --battito-scende: cubic-bezier(0.77, 0, 0.175, 1); }
+html.varco .film-radice .cuore-strato { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+html.varco .film-radice .cuore-strato .blocco { display: contents; }
+html.varco .film-radice .cuore-strato .battuta {
+  position: absolute; inset: 0 var(--margine); margin: 0; max-width: none;
+  /* le regole della fascia (align-self: start) restringerebbero il box: qui occupa tutto lo schermo */
+  align-self: stretch; justify-self: stretch;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+}
+html.varco .film-radice .cuore-strato .battuta-frase {
+  font-family: var(--titoli); font-stretch: 70%; font-weight: 500;
+  font-size: clamp(32px, 9.4vw, 52px); line-height: 0.95; letter-spacing: -0.03em; text-wrap: balance;
+  color: #f4f1ff;
+}
+/* la parola d'accento resta nella sua riga e non si spezza; «Noi.» non va mai a capo */
+html.varco .film-radice .cuore-strato .battuta-frase .accento { display: inline; white-space: nowrap; }
+html.varco .film-radice .blocco[data-id='soglia'] .battuta-frase[data-ruolo='2'] { font-size: 36vw; letter-spacing: -0.045em; line-height: 0.85; white-space: nowrap; }
+/* l'invito resta sopra il pulsante */
+html.varco .film-radice .blocco[data-id='finale'] .battuta-frase[data-ruolo='2'] { padding-bottom: 22vh; }
+html.varco .film-radice .cuore-strato .battuta-pulsante { justify-content: flex-start; padding-top: 58vh; }
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .cuore-strato .battuta-frase { font-size: clamp(56px, 5.6vw, 104px); max-width: 21ch; margin: 0 auto; inset: 0 0; }
+  html.varco .film-radice .blocco[data-id='soglia'] .battuta-frase[data-ruolo='2'] { font-size: min(34vh, 24vw); max-width: none; }
+  html.varco .film-radice .cuore-strato .battuta-pulsante { padding-top: 60vh; }
+}
+@media (min-aspect-ratio: 1/1) and (max-height: 520px) {
+  html.varco .film-radice .cuore-strato .battuta-frase { font-size: 11vh; }
+  html.varco .film-radice .blocco[data-id='soglia'] .battuta-frase[data-ruolo='2'] { font-size: 34vh; }
+  html.varco .film-radice .blocco[data-id='finale'] .battuta-frase[data-ruolo='2'] { padding-bottom: 26vh; }
+  html.varco .film-radice .cuore-strato .battuta-pulsante { padding-top: 62vh; }
+}
+/* il battito: solo scala (si somma alla salita che decide lo scroll), quattro volte, e la luce dietro con lo stesso ritmo */
+@keyframes battito {
+  0% { scale: 1; animation-timing-function: var(--battito-sale); }
+  9% { scale: 1.045; animation-timing-function: var(--battito-scende); }
+  18% { scale: 1; animation-timing-function: var(--battito-sale); }
+  26% { scale: 1.022; animation-timing-function: var(--battito-scende); }
+  38%, 100% { scale: 1; }
+}
+@keyframes battito-luce {
+  0% { opacity: 0.35; scale: 0.92; animation-timing-function: var(--battito-sale); }
+  9% { opacity: 1; scale: 1.06; animation-timing-function: var(--battito-scende); }
+  18% { opacity: 0.5; scale: 0.97; animation-timing-function: var(--battito-sale); }
+  26% { opacity: 0.8; scale: 1.02; animation-timing-function: var(--battito-scende); }
+  45%, 100% { opacity: 0.35; scale: 0.92; }
+}
+html.varco .film-radice .cuore-strato .battuta-frase::before {
+  content: ''; position: absolute; left: 50%; top: 50%; z-index: -1; width: min(120vw, 1100px); aspect-ratio: 1.6;
+  transform: translate(-50%, -50%); pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(120, 150, 255, 0.16), rgba(120, 150, 255, 0.05) 55%, transparent);
+}
+html.varco .film-radice .blocco[data-id='finale'] .battuta-frase[data-ruolo='2']::before { top: calc(50% - 11vh); }
+html.varco .film-radice .cuore-strato .battuta-frase[data-attivo='true'] { animation: battito var(--battito) 0.3s 4 both; }
+html.varco .film-radice .cuore-strato .battuta-frase[data-attivo='true']::before { animation: battito-luce var(--battito) 0.3s 4 both; }
+/* il pulsante batte una volta sola quando arriva, poi resta fermo e pronto */
+html.varco .film-radice .cuore-strato .battuta-pulsante[data-attivo='true'] .pulsante { animation: battito var(--battito) 0.2s 1 both; }
+
 @media (prefers-reduced-motion: reduce) {
-  html.varco .film-radice .varco-puntino, .film-radice .posti-onda, .film-radice .posti-campo { animation: none; }
+  html.varco .film-radice .varco-puntino, html.varco .film-radice .cuore-strato .battuta-frase, html.varco .film-radice .cuore-strato .battuta-frase::before, html.varco .film-radice .cuore-strato .pulsante { animation: none; }
+  html.varco .film-radice .cuore-strato .battuta-frase[data-attivo='true']::before { opacity: 0.6; }
 }

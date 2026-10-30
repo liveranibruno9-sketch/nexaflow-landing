@@ -134,59 +134,9 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
         </div>
       )
     default:
-      return <p className={classe} {...dati}>{conAccento(b.testo, b.accento)}</p>
+      // il testo sta in un solo elemento: nello strato del battito la frase è un contenitore flex e lo spezzerebbe a ogni accento
+      return <p className={classe} {...dati}><span className="frase-corpo">{conAccento(b.testo, b.accento)}</span></p>
   }
-}
-
-/**
- * La grafica del finale (D45): un campo di attività nel buio e un riflettore che ne tiene poche alla volta. Con «Seguiamo poche
- * attività alla volta.» quattro punti delle quattro materie entrano nella luce; con «La prossima può essere la tua.» compare il
- * posto libero, che pulsa sopra il pulsante. Nessun nome di cliente: è una metafora, non un elenco.
- */
-const CAMPO = Array.from({ length: 30 }, (_, i) => {
-  const a = i * 2.39996
-  const r = 58 + ((i * 37) % 34)
-  return { x: Math.cos(a) * r, y: Math.sin(a) * r * 0.82, d: (i % 5) * 0.4 }
-})
-const DENTRO: { x: number; y: number; da: [number, number]; m: string }[] = [
-  { x: -22, y: -14, da: [-78, -40], m: 'polvere' },
-  { x: 20, y: -18, da: [82, -52], m: 'vetro' },
-  { x: -26, y: 14, da: [-90, 46], m: 'saette' },
-  { x: 24, y: 12, da: [76, 60], m: 'cromo' },
-]
-function GraficaPosti() {
-  return (
-    <div className="posti-strato solo-varco" aria-hidden="true">
-      <svg viewBox="-100 -100 200 200" className="posti">
-        <defs>
-          <radialGradient id="riflettore">
-            <stop offset="0" stopColor="#fff" stopOpacity="0.16" />
-            <stop offset="0.7" stopColor="#9fb8ff" stopOpacity="0.06" />
-            <stop offset="1" stopColor="#9fb8ff" stopOpacity="0" />
-          </radialGradient>
-          <linearGradient id="quattro" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="var(--polvere)" />
-            <stop offset="0.35" stopColor="var(--vetro)" />
-            <stop offset="0.7" stopColor="var(--saette-viola)" />
-            <stop offset="1" stopColor="var(--cromo)" />
-          </linearGradient>
-        </defs>
-        {CAMPO.map((p, i) => <circle key={i} className="posti-campo" cx={p.x} cy={p.y} r={2.2} style={{ animationDelay: `${p.d}s` }} />)}
-        <circle className="posti-luce" r={56} fill="url(#riflettore)" />
-        <circle className="posti-bordo" r={56} />
-        {DENTRO.map((p, i) => (
-          <g key={p.m} className="posti-dentro" style={{ ['--da-x' as string]: `${p.da[0] - p.x}px`, ['--da-y' as string]: `${p.da[1] - p.y}px`, transitionDelay: `${0.12 * i}s` }}>
-            <circle cx={p.x} cy={p.y} r={6} className="posti-punto" style={{ fill: `var(--${p.m === 'saette' ? 'saette-viola' : p.m})` }} />
-          </g>
-        ))}
-        <g className="posti-tuo">
-          <circle className="posti-onda" cx={0} cy={30} r={11} />
-          <circle className="posti-libero" cx={0} cy={30} r={10.5} />
-          <circle className="posti-pieno" cx={0} cy={30} r={8.5} fill="url(#quattro)" />
-        </g>
-      </svg>
-    </div>
-  )
 }
 
 /** le immagini della pagina normale: la creatura (X-2) e il beneficio (X-3), con la sfumatura nel nero */
@@ -606,7 +556,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
               {percorso.blocchi.filter((bl) => bl.tipo === 'apertura').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
             <div className="fascia">
-              {percorso.blocchi.filter((bl) => bl.tipo !== 'apertura' && bl.tipo !== 'squadra').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+              {percorso.blocchi.filter((bl) => !['apertura', 'squadra', 'soglia', 'finale'].includes(bl.tipo)).map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
             {/* le cartoline dei servizi: volano accanto alla mascotte una alla volta */}
             <div className="cartoline-strato solo-varco">
@@ -616,8 +566,10 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
                 </div>
               ))}
             </div>
-            {/* il finale: pochi posti nella luce, poi quello libero (D45) */}
-            {percorso.blocchi.some((bl) => bl.tipo === 'finale') ? <GraficaPosti /> : null}
+            {/* D48: la domanda e la risposta della soglia, l'invito e il pulsante del finale: al centro, con il battito */}
+            <div className="cuore-strato">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'soglia' || bl.tipo === 'finale').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+            </div>
             {/* la squadra: la frase sopra e sotto le quattro mascotte riunite */}
             <div className="squadra-strato">
               {percorso.blocchi.filter((bl) => bl.tipo === 'squadra').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}

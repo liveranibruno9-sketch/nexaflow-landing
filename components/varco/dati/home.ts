@@ -107,13 +107,13 @@ const SQUADRA: Blocco = {
   ],
 }
 
-// ---------- finale · 21,0 → 23,0: l'invito con la grafica dei posti (quattro occupati, il quinto libero), poi il pulsante ----------
+// ---------- finale · 21,0 → 23,0 (D48): l'invito al centro con il battito; la seconda frase resta con il pulsante fino in fondo ----------
 const LUNGHEZZA = 23.0
 const FINALE: Blocco = {
   id: 'finale', tipo: 'finale', da: 21.0, a: LUNGHEZZA, etichetta: 'Il finale',
   battute: [
     frase('1', ['Seguiamo poche attività alla volta.'], 21.1, 21.7),
-    frase('2', ['La prossima può essere la tua.', 'la tua'], 21.7, 22.3),
+    frase('2', ['La prossima può essere la tua.', 'la tua'], 21.7, LUNGHEZZA),
     { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 22.3, a: LUNGHEZZA },
   ],
 }

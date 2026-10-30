@@ -1,10 +1,11 @@
-// Il vortice dell'apertura (home v2.4, D47): un anello di scaglie di roccia stellare, tante e ben definite, tutte della stessa forma,
-// ognuna della sua materia (polvere blu, vetro azzurro, saette viola e bianche, cromo). Nasce da un punto, gira come un vortice
+// Il vortice dell'apertura (home v2.4-v2.5, D47-D48): un anello di scaglie di roccia stellare, tante e ben definite, tutte della stessa
+// forma, ognuna della sua materia (polvere blu, vetro azzurro, saette viola, cromo). Dalla v2.5 sono detriti vissuti: poco luminose,
+// opache, con la patina a chiazze, la grana, qualche pagliuzza di minerale che brilla e il bordo appena acceso del loro colore. Nasce da un punto, gira come un vortice
 // (più veloce verso il centro, ogni scaglia ruota su sé stessa); scorrendo, le scaglie volano a comporre «Agenti Studio» una lettera
 // alla volta (nome.ts); poi tornano nel vortice, che si apre in quattro correnti, una per materia, e lascia lo schermo (la consegna).
 // Scaglie = InstancedMesh, una per materia, posizioni calcolate a ogni fotogramma. Le sue luci si spengono quando il vortice è uscito.
 import {
-  Color, DirectionalLight, Group, HemisphereLight, IcosahedronGeometry, InstancedMesh, Matrix4, MeshPhysicalMaterial,
+  Color, DirectionalLight, Group, HemisphereLight, IcosahedronGeometry, InstancedBufferAttribute, InstancedMesh, Matrix4,
   MeshStandardMaterial, PMREMGenerator, Quaternion, Vector3,
 } from 'three'
 import type { Material, Texture, WebGLRenderer } from 'three'
@@ -54,6 +55,30 @@ function scaglia() {
   return g
 }
 
+/**
+ * La roccia vissuta (D48): sulla stessa forma ogni scaglia ha la sua patina a chiazze e la sua grana (dal seme dell'istanza, fisso:
+ * non sfarfalla mentre gira), qualche pagliuzza di minerale che brilla e il bordo appena acceso del colore della sua materia,
+ * così resta distinguibile sul nero pur essendo opaca.
+ */
+function roccia(m: MeshStandardMaterial, pagliuzze: number, bordo: number, forzaBordo: number) {
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.uPagliuzze = { value: new Color(pagliuzze) }
+    sh.uniforms.uBordo = { value: new Color(bordo).multiplyScalar(forzaBordo) }
+    sh.vertexShader = 'attribute float aSeme;\nvarying float vSeme;\nvarying vec3 vLoc;\n' +
+      sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vSeme = aSeme;\n  vLoc = position;')
+    sh.fragmentShader = 'uniform vec3 uPagliuzze;\nuniform vec3 uBordo;\nvarying float vSeme;\nvarying vec3 vLoc;\n' +
+      sh.fragmentShader
+        .replace('#include <color_fragment>', `#include <color_fragment>
+  float chiazza = fract( sin( dot( floor( vLoc * 3.0 + vSeme * 19.0 ), vec3( 12.9898, 78.233, 37.719 ) ) ) * 43758.5453 );
+  float grana = fract( sin( dot( floor( vLoc * 21.0 + vSeme * 7.0 ), vec3( 39.3468, 11.135, 83.155 ) ) ) * 43758.5453 );
+  diffuseColor.rgb *= ( 0.55 + 0.55 * chiazza ) * ( 0.82 + 0.3 * grana );`)
+        .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+  totalEmissiveRadiance += uPagliuzze * step( 0.978, grana );
+  totalEmissiveRadiance += uBordo * pow( 1.0 - saturate( dot( normal, normalize( vViewPosition ) ) ), 3.0 );`)
+  }
+  return m
+}
+
 export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
   const gruppo = new Group()
   gruppo.position.z = -DIST
@@ -64,16 +89,17 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
   const pmrem = new PMREMGenerator(renderer)
   const ambiente: Texture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
   pmrem.dispose()
-  const geometria = scaglia()
+  // una geometria per materia: ognuna porta il seme delle sue istanze (la patina di ogni scaglia)
+  const geometrie = [0, 1, 2, 3].map(() => scaglia())
   const materiali: Material[] = [
-    // polvere: roccia blu con un po' di luce dentro
-    new MeshStandardMaterial({ color: 0x3157d6, roughness: 0.5, metalness: 0.25, emissive: 0x1a3aa8, emissiveIntensity: 0.6, envMap: ambiente, envMapIntensity: 0.6, flatShading: true }),
-    // vetro: azzurro lucido, appena trasparente
-    new MeshPhysicalMaterial({ color: 0x7ff3ff, roughness: 0.05, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, emissive: 0x0c8fa0, emissiveIntensity: 0.45, envMap: ambiente, envMapIntensity: 1.3, transparent: true, opacity: 0.9, flatShading: true }),
-    // saette: cristallo bianco-viola che fa luce da sé
-    new MeshStandardMaterial({ color: 0xefe8ff, emissive: 0xa77dff, emissiveIntensity: 1.1, roughness: 0.35, flatShading: true }),
-    // cromo: metallo chiaro che specchia la stanza
-    new MeshStandardMaterial({ color: 0xe6e1d6, metalness: 1, roughness: 0.12, envMap: ambiente, envMapIntensity: 1.6, emissive: 0x2a2620, emissiveIntensity: 0.2, flatShading: true }),
+    // polvere: roccia blu polverosa, opaca, con pagliuzze dorate
+    roccia(new MeshStandardMaterial({ color: 0x2c4596, roughness: 0.92, metalness: 0.08, emissive: 0x0b1640, emissiveIntensity: 0.35, envMap: ambiente, envMapIntensity: 0.35, flatShading: true }), 0xffd89a, 0x5b8cff, 0.35),
+    // vetro: frammento azzurro consumato, lucido solo a tratti
+    roccia(new MeshStandardMaterial({ color: 0x3f9eaa, roughness: 0.38, metalness: 0.15, emissive: 0x062a30, emissiveIntensity: 0.3, envMap: ambiente, envMapIntensity: 0.8, flatShading: true }), 0xc8fbff, 0x35e0f0, 0.4),
+    // saette: roccia viola scura con vene di luce che affiorano
+    roccia(new MeshStandardMaterial({ color: 0x6d5a9c, roughness: 0.7, metalness: 0.05, emissive: 0x2a1660, emissiveIntensity: 0.45, envMap: ambiente, envMapIntensity: 0.3, flatShading: true }), 0xe6dcff, 0xb48cff, 0.45),
+    // cromo: metallo segnato dal tempo, opaco con riflessi
+    roccia(new MeshStandardMaterial({ color: 0x9c978d, metalness: 0.75, roughness: 0.48, envMap: ambiente, envMapIntensity: 1.0, emissive: 0x15130f, emissiveIntensity: 0.3, flatShading: true }), 0xfff1d6, 0xd9d4c7, 0.3),
   ]
 
   // le scaglie: ognuna con la sua materia, il suo angolo, la sua orbita, la sua rotazione
@@ -99,16 +125,19 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
     ang[i] = m * (Math.PI / 2) + Math.PI / 4 + (caso() - 0.5) * (Math.PI / 2 + 0.6)
     rag[i] = 0.58 + 0.42 * ((caso() + caso()) / 2) * 1.05
     quota[i] = (caso() - 0.5) * 0.12
-    misura[i] = 0.034 + 0.024 * caso()
+    // detriti: tante scaglie piccole e qualche pezzo grosso
+    misura[i] = 0.022 + 0.05 * Math.pow(caso(), 2.2)
     assi.push(new Vector3(caso() - 0.5, caso() - 0.5, caso() - 0.5).normalize())
     vel[i] = (0.6 + 1.6 * caso()) * (caso() < 0.5 ? -1 : 1)
     fase[i] = caso() * Math.PI * 2
   }
   const mesh = materiali.map((m, k) => {
-    const im = new InstancedMesh(geometria, m, perMateria[k])
+    const semi = new Float32Array(perMateria[k]).map(() => caso())
+    geometrie[k].setAttribute('aSeme', new InstancedBufferAttribute(semi, 1))
+    const im = new InstancedMesh(geometrie[k], m, perMateria[k])
     im.frustumCulled = false
     for (let j = 0; j < perMateria[k]; j++) {
-      const b = 0.75 + 0.45 * caso()
+      const b = 0.7 + 0.45 * caso()
       im.setColorAt(j, new Color(b, b, b))
     }
     disco.add(im)
@@ -246,7 +275,7 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
     },
     dispose() {
       gruppo.removeFromParent()
-      geometria.dispose()
+      for (const g of geometrie) g.dispose()
       for (const m of materiali) m.dispose()
       for (const im of mesh) im.dispose()
       ambiente.dispose()
