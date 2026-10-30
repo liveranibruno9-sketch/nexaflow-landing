@@ -233,9 +233,12 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     /* ----- il mondo, caricato quando il browser è libero ----- */
     let mondo: Mondo | null = null
     let chiuso = false
-    let livello = livelloIniziale({ ritratto: window.innerWidth / window.innerHeight < 1, larghezza: window.innerWidth })
+    // ?livello=alto|medio|minimo forza il livello e spegne la misura adattiva (per provare R12 e per le catture)
+    const livelloChiesto = new URLSearchParams(window.location.search).get('livello')
+    const forzato = livelloChiesto === 'alto' || livelloChiesto === 'medio' || livelloChiesto === 'minimo' ? livelloChiesto : null
+    let livello = forzato ?? livelloIniziale({ ritratto: window.innerWidth / window.innerHeight < 1, larghezza: window.innerWidth })
     const campioni: number[] = []
-    let misurato = false
+    let misurato = forzato !== null
     const t0 = performance.now()
 
     const passaAllaPagina = () => {
@@ -393,7 +396,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
             <picture className="varco-poster">
               <source media="(min-width: 901px)" srcSet={poster.src1080} />
               {/* è l'immagine più grande della prima schermata (LCP): priorità alta, come l'hero dei dentisti */}
-              <img src={poster.src720} alt={poster.alt} width={720} height={1280} decoding="async" {...{ fetchpriority: 'high' }} />
+              <img src={poster.src720} alt={poster.alt} width={720} height={1280} decoding="async" fetchPriority="high" />
             </picture>
             {/* l'apertura sta sopra tutto il palco (il nome nel cerchio); le altre battute nella fascia del testo */}
             <div className="apertura-strato">

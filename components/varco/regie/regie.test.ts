@@ -54,6 +54,32 @@ test('controllaR18: una frase che fa muovere solo l\'evento della frase prima no
 
 test('R18: blocchi con regia', () => assert.deepEqual(controllaR18(HOME, REGIE), []))
 
+test('Atlas ha la sua regia e ogni sua battuta ha un\'àncora, un fuoco sulle parole d\'accento (R18)', () => {
+  assert.ok(REGIE.atlas, 'la regia di atlas non è registrata')
+  const solo = { lunghezza: HOME.lunghezza, blocchi: HOME.blocchi.filter((b) => b.id === 'atlas') }
+  assert.equal(solo.blocchi.length, 1)
+  assert.deepEqual(controllaR18(solo, REGIE), [])
+})
+
+test('Atlas: i getti, le orbite e le luci stanno nei limiti del Kit', () => {
+  const atlas = HOME.blocchi.find((b) => b.id === 'atlas')!
+  const { kit, chiamate } = kitFinto()
+  // l'intero tratto, da 0 a 1 a passi di 0,05, con tutte le battute alla stessa t: nessuna chiamata fuori misura
+  for (let k = 0; k <= 20; k++) {
+    const t = Object.fromEntries(atlas.battute.map((b) => [b.ruolo, k / 20]))
+    REGIE.atlas!(t, { locale: 0.5, composto: 1, forma: 2, foto: [0, 0, 1], uscita: 0 }, kit)
+  }
+  assert.ok(chiamate.length > 0)
+  for (const c of chiamate) {
+    assert.ok(c.valori.every(Number.isFinite), `${c.metodo} ${c.id}: valore non finito`)
+    if (c.metodo === 'orbita') assert.ok(c.valori[4] <= 64, `orbita ${c.id}: più di 64 punti`)
+    if (c.metodo === 'getto') assert.ok(c.valori[4] >= 0 && c.valori[4] <= 100, `getto ${c.id}: n fuori da 0-100`)
+  }
+  assert.ok(new Set(chiamate.filter((c) => c.metodo === 'orbita').map((c) => c.id)).size <= 2, 'più di 2 orbite insieme')
+  assert.ok(new Set(chiamate.filter((c) => c.metodo === 'getto').map((c) => c.id)).size <= 6, 'più di 6 getti insieme')
+  assert.ok(new Set(chiamate.filter((c) => c.metodo === 'galassia').map((c) => c.id)).size <= 1, 'più di una galassia')
+})
+
 test('kitFinto: registra ogni chiamata con i valori a 3 decimali; azzera svuota', () => {
   const { kit, chiamate, azzera } = kitFinto()
   kit.luce('l', { a: [0.123456, 0.5], raggio: 0.3, colore: 'luce' }, 0.66666)
