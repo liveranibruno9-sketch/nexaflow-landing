@@ -17,3 +17,5 @@ export type Blocco = {
 export type Percorso = { lunghezza: number; blocchi: Blocco[] }
 /** stato del soggetto del blocco: composto = particelle raccolte (0 sparse), forma 0..2 = problema→creatura→beneficio, foto = opacità delle tre foto, uscita = 0..1 dentro la finestra d'uscita */
 export type Fasi = { locale: number; composto: number; forma: number; foto: [number, number, number]; uscita: number }
+/** t di ogni battuta di un blocco, per ruolo, già limitati a 0..1 (0 prima della finestra, 1 dopo); lo riesporta kit.ts */
+export type Tempi = Record<string, number>
