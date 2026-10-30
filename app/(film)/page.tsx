@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import Coda from '@/components/film/Coda'
+import Varco from '@/components/varco/Varco'
+import { HOME } from '@/components/varco/dati/home'
 
 // Titolo, descrizione e H1 da testi.md §6 (lettera per lettera). Il nome grande è decorativo: l'H1 è la riga piccola.
 const TITOLO = 'Agenzia AI a Faenza e in Romagna | Agenti Studio'
@@ -14,13 +16,22 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: TITOLO, description: DESCRIZIONE },
 }
 
-// La home (provvisoria fino al compito 4). In fondo la coda: preventivo, Bruno, contatti, informazioni.
+// La home: il varco in sette blocchi (apertura, soglia, quattro tratti, finale). In fondo la coda: preventivo, Bruno, contatti, informazioni.
 export default function Home() {
   return (
     <main id="contenuto">
-      {/* provvisoria: il componente Varco arriva nel compito 4 */}
-      <h1>Agenti Studio, agenzia AI per le attività della Romagna</h1>
-      <Coda conBruno />
+      <Varco
+        percorso={HOME}
+        corrente="home"
+        h1="Agenti Studio, agenzia AI per le attività della Romagna"
+        poster={{
+          src720: '/film/scene/apertura-720.webp',
+          src1080: '/film/scene/apertura-1080.webp',
+          alt: "Anello di polvere di stelle, vetro, saette e cromo attorno al buio: l'apertura del sito di Agenti Studio",
+        }}
+      >
+        <Coda conBruno />
+      </Varco>
     </main>
   )
 }

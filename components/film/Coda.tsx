@@ -30,7 +30,7 @@ export default function Coda({ servizio, conBruno, children }: Props) {
         {conBruno ? (
           <div className="coda-bruno">
             <div className="coda-frasi">
-              {FRASI_BRUNO.map((f) => <p className="battuta-frase" key={f}>{f}</p>)}
+              {FRASI_BRUNO.map((f) => <p className="coda-frase" key={f}>{f}</p>)}
             </div>
             {CONTATTI.fotoBruno ? (
               <div className="ritratto">
