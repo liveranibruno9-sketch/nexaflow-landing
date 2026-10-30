@@ -7,6 +7,8 @@ import type { Servizio } from '../film/dati/contatti'
 import { bloccoAl, statoFrase, trattiDaTenere } from './percorso.ts'
 import { livelloDopoMisura, livelloIniziale } from './livello.ts'
 import { posizioneAccento } from './testo.ts'
+import { creaTocco } from './tocco.ts'
+import { letteraVisibile } from '../film/materia-calcoli.ts'
 import type { Battuta, Blocco, Percorso } from './tipi.ts'
 import type { Mondo } from './mondo/mondo'
 
@@ -24,6 +26,8 @@ import type { Mondo } from './mondo/mondo'
  * Tutto il testo è HTML vero in entrambi i modi: Google e gli screen reader lo leggono per intero.
  */
 
+/** la scia del cursore, prima leva di R12 se il peso non regge (solo mouse) */
+const SCIA = true
 const INERZIA = 3.2 // più basso = più morbido e più lento a fermarsi (come i dentisti)
 
 const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x))
@@ -95,6 +99,14 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
         )
       }
       return <p className={classe} {...dati}>{b.testo}</p>
+    case 'motto':
+      // le lettere si scrivono con lo scroll (Varco le accende); il motto intero resta per chi usa un lettore di schermo
+      return (
+        <p className={classe} {...dati}>
+          <span className="solo-lettore">{b.testo}</span>
+          <span aria-hidden="true">{Array.from(b.testo).map((c, i) => <span className="lettera scritta" key={i}>{c}</span>)}</span>
+        </p>
+      )
     case 'passo':
       return (
         <div className={classe} {...dati}>
@@ -165,6 +177,8 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const tr = traccia.current
     const pa = palco.current
     const contenitore = tela.current
+    // pagina normale (senza il mondo): le parole d'accento sono già toccate, nessuna particella
+    if (!html.classList.contains('varco') && pa) pa.querySelectorAll('.accento').forEach((e) => e.classList.add('toccata'))
     if (!html.classList.contains('varco') || !tr || !pa || !contenitore) return
 
     const L = percorso.lunghezza
@@ -197,6 +211,18 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const uIniziale = uChiesta !== null && Number.isFinite(Number(uChiesta)) ? clamp(Number(uChiesta), 0, L) : null
     if (uIniziale !== null) window.scrollTo({ top: yDi(uIniziale), behavior: 'instant' })
 
+    /* ----- la materia sopra le frasi: il tocco della parola d'accento, i motti scritti, la scia del cursore ----- */
+    const telaMateria = pa.querySelector<HTMLCanvasElement>('.tela-materia')
+    const tocco = telaMateria ? creaTocco(telaMateria) : null
+    const stile = getComputedStyle(pa)
+    const coloreDi = (el: Element) => getComputedStyle(el).getPropertyValue('--accento-blocco').trim() || stile.getPropertyValue('--blu').trim() || '#5b8cff'
+    const coloriMateria: Record<string, string> = {}
+    for (const m of ['polvere', 'vetro', 'saette', 'cromo']) coloriMateria[m] = stile.getPropertyValue(`--${m}`).trim() || '#ffffff'
+    const conScia = window.matchMedia('(pointer: fine)').matches && SCIA
+    const motti = Array.from(pa.querySelectorAll<HTMLElement>('.battuta-motto')).map((el) => ({
+      el, lettere: Array.from(el.querySelectorAll<HTMLElement>('.lettera')), n: -1, da: Number(el.dataset.da), a: Number(el.dataset.a),
+    }))
+    for (const m of motti) m.el.classList.add('materia-accesa')
     /* ----- le battute: opacità, salita e sfocatura dalla stessa u ----- */
     const aggiornaFrasi = (u: number) => {
       for (const q of frasi) {
@@ -217,6 +243,42 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
           q.el.style.filter = f
           q.t = chiave
         }
+      }
+    }
+
+    const accenti = Array.from(pa.querySelectorAll<HTMLElement>('.battuta .accento')).map((el) => ({
+      el, q: frasi.find((f) => f.el === el.closest('.battuta'))!, colore: coloreDi(el), stato: 'no' as 'no' | 'volo' | 'si',
+    })).filter((a) => a.q)
+    const aggiornaMateria = (u: number) => {
+      // il tocco: quando la frase è piena le particelle partono dall'àncora della scena e arrivano sulla parola, che prende il colore
+      for (const a of accenti) {
+        if (a.q.o >= 0.999 && a.stato === 'no') {
+          const subito = livello === 'minimo' || !mondo || !tocco
+          if (subito) {
+            a.el.classList.add('toccata')
+            a.stato = 'si'
+          } else {
+            a.stato = 'volo'
+            const origine = mondo?.fuocoSchermo() ?? [window.innerWidth / 2, window.innerHeight * 0.4]
+            tocco.tocca(origine, a.el, a.colore, livello === 'alto' ? 36 : 24, () => {
+              if (a.stato !== 'volo') return
+              a.el.classList.add('toccata')
+              a.stato = 'si'
+            })
+          }
+        } else if (a.q.o <= 0.001 && a.stato !== 'no') {
+          // tornando indietro la parola torna perla e si ritocca al passaggio dopo
+          a.el.classList.remove('toccata')
+          a.stato = 'no'
+        }
+      }
+      // i motti: le lettere si scrivono sulla prima metà abbondante della finestra
+      for (const m of motti) {
+        const t = clamp((u - m.da) / (0.6 * (m.a - m.da)), 0, 1)
+        const n = livello === 'minimo' ? m.lettere.length : letteraVisibile(m.lettere.length, t)
+        if (n === m.n) continue
+        m.lettere.forEach((l, i) => l.classList.toggle('scritta', i < n))
+        m.n = n
       }
     }
 
@@ -289,6 +351,9 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         q.el.style.filter = ''
       }
       pa.style.removeProperty('--poster')
+      tocco?.svuota()
+      for (const a of accenti) a.el.classList.remove('toccata')
+      for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
       nomeHtml?.removeAttribute('data-nascosto')
       delete html.dataset.tratti
       html.classList.remove('varco', 'in-orbita', 'porte')
@@ -330,6 +395,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       if (Math.abs(obiettivo - uLiscio) < 0.002) uLiscio = obiettivo
       if (inVista) {
         aggiornaFrasi(uLiscio)
+        aggiornaMateria(uLiscio)
         aggiornaTestata(uLiscio)
       }
 
@@ -380,11 +446,15 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const alloScroll = () => avvia()
     const alRidimensionamento = () => {
       misura()
+      tocco?.ridimensiona()
       mondo?.ridimensiona()
       avvia()
     }
     const allaVisibilita = () => (document.hidden ? ferma() : avvia())
-    const alPuntatore = (e: PointerEvent) => mondo?.puntatore((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1, e.pointerType === 'mouse' ? 'mouse' : 'touch')
+    const alPuntatore = (e: PointerEvent) => {
+      if (conScia && tocco && e.pointerType === 'mouse' && livello !== 'minimo') tocco.scia(e.clientX, e.clientY, coloriMateria[percorso.blocchi[bloccoAl(percorso, uLiscio)].materia ?? ''] ?? stile.getPropertyValue('--blu').trim())
+      mondo?.puntatore((e.clientX / window.innerWidth) * 2 - 1, (e.clientY / window.innerHeight) * 2 - 1, e.pointerType === 'mouse' ? 'mouse' : 'touch')
+    }
 
     // ancore #…: scorrimento morbido fino all'elemento (il modulo sta sotto la traccia)
     const alClic = (e: MouseEvent) => {
@@ -404,6 +474,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     document.addEventListener('click', alClic, true)
     // il primo disegno è già lo stato di u: nessun salto quando parte il ciclo
     aggiornaFrasi(uIniziale ?? uCorrente())
+    aggiornaMateria(uIniziale ?? uCorrente())
     aggiornaTestata(uIniziale ?? uCorrente())
     avvia()
 
@@ -419,6 +490,9 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       document.removeEventListener('visibilitychange', allaVisibilita)
       document.removeEventListener('click', alClic, true)
       window.clearTimeout(salvagente)
+      tocco?.dispose()
+      for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
+      for (const a of accenti) a.el.classList.remove('toccata')
       contenitore.removeEventListener('anello', alAnello)
       nomeHtml?.removeAttribute('data-nascosto')
       mondo?.distruggi()
@@ -438,6 +512,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
               {/* è l'immagine più grande della prima schermata (LCP): priorità alta, come l'hero dei dentisti */}
               <img src={poster.src720} alt={poster.alt} width={720} height={1280} decoding="async" fetchPriority="high" />
             </picture>
+            <canvas className="tela-materia" aria-hidden="true" />
             {/* l'apertura sta sopra tutto il palco (il nome nel cerchio); le altre battute nella fascia del testo */}
             <div className="apertura-strato">
               {percorso.blocchi.filter((bl) => bl.tipo === 'apertura').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}

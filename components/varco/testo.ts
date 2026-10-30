@@ -16,3 +16,18 @@ export function posizioneAccento(testo: string, accento?: string): number {
   }
   return -1
 }
+
+/**
+ * Il percorso di una particella del tocco: Bézier quadratica da `da` ad `a`, con il punto di controllo a metà strada
+ * e alzato del 30% della distanza (sullo schermo la y cresce verso il basso, quindi "alzato" = y minore). t in 0..1.
+ */
+export function curvaTocco(t: number, da: [number, number], a: [number, number]): [number, number] {
+  const u = t <= 0 ? 0 : t >= 1 ? 1 : t
+  const d = Math.hypot(a[0] - da[0], a[1] - da[1])
+  const cx = (da[0] + a[0]) / 2
+  const cy = (da[1] + a[1]) / 2 - 0.3 * d
+  const k0 = (1 - u) * (1 - u)
+  const k1 = 2 * (1 - u) * u
+  const k2 = u * u
+  return [k0 * da[0] + k1 * cx + k2 * a[0], k0 * da[1] + k1 * cy + k2 * a[1]]
+}

@@ -245,6 +245,18 @@ html.varco .film-radice .nome-apertura[data-nascosto] { opacity: 0 !important; }
 .film-radice .servizio-parola[data-acceso='true'] { color: var(--c); }
 html:not(.varco) .film-radice .servizio-parola { color: var(--c); }
 
+/* la parola d'accento: perla finché la materia non la tocca (con il mondo acceso), poi il colore della materia */
+html.varco .film-radice .accento { color: inherit; transition: color 0.3s var(--curva), text-shadow 0.3s; }
+html.varco .film-radice .accento.toccata { color: var(--accento-blocco); }
+html.varco .film-radice .blocco[data-materia='saette'] .accento:not(.toccata) { text-shadow: none; }
+/* il motto: le lettere si scrivono con lo scroll (solo con il mondo acceso e le particelle: altrimenti si legge intero) */
+.film-radice .solo-lettore { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+html.varco .film-radice .materia-accesa .lettera { opacity: 0; transition: opacity 0.32s ease-out; }
+html.varco .film-radice .materia-accesa .lettera.scritta { opacity: 1; }
+/* la materia sopra le frasi: un canvas 2D a tutto schermo, solo con il mondo acceso */
+.film-radice .tela-materia { display: none; }
+html.varco .film-radice .tela-materia { display: block; position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+
 /* le battute: spente finché Varco non le accende (opacità, visibilità, salita, sfocatura dalla stessa u).
    Niente will-change: con ~60 battute sarebbero ~60 livelli da comporre a ogni fotogramma. */
 html.varco .film-radice .battuta { opacity: 0; visibility: hidden; margin: 0; }
@@ -345,4 +357,5 @@ html.varco .film-radice .coda { background: rgba(2, 4, 3, 0.8); }
 
 @media (prefers-reduced-motion: reduce) {
   .film-radice .scorri-linea { animation: none; }
+  .film-radice .lettera { transition: none; }
 }
