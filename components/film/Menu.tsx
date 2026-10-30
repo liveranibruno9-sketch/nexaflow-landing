@@ -5,11 +5,12 @@
 // Il <nav> è nel DOM anche da chiuso (Google legge i collegamenti), con `hidden`.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CONTATTI, VOCI_MENU } from './dati/contatti'
-import type { Servizio } from './dati/contatti'
+import type { PaginaCorrente } from './dati/contatti'
+import FermaMovimento from './FermaMovimento'
 
 const COMPUTER = '(min-width: 901px) and (orientation: landscape)'
 
-export default function Menu({ corrente }: { corrente: 'home' | Servizio }) {
+export default function Menu({ corrente }: { corrente: PaginaCorrente }) {
   const [aperto, setAperto] = useState(false)
   const bottone = useRef<HTMLButtonElement>(null)
   const staAperto = useRef(false)   // Escape deve agire solo a menu aperto (e non rubare il fuoco altrove)
@@ -76,6 +77,12 @@ export default function Menu({ corrente }: { corrente: 'home' | Servizio }) {
               </a>
             </li>
           ))}
+          <li>
+            <a className="menu-voce menu-voce-chi" href="/chi-siamo" aria-current={corrente === 'chi-siamo' ? 'page' : undefined} onClick={() => imposta(false)}>
+              <span className="menu-num" aria-hidden="true">·</span>
+              <span className="menu-testo">Chi siamo</span>
+            </a>
+          </li>
         </ul>
         <a className="menu-preventivo" href="#preventivo" onClick={() => imposta(false)}>
           <span className="solo-telefono">Richiedi un preventivo</span>
@@ -84,6 +91,7 @@ export default function Menu({ corrente }: { corrente: 'home' | Servizio }) {
         <a className="menu-riga" href={CONTATTI.whatsapp} target="_blank" rel="noopener">
           WhatsApp · {CONTATTI.telefonoLeggibile}
         </a>
+        <FermaMovimento className="menu-ferma" />
       </nav>
     </>
   )

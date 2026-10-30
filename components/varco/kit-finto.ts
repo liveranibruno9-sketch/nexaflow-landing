@@ -23,6 +23,7 @@ export function kitFinto(): { kit: Kit; chiamate: Chiamata[]; azzera(): void } {
     chiamate.push(id === undefined ? { metodo, valori: v } : { metodo, id, valori: v })
   }
   const kit: Kit = {
+    soggetto: { centro: [0.5, 0.5], altezza: 0.45 },
     getto: (id, o, t) => reg('getto', [...o.da, ...(o.verso === 'camera' ? [CAMERA, CAMERA] : o.verso), o.n, o.gravita ?? 0, o.ampiezza ?? 0, t], id),
     luce: (id, o, intensita) => reg('luce', [...o.a, o.raggio, intensita], id),
     orbita: (id, o, s) => reg('orbita', [...o.centro, ...o.raggio, o.n, s.accese, s.ordine, s.velocita, s.alfa], id),
@@ -34,6 +35,8 @@ export function kitFinto(): { kit: Kit; chiamate: Chiamata[]; azzera(): void } {
     pulsa: (id, o, t) => reg('pulsa', [...o.a, o.raggio, t], id),
     foto: (i, s) => reg('foto', [i, s.esposizione], String(i)),
     fuoco: (a) => reg('fuoco', [...a]),
+    lastra: (id, o, s) => reg('lastra', [...o.a, o.larghezza, o.altezza, s.ruota, s.apri, s.alfa, s.calore], id),
+    punti: (id, o, s) => reg('punti', [o.punti.length, ...s.centro, s.scala, s.inclina, s.accese, s.alfa], id),
     anello: {
       nome: (t) => reg('anello.nome', [t]),
       ritorno: (t) => reg('anello.ritorno', [t]),

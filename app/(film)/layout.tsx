@@ -2,6 +2,7 @@ import type { Viewport } from 'next'
 import BarraContatti from '@/components/film/BarraContatti'
 import '@/components/film/film.css'
 import '@/components/varco/varco.css'
+import '@/components/varco/pagine.css'
 import { SCELTA_VARCO } from '@/components/varco/livello'
 
 // `js`: c'è JavaScript (il pulsante Menu serve solo allora). `varco`: il dispositivo fa il mondo 3D (SCELTA_VARCO decide

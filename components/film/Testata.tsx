@@ -3,12 +3,12 @@
 // (le classi su <html> e lo script del varco non si rieseguono in navigazione morbida).
 // Barra: una riga blu che avanza lungo tutto il percorso; in home, dall'1.9 della soglia, si divide in quattro segmenti
 // colorati (uno per tratto), ognuno pieno per la frazione del suo tratto (lo decide Varco con `html.porte` e `--p`).
-import type { Servizio } from './dati/contatti'
+import type { PaginaCorrente } from './dati/contatti'
 import Menu from './Menu'
 
 const MATERIE = ['polvere', 'vetro', 'saette', 'cromo'] as const
 
-export default function Testata({ corrente }: { corrente: 'home' | Servizio }) {
+export default function Testata({ corrente }: { corrente: PaginaCorrente }) {
   return (
     <header className="testata" data-corrente={corrente}>
       <div className="avanz" aria-hidden="true">

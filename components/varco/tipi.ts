@@ -4,11 +4,13 @@ export type Materia = 'polvere' | 'vetro' | 'saette' | 'cromo'
 export type Vec2 = [number, number] // coordinate del QUADRO: 0..1 da sinistra e dall'alto; fuori da 0..1 = prolungamento
 export type Livello = 'alto' | 'medio' | 'minimo'
 export type Immagine = `${'atlas' | 'janus' | 'prometheus' | 'hermes'}-${1 | 2 | 3}`
-export type TipoBattuta = 'frase' | 'nome' | 'motto' | 'etichetta' | 'link' | 'passo' | 'cartolina' | 'scorri' | 'pulsante' | 'titolo' | 'paragrafo' | 'foto'
+export type TipoBattuta = 'frase' | 'nome' | 'motto' | 'etichetta' | 'link' | 'passo' | 'cartolina' | 'scorri' | 'pulsante' | 'titolo' | 'paragrafo' | 'foto' | 'h1' | 'blocco' | 'riga'
+/** Pagine dei servizi (spec pagine §8.6): il gesto che la mascotte fa quando la battuta compare; `lato` = il braccio che agisce */
+export type GestoPagina = { nome: 'prendi' | 'solleva' | 'modella' | 'presenta' | 'lancia' | 'salta'; lato?: 'destro' | 'sinistro'; tieni?: boolean }
 /** da, a in schermate dall'inizio del percorso; ruolo = chiave unica dentro il blocco, letta dalla regia */
-export type Battuta = { tipo: TipoBattuta; testo: string; ruolo: string; da: number; a: number; accento?: string; href?: string; nota?: string; src?: string }
+export type Battuta = { tipo: TipoBattuta; testo: string; ruolo: string; da: number; a: number; accento?: string; href?: string; nota?: string; src?: string; gesto?: GestoPagina }
 /** mascotte = un servizio della home (titolo, mascotte, paragrafo); squadra = le quattro mascotte che si riuniscono; intro = un titolo di sezione */
-export type TipoBlocco = 'apertura' | 'soglia' | 'tratto' | 'finale' | 'servizio' | 'passi' | 'mascotte' | 'squadra' | 'intro'
+export type TipoBlocco = 'apertura' | 'soglia' | 'tratto' | 'finale' | 'servizio' | 'passi' | 'mascotte' | 'squadra' | 'intro' | 'pagina'
 export type Blocco = {
   id: string; tipo: TipoBlocco; da: number; a: number; etichetta: string
   materia?: Materia; immagini?: Immagine[]; uscita?: 'entra' | 'accanto'

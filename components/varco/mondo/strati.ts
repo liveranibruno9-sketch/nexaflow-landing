@@ -3,7 +3,7 @@
 // il quadro. Riserve fisse, nessuna allocazione nel ciclo. Tutto dipende solo da `t`: tornando indietro si riavvolge.
 // Presenti: luce, getto, orbita, galassia, linea, onda, pulsa, foto, fuoco. Non ancora (arrivano coi compiti che li usano):
 // saetta e raggi (Prometheus, Janus), anello (compito 6), campo (finale): oggi sono vuoti.
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Group, Mesh, Object3D, PlaneGeometry, Points, ShaderMaterial, Vector2, Vector3 } from 'three'
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Group, LineBasicMaterial, LineSegments, Mesh, Object3D, PlaneGeometry, Points, ShaderMaterial, Vector2, Vector3 } from 'three'
 import { mulberry32 } from '../campiona.ts'
 import type { Colore, Kit } from '../kit.ts'
 import { CONTEGGI } from '../livello.ts'
@@ -194,12 +194,118 @@ export function creaStrati(livello: Livello, colori: ColoriStrati): Strati {
     return { punti, m }
   })
 
+
+  /* ----- saette: un fulmine ramificato per slot; cambia forma al massimo 2,5 volte al secondo (nessun lampo oltre 3 al secondo) ----- */
+  const MAX_SAETTE = 3
+  const SEGMENTI = 14
+  let tempoStrati = 0
+  const matSaetta = new LineBasicMaterial({ color: 0xece4ff, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false })
+  eliminabili.push(matSaetta)
+  const saette = riserva(MAX_SAETTE, () => {
+    const g = new BufferGeometry()
+    g.setAttribute('position', new BufferAttribute(new Float32Array(SEGMENTI * 2 * 3 * 3 * 2), 3))
+    eliminabili.push(g)
+    const m = matSaetta.clone()
+    eliminabili.push(m)
+    const linee = new LineSegments(g, m)
+    linee.frustumCulled = false
+    linee.visible = false
+    radice.add(linee)
+    return { linee, g, m, seme: -1 }
+  })
+  const rnd = (x: number) => { const v = Math.sin(x * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v) }
+
+  /* ----- raggi di luce a ventaglio ----- */
+  const MAX_RAGGI = 2
+  const raggi = riserva(MAX_RAGGI, () => {
+    const g = new BufferGeometry()
+    g.setAttribute('position', new BufferAttribute(new Float32Array(24 * 2 * 3), 3))
+    eliminabili.push(g)
+    const m = new LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false })
+    eliminabili.push(m)
+    const linee = new LineSegments(g, m)
+    linee.frustumCulled = false
+    linee.visible = false
+    radice.add(linee)
+    return { linee, g, m }
+  })
+
+  /* ----- la lastra di vetro: bordo acceso, riflesso, calore che dilaga; ruota e si apre come una porta ----- */
+  const LASTRA_VERT = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`
+  const LASTRA_FRAG = `
+    uniform vec3 uColore; uniform vec3 uCaldo; uniform float uAlfa; uniform float uCalore; uniform float uTempo;
+    varying vec2 vUv;
+    void main(){
+      vec2 p = vUv - 0.5;
+      vec2 e = 0.5 - abs(p);
+      float bordo = 1.0 - smoothstep(0.0, 0.028, min(e.x, e.y));
+      float dentro = smoothstep(0.0, 0.2, min(e.x, e.y));
+      float riflesso = smoothstep(0.0, 1.0, 0.5 + 0.5 * sin((vUv.x * 1.4 - vUv.y * 2.2 + uTempo * 0.05) * 5.0)) * 0.05;
+      float dg = vUv.x - vUv.y * 0.35 + 0.1;
+      float diagonale = smoothstep(0.42, 0.5, dg) * (1.0 - smoothstep(0.5, 0.58, dg)) * 0.16;
+      float caldo = uCalore * (1.0 - length(p) * 1.15);
+      vec3 c = uColore * (0.1 + riflesso + diagonale) + uColore * bordo * 1.4 + uCaldo * max(caldo, 0.0) * 1.2;
+      float a = clamp(0.18 * dentro + bordo * 0.95 + diagonale + max(caldo, 0.0) * 0.9, 0.0, 1.0) * uAlfa;
+      gl_FragColor = vec4(c, a);
+    }`
+  const lastre = riserva(2, () => {
+    const g = new PlaneGeometry(1, 1)
+    g.translate(0.5, 0, 0) // la cerniera è sul lato sinistro
+    eliminabili.push(g)
+    const m = new ShaderMaterial({ vertexShader: LASTRA_VERT, fragmentShader: LASTRA_FRAG, uniforms: { uColore: { value: new Vector3() }, uCaldo: { value: v3(colori.luce) }, uAlfa: { value: 0 }, uCalore: { value: 0 }, uTempo }, transparent: true, depthWrite: false, blending: AdditiveBlending })
+    eliminabili.push(m)
+    const perno = new Group()
+    const mesh = new Mesh(g, m)
+    perno.add(mesh)
+    perno.visible = false
+    radice.add(perno)
+    return { perno, mesh, m }
+  })
+
+  /* ----- punti: le luci della mappa ----- */
+  const MAX_PUNTI = 64
+  const PUNTI_VERT = `
+    attribute float aPeso; attribute float aK;
+    uniform float uAccese; uniform float uAlfa; uniform float uPx; varying float vAlfa; varying float vLit;
+    void main(){
+      float lit = clamp(uAccese - aK, 0.0, 1.0);
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      float d = max(-mv.z, 0.001);
+      gl_PointSize = clamp(uPx * (0.035 + 0.07 * aPeso) * (0.5 + 0.5 * lit) / d, 1.5, 22.0);
+      gl_Position = projectionMatrix * mv;
+      vLit = lit; vAlfa = uAlfa * (0.25 + 0.75 * lit);
+    }`
+  const PUNTI_FRAG2 = `
+    uniform vec3 uColore; uniform vec3 uCaldo; varying float vAlfa; varying float vLit;
+    void main(){
+      float r = length(gl_PointCoord - 0.5) * 2.0; if (r > 1.0) discard;
+      float a = smoothstep(1.0, 0.0, r); float nu = smoothstep(0.4, 0.0, r);
+      vec3 c = mix(uColore, uCaldo, vLit) + vec3(1.0) * nu * 0.5;
+      gl_FragColor = vec4(c, (a * a * 0.75 + nu * 0.4) * vAlfa);
+    }`
+  const mappe = riserva(1, () => {
+    const g = new BufferGeometry()
+    g.setAttribute('position', new BufferAttribute(new Float32Array(MAX_PUNTI * 3), 3))
+    g.setAttribute('aPeso', new BufferAttribute(new Float32Array(MAX_PUNTI), 1))
+    g.setAttribute('aK', new BufferAttribute(Float32Array.from({ length: MAX_PUNTI }, (_, i) => i), 1))
+    g.setDrawRange(0, 0)
+    eliminabili.push(g)
+    const m = new ShaderMaterial({ vertexShader: PUNTI_VERT, fragmentShader: PUNTI_FRAG2, uniforms: { uColore: { value: new Vector3() }, uCaldo: { value: v3(colori.luce) }, uAccese: { value: 0 }, uAlfa: { value: 0 }, uPx }, transparent: true, depthWrite: false, blending: AdditiveBlending })
+    eliminabili.push(m)
+    const punti = new Points(g, m)
+    punti.frustumCulled = false
+    punti.visible = false
+    radice.add(punti)
+    return { punti, g, m }
+  })
+
   /* ----- pulsa: due battiti a tempo, una volta per passaggio ----- */
   const DURATA_PULSA = 0.9
   type Pulsa = { armato: boolean; inizio: number; richiesto: boolean; o: { a: Vec2; raggio: number; colore: Colore }; t: number }
   const pulse = new Map<string, Pulsa>()
 
   const kit: Kit = {
+    soggetto: { centro: [0.5, 0.5], altezza: 0.45 },
     getto(id, o, t) {
       const i = getti.prendi(id)
       if (i < 0) return
@@ -273,9 +379,104 @@ export function creaStrati(livello: Livello, colori: ColoriStrati): Strati {
       u.uSp.value = o.spessore
       punti.visible = t > 0.001
     },
-    // Prometheus e Janus (compiti 9 e 10): per ora non disegnano nulla
-    saetta() {},
-    raggi() {},
+
+    saetta(id, o, t) {
+      const i = saette.prendi(id)
+      if (i < 0) return
+      const sl = saette.oggetti[i]
+      const seme = Math.floor(tempoStrati * 2.5) + i * 7 + id.length
+      if (sl.seme !== seme) {
+        sl.seme = seme
+        const a = piano(o.da, 0.06), b = piano(o.a, 0.06)
+        const pos = sl.g.attributes.position as BufferAttribute
+        const arr = pos.array as Float32Array
+        arr.fill(0)
+        const dx = b.x - a.x, dy = b.y - a.y
+        const len = Math.hypot(dx, dy) || 1
+        const nx = -dy / len, ny = dx / len
+        let prima = a.clone()
+        let w = 0
+        const rami = Math.min(3, o.rami ?? 2)
+        for (let k = 1; k <= SEGMENTI; k++) {
+          const f = k / SEGMENTI
+          const scarto = (rnd(seme * 13 + k) - 0.5) * 0.16 * len * (1 - Math.abs(f - 0.5) * 0.6)
+          const q = new Vector3(a.x + dx * f + nx * scarto, a.y + dy * f + ny * scarto, 0.06)
+          if (k === SEGMENTI) q.copy(b)
+          arr.set([prima.x, prima.y, 0.06, q.x, q.y, 0.06], w)
+          w += 6
+          if (k % 4 === 2 && Math.floor(k / 4) < rami) {
+            const dir = rnd(seme * 7 + k) > 0.5 ? 1 : -1
+            let r0 = q.clone()
+            for (let j = 1; j <= 3; j++) {
+              const r1 = new Vector3(r0.x + (dx / len) * 0.023 * len + nx * dir * 0.027 * len, r0.y + (dy / len) * 0.023 * len + ny * dir * 0.027 * len, 0.06)
+              arr.set([r0.x, r0.y, 0.06, r1.x, r1.y, 0.06], w)
+              w += 6
+              r0 = r1
+            }
+          }
+          prima = q
+        }
+        pos.needsUpdate = true
+      }
+      sl.m.opacity = clamp(t, 0, 1) * 0.95
+      sl.linee.visible = t > 0.01
+    },
+    raggi(id, o, t) {
+      const i = raggi.prendi(id)
+      if (i < 0) return
+      const r = raggi.oggetti[i]
+      const a = piano(o.da, 0.04), b = piano(o.verso, 0.04)
+      const base = Math.atan2(b.y - a.y, b.x - a.x)
+      const lunga = a.distanceTo(b) * clamp(t, 0, 1)
+      const attr = r.g.attributes.position as BufferAttribute
+      const arr = attr.array as Float32Array
+      arr.fill(0)
+      const n = Math.min(24, Math.max(2, Math.round(o.n)))
+      for (let k = 0; k < n; k++) {
+        const ang = base + (k / (n - 1) - 0.5) * o.apertura
+        const l = lunga * (0.7 + 0.3 * rnd(k * 3.1))
+        arr.set([a.x, a.y, 0.04, a.x + Math.cos(ang) * l, a.y + Math.sin(ang) * l, 0.04], k * 6)
+      }
+      attr.needsUpdate = true
+      r.m.color.setRGB(0.9, 0.97, 1)
+      r.m.opacity = 0.35 * clamp(t, 0, 1)
+      r.linee.visible = t > 0.01
+    },
+    lastra(id, o, s) {
+      const i = lastre.prendi(id)
+      if (i < 0) return
+      const l = lastre.oggetti[i]
+      const c = piano(o.a)
+      const w = o.larghezza * LARGHEZZA, h = o.altezza * ALTEZZA
+      l.perno.position.set(c.x - w / 2, c.y, 0.05)
+      l.perno.rotation.set(s.ruota, -s.apri * 1.25, 0)
+      l.mesh.scale.set(w, h, 1)
+      l.m.uniforms.uColore.value.copy(colore(o.colore))
+      l.m.uniforms.uAlfa.value = clamp(s.alfa, 0, 1)
+      l.m.uniforms.uCalore.value = clamp(s.calore, 0, 1)
+      l.perno.visible = s.alfa > 0.005
+    },
+    punti(id, o, s) {
+      const i = mappe.prendi(id)
+      if (i < 0) return
+      const m = mappe.oggetti[i]
+      const n = Math.min(MAX_PUNTI, o.punti.length)
+      const pos = m.g.attributes.position as BufferAttribute
+      const peso = m.g.attributes.aPeso as BufferAttribute
+      for (let k = 0; k < n; k++) {
+        pos.setXYZ(k, o.punti[k][0] * s.scala * LARGHEZZA, -o.punti[k][1] * s.scala * LARGHEZZA, 0)
+        peso.setX(k, o.punti[k][2])
+      }
+      pos.needsUpdate = true
+      peso.needsUpdate = true
+      m.g.setDrawRange(0, n)
+      m.punti.position.copy(piano(s.centro))
+      m.punti.rotation.x = -s.inclina
+      m.m.uniforms.uColore.value.copy(colore(o.colore))
+      m.m.uniforms.uAccese.value = s.accese
+      m.m.uniforms.uAlfa.value = clamp(s.alfa, 0, 1)
+      m.punti.visible = s.alfa > 0.005
+    },
     onda(id, o, t) {
       const i = anelli.prendi(id)
       if (i < 0) return
@@ -313,13 +514,14 @@ export function creaStrati(livello: Livello, colori: ColoriStrati): Strati {
     kit,
     radice,
     inizia() {
-      luci.azzera(); anelli.azzera(); getti.azzera(); orbite.azzera(); galassie.azzera(); linee.azzera()
+      luci.azzera(); anelli.azzera(); getti.azzera(); orbite.azzera(); galassie.azzera(); linee.azzera(); saette.azzera(); raggi.azzera(); lastre.azzera(); mappe.azzera()
       for (const p of Array.from(pulse.values())) p.richiesto = false
       fuocoPunto = null
       esposizioni = [1, 1, 1]
     },
     fine(quadro, tempo) {
       uTempo.value = tempo
+      tempoStrati = tempo
       if (!quadro) {
         radice.visible = false
         return
@@ -347,7 +549,10 @@ export function creaStrati(livello: Livello, colori: ColoriStrati): Strati {
       }
       for (const r of [luci, anelli]) r.oggetti.forEach((o, i) => { if (!r.usati[i]) o.mesh.visible = false })
       for (const r of [getti, orbite, galassie, linee]) r.oggetti.forEach((o, i) => { if (!r.usati[i]) o.punti.visible = false })
-      luci.chiudi(); anelli.chiudi(); getti.chiudi(); orbite.chiudi(); galassie.chiudi(); linee.chiudi()
+      for (const r of [saette, raggi]) r.oggetti.forEach((o, i) => { if (!r.usati[i]) o.linee.visible = false })
+      lastre.oggetti.forEach((o, i) => { if (!lastre.usati[i]) o.perno.visible = false })
+      mappe.oggetti.forEach((o, i) => { if (!mappe.usati[i]) o.punti.visible = false })
+      luci.chiudi(); anelli.chiudi(); getti.chiudi(); orbite.chiudi(); galassie.chiudi(); linee.chiudi(); saette.chiudi(); raggi.chiudi(); lastre.chiudi(); mappe.chiudi()
     },
     fuoco: () => fuocoPunto,
     esposizione: () => esposizioni,

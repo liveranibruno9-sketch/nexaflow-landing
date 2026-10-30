@@ -9,7 +9,27 @@ export const CONTATTI = {
   email: 'bruno.liverani@agentistudio.it',
   piva: '',
   fotoBruno: '' as string,
+  /** i profili social: si mostrano solo quelli che esistono (qui solo i due da verificare). Niente Facebook né TikTok per ora. */
+  social: {
+    // DA VERIFICARE: l'indirizzo non è confermato da Bruno (30/10/2026); prima di pubblicare controllare che la pagina esista
+    linkedin: 'https://www.linkedin.com/company/agentistudio',
+    // DA VERIFICARE: l'indirizzo non è confermato da Bruno (30/10/2026); prima di pubblicare controllare che il profilo esista
+    instagram: 'https://www.instagram.com/agentistudio',
+  } as { linkedin?: string; instagram?: string; facebook?: string; tiktok?: string },
 }
+
+/** i profili social da mostrare, col testo del collegamento (solo quelli con un indirizzo) */
+export function profiliSocial(): { id: string; testo: string; href: string }[] {
+  const s = CONTATTI.social
+  return [
+    { id: 'linkedin', testo: 'Agenti Studio su LinkedIn', href: s.linkedin },
+    { id: 'instagram', testo: 'Agenti Studio su Instagram', href: s.instagram },
+    { id: 'facebook', testo: 'Agenti Studio su Facebook', href: s.facebook },
+    { id: 'tiktok', testo: 'Agenti Studio su TikTok', href: s.tiktok },
+  ].filter((x): x is { id: string; testo: string; href: string } => Boolean(x.href))
+}
+
+export type PaginaCorrente = 'home' | Servizio | 'chi-siamo'
 
 /** le quattro pagine servizio, nell'ordine del menu (D35); il numero e il colore sono quelli dell'agente */
 export const VOCI_MENU = [

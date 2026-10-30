@@ -154,9 +154,26 @@ function giraNelModello(osso: Bone, padre: Quaternion, padreInv: Quaternion, loc
   osso.quaternion.copy(padreInv).multiply(r).multiply(padre).multiply(locale)
 }
 
-export async function caricaMascotte(renderer: WebGLRenderer, base = '/film/mascotte'): Promise<Creature> {
+/** il saluto da `saluto.json` (estratto una volta da atlas.glb): le pagine dei servizi caricano solo la loro mascotte, senza il modello di Atlas */
+async function caricaSaluto(base: string): Promise<AnimationClip | null> {
+  try {
+    const r = await fetch(`${base}/saluto.json`)
+    if (!r.ok) return null
+    const j = (await r.json()) as { nome: string; durata: number; tracce: { nome: string; tipo: 'q' | 'v'; tempi: number[]; valori: number[] }[] }
+    return new AnimationClip(j.nome, j.durata, j.tracce.map((t) => (t.tipo === 'q' ? new QuaternionKeyframeTrack(t.nome, t.tempi, t.valori) : new VectorKeyframeTrack(t.nome, t.tempi, t.valori))))
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Carica le mascotte. Senza `solo` le quattro, come in home (il saluto sta nel modello di Atlas). Con `solo` (le pagine dei servizi,
+ * R12) soltanto quelle indicate: il saluto arriva dal piccolo `saluto.json`, il resto è identico.
+ */
+export async function caricaMascotte(renderer: WebGLRenderer, base = '/film/mascotte', solo?: readonly Mascotte[]): Promise<Creature> {
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder)
-  const gltf = await Promise.all(ORDINE.map((id) => loader.loadAsync(`${base}/${id}.glb`)))
+  const ids: readonly Mascotte[] = solo ?? ORDINE
+  const [gltf, salutoJson] = await Promise.all([Promise.all(ids.map((id) => loader.loadAsync(`${base}/${id}.glb`))), solo ? caricaSaluto(base) : Promise.resolve(null)])
   const geometrie: BufferGeometry[] = []
   const materiali: Material[] = []
   const texture: Texture[] = []
@@ -170,7 +187,7 @@ export async function caricaMascotte(renderer: WebGLRenderer, base = '/film/masc
   texture.push(ambiente)
 
   // il saluto registrato (nel modello di Atlas): solo rotazioni e la posizione del bacino
-  const registrato = gltf[0].animations.find((a) => /wave/i.test(a.name)) ?? null
+  const registrato = salutoJson ?? gltf[0].animations.find((a) => /wave/i.test(a.name)) ?? null
   const saluto = registrato
     ? new AnimationClip('saluto', registrato.duration, registrato.tracks.filter((t) => t.name.endsWith('.quaternion') || t.name === 'Hips.position'))
     : null
@@ -408,8 +425,9 @@ export async function caricaMascotte(renderer: WebGLRenderer, base = '/film/masc
         for (const b of tutte) b.quaternion.copy(riposo.get(b.name)!)
         bacino.position.copy(bacinoRiposo)
         const m = mire({ ...posa, saluto: azione ? 0 : posa.saluto }, tempo, fase)
-        corpo.position.y = 0.04 * Math.sin(tempo * 1.7 + fase) + 0.015 * Math.sin(tempo * 0.9 + fase * 2) + m.salto * ALTEZZA_MODELLO
+        corpo.position.y = 0.04 * Math.sin(tempo * 1.7 + fase) + 0.015 * Math.sin(tempo * 0.9 + fase * 2) + m.salto * ALTEZZA_MODELLO + (m.corpo ? m.corpo.su * ALTEZZA_MODELLO : 0)
         corpo.rotation.z = 0.02 * Math.sin(tempo * 1.1 + fase)
+        corpo.rotation.x = m.corpo ? m.corpo.avanti : 0
         rBacino.setFromEuler(e.set(0, 0.05 * Math.sin(tempo * 0.6 + fase), 0.025 * Math.sin(tempo * 0.9 + fase)))
         giraNelModello(bacino, padre.get('Hips')!, padreInv.get('Hips')!, riposo.get('Hips')!, rBacino)
         rBusto.setFromEuler(e.set(0.03 * Math.sin(tempo * 1.7 + fase), 0, -0.02 * Math.sin(tempo * 0.9 + fase)))
@@ -437,7 +455,7 @@ export async function caricaMascotte(renderer: WebGLRenderer, base = '/film/masc
     }
   }
 
-  const tutte = Object.fromEntries(ORDINE.map((id, i) => [id, costruisci(id, i, gltf[i].scene)])) as Record<Mascotte, Creatura>
+  const tutte = Object.fromEntries(ids.map((id, i) => [id, costruisci(id, ORDINE.indexOf(id), gltf[i].scene)])) as Record<Mascotte, Creatura>
   // le luci: dall'alto a sinistra, calde, come nelle foto; un controluce freddo per staccarle dal buio
   const luci = new Group()
   luci.add(new HemisphereLight(0xdfe8ff, 0x1a1420, 1.2))
@@ -456,7 +474,7 @@ export async function caricaMascotte(renderer: WebGLRenderer, base = '/film/masc
       uPx.value = px
     },
     dispose() {
-      for (const id of ORDINE) tutte[id].radice.removeFromParent()
+      for (const id of ids) tutte[id].radice.removeFromParent()
       luci.removeFromParent()
       for (const g of geometrie) g.dispose()
       for (const m of materiali) m.dispose()

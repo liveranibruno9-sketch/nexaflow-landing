@@ -8,10 +8,11 @@ import type { Material } from 'three'
 import { mulberry32 } from '../campiona.ts'
 import { ALTEZZA_CREATURA, ORDINE, PASSO_SQUADRA } from '../coreografia.ts'
 import type { Mascotte, Posa } from '../coreografia.ts'
+import type { Gesto } from '../ossa.ts'
 import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { AURA_FRAG, AURA_VERT, LUCE_FRAG, PELLE_FRAG, PELLE_VERT } from './shader-creature.ts'
 
-export type PosaCorpo = Pick<Posa, 'presenza' | 'saluto' | 'lato' | 'abbraccio' | 'abbraccioSx' | 'abbraccioDx'> & { felice?: number; sguardo?: [number, number]; indica?: number }
+export type PosaCorpo = Pick<Posa, 'presenza' | 'saluto' | 'lato' | 'abbraccio' | 'abbraccioSx' | 'abbraccioDx'> & { felice?: number; sguardo?: [number, number]; indica?: number; gesto?: Gesto }
 
 export type Creatura = {
   id: Mascotte

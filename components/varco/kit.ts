@@ -8,6 +8,8 @@ export type { Tempi }
 export type Colore = Materia | 'luce' | 'blu' | 'perla'
 
 export type Kit = {
+  /** pagine dei servizi: dove sta la mascotte nel quadro (centro in 0..1, altezza in altezze di quadro), scritto dal mondo prima di ogni regia */
+  soggetto: { centro: Vec2; altezza: number }
   /** particelle da `da` verso `verso` ('camera' = verso chi guarda); n = % del budget getti del livello; t 0..1 = avanzamento */
   getto(id: string, o: { da: Vec2; verso: Vec2 | 'camera'; colore: Colore; n: number; gravita?: number; ampiezza?: number }, t: number): void
   /** alone in un punto; raggio in larghezze del quadro; intensità 0..1, mai sopra 0,85 */
@@ -30,6 +32,10 @@ export type Kit = {
   foto(i: 0 | 1 | 2, s: { esposizione: number }): void
   /** il punto della scena da cui partono le particelle verso la parola d'accento */
   fuoco(a: Vec2): void
+  /** pagine dei servizi: una lastra di vetro (Janus). ruota = rotazione attorno all'asse orizzontale in radianti (0 = di fronte), apri = 0..1 la porta si apre sul lato sinistro, calore = luce calda che dilaga */
+  lastra(id: string, o: { a: Vec2; larghezza: number; altezza: number; colore: Colore }, s: { ruota: number; apri: number; alfa: number; calore: number }): void
+  /** pagine dei servizi: luci puntiformi (la mappa di Hermes); punti = [x, y, peso 0..1] relativi al centro in larghezze di quadro; si accendono in ordine con `accese` */
+  punti(id: string, o: { punti: [number, number, number][]; colore: Colore }, s: { centro: Vec2; scala: number; inclina: number; accese: number; alfa: number }): void
   anello: { nome(t: number): void; ritorno(t: number): void; arco(m: Materia, accensione: number): void; giro(velocita: number): void; caldo(t: number): void; punto(t: number): void; apri(t: number): void }
   campo: { accese(quota: number): void; cercatore(t: number): void; fiumi(m: Materia[], t: number): void; vuoto(t: number): void }
 }
