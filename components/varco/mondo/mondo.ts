@@ -4,7 +4,7 @@
 import { AdditiveBlending, Group, Mesh, PerspectiveCamera, PlaneGeometry, Scene, ShaderMaterial, Vector3, WebGLRenderer } from 'three'
 import { CONTEGGI } from '../livello.ts'
 import { impagina, sosta } from '../impagina.ts'
-import { VELOCITA, bloccoAl, fasiBlocco, fasiTratto, pesiMateria, profiloDistanza, tempi, trattiDaTenere, zAl, zCamera } from '../percorso.ts'
+import { VELOCITA, bloccoAl, conSoggetto, fasiBlocco, pesiMateria, profiloDistanza, tempi, trattiDaTenere, zAl, zCamera } from '../percorso.ts'
 import type { Curva } from '../percorso.ts'
 import type { Kit, Regia } from '../kit.ts'
 import type { Blocco, Livello, Materia, Percorso } from '../tipi.ts'
@@ -12,6 +12,7 @@ import { creaFiumi, type Colori, type Fiumi } from './fiumi.ts'
 import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { creaStrati, type Strati } from './strati.ts'
 import { creaAnello, type Anello } from './anello.ts'
+import { creaSquadra, type Squadra } from './squadra.ts'
 import { creaTratto, type Tratto } from './tratto.ts'
 
 export type Mondo = {
@@ -24,6 +25,10 @@ export type Mondo = {
   fuocoSchermo(): [number, number] | null
   /** apertura: la materia dell'arco che passa in alto */
   arcoInAlto(): Materia | null
+  /** apertura: le lettere di particelle del nome sono complete (o l'anello non c'è): il nome HTML può comparire */
+  nomeFormato(): boolean
+  /** l'anello di particelle è in scena: il poster può sparire */
+  anelloPronto(): boolean
   impostaLivello(l: Livello): void
   distruggi(): void
 }
@@ -100,10 +105,12 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   let fiumi: Fiumi = creaFiumi(CONTEGGI[livello].fiumi, P.colori)
   scena.add(fiumi.oggetto)
 
-  // la densità dei fiumi: 0 fino alla frase 1.10 della soglia, poi sale fino all'inizio del primo tratto
+  // la densità dei fiumi: 0 fino all'ultima frase della soglia, poi sale fino all'inizio del primo soggetto
   const soglia = percorso.blocchi.find((b) => b.tipo === 'soglia')
-  const primoTratto = percorso.blocchi.find((b) => b.tipo === 'tratto')
-  const daDensita = soglia?.battute.find((b) => b.ruolo === '10')?.da ?? (primoTratto ? primoTratto.da - 1 : Infinity)
+  const soggetti = percorso.blocchi.filter(conSoggetto)
+  const primoTratto = soggetti[0]
+  const ultimaSoglia = soglia?.battute.length ? soglia.battute[soglia.battute.length - 1].da : undefined
+  const daDensita = ultimaSoglia ?? (primoTratto ? primoTratto.da - 1 : Infinity)
   const aDensita = primoTratto ? primoTratto.da : daDensita + 1
   const densita = (u: number) => liscia(daDensita, aDensita, u)
 
@@ -118,12 +125,10 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
 
   // l'anello delle quattro materie: il cerchio dell'apertura, il nome che si compone, le quattro porte della soglia
   let anello: Anello | null = null
-  let uUltima = 0 // l'ultima u vista: se il mondo nasce dopo l'apertura (salto, ricarica) l'anello salta l'intro
-  let nomeSegnalato = false
-  const dentroSoglia = percorso.blocchi.find((b) => b.tipo === 'soglia')
-  const daPorte = dentroSoglia?.battute.find((b) => b.ruolo === '9')?.da ?? Infinity
-  const trattiBlocchi = percorso.blocchi.filter((b) => b.tipo === 'tratto')
-  const ultimaPorta = trattiBlocchi.length ? trattiBlocchi[trattiBlocchi.length - 1].da : -Infinity
+  let anelloFallito = false
+  const daPorte = ultimaSoglia ?? Infinity
+  const trattiBlocchi = soggetti
+  const ultimaPorta = trattiBlocchi.length ? trattiBlocchi[0].da + 0.2 : -Infinity
   const elPoster = document.querySelector<HTMLImageElement>('.varco-poster img')
   const elNome = document.querySelector<HTMLElement>('.nome-apertura')
   const elQuadrato = document.querySelector<HTMLElement>('.varco-poster')
@@ -138,11 +143,19 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
         a.porte(trattiBlocchi.map((b) => zCamera(b.da) - 2) as [number, number, number, number])
         scena.add(a.gruppo)
         kit = { ...strati.kit, anello: a.comandi }
-        a.avvia(performance.now() / 1000 - (uUltima > 0.9 ? 10 : 0))
-        contenitore.dispatchEvent(new CustomEvent('anello', { detail: 'pronto' }))
       })
-      .catch((e) => console.error('varco: anello non creato:', e))
+      .catch((e) => {
+        anelloFallito = true
+        console.error('varco: anello non creato:', e)
+      })
+  } else {
+    anelloFallito = true
   }
+
+  // la squadra: le quattro mascotte che si riuniscono (home v2), creata quando ci si avvicina al suo blocco
+  const bloccoSquadra = percorso.blocchi.find((b) => b.tipo === 'squadra')
+  let squadra: Squadra | null = null
+  let squadraChiesta = false
   const tratti = new Map<string, Voce>()
 
   const gestisciTratti = (u: number) => {
@@ -180,7 +193,17 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   let dprCorrente = 1
   let pxUnita = 1
   let imp = impagina(1, 1)
-  let profilo: Curva = profiloDistanza(4)
+  // un profilo di distanza per ogni lunghezza di blocco (il tratto completo dura 5,5 schermate, una mascotte 3,2)
+  let sostaCorrente = 4
+  const profili = new Map<number, Curva>()
+  const profiloPer = (L: number) => {
+    let c = profili.get(L)
+    if (!c) {
+      c = profiloDistanza(sostaCorrente, L)
+      profili.set(L, c)
+    }
+    return c
+  }
   const ridimensiona = () => {
     larghezza = Math.max(1, contenitore.clientWidth || window.innerWidth)
     altezza = Math.max(1, contenitore.clientHeight || window.innerHeight)
@@ -192,7 +215,8 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     camera.aspect = larghezza / altezza
     camera.updateProjectionMatrix()
     imp = impagina(larghezza / altezza, altezza)
-    profilo = profiloDistanza(sosta(imp, FOV))
+    sostaCorrente = sosta(imp, FOV)
+    profili.clear()
     const dRiposo = sosta(imp, FOV)
     const mezza = dRiposo * TAN
     quadroVirtuale.position.set((imp.cx * 2 - 1) * mezza * camera.aspect, (1 - imp.cy * 2) * mezza, -dRiposo)
@@ -217,7 +241,6 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
   let quadroAttivo: Group | null = null
 
   const aggiorna = (u: number, dt: number, tempo: number): boolean => {
-    uUltima = u
     const z = zCamera(u)
     const passo = Math.max(dt, 0.001)
     velocita += (Math.abs(z - zPrima) / passo - velocita) * (1 - Math.exp(-passo * 5))
@@ -261,19 +284,20 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       if (!t) continue
       const bl = v.blocco
       const rel = u - bl.da
+      const profilo = profiloPer(bl.a - bl.da)
       // prima del suo tratto il quadro aspetta fermo nel mondo (come le costellazioni del volo); poi segue il profilo
       const D = rel < -0.5 ? zAl(profilo, -0.5) + VELOCITA * (-0.5 - rel) : zAl(profilo, rel)
       const visibile = u > bl.da - 0.7 && u < bl.a + 0.2 && D > 0.1
       t.quadro.visible = visibile
       if (!visibile) continue
       const halfH = D * TAN
-      const f = fasiTratto(bl.da, u)
+      const f = fasiBlocco(bl, u)
       const accanto = bl.uscita === 'accanto' ? SCIVOLA * liscia(0, 1, f.uscita) : 0
       t.quadro.position.set((imp.cx * 2 - 1) * halfH * camera.aspect + accanto, (1 - imp.cy * 2) * halfH, z - D)
       // il puntatore sul piano del quadro, per la mano
       mano.set(dito.x * halfH * camera.aspect - t.quadro.position.x, -dito.y * halfH - t.quadro.position.y, 0)
       const prossimo = percorso.blocchi[v.indice + 1]
-      const verso = f.uscita > 0 && prossimo?.tipo === 'tratto' && prossimo.materia ? prossimo.materia : null
+      const verso = bl.tipo === 'tratto' && f.uscita > 0 && prossimo?.tipo === 'tratto' && prossimo.materia ? prossimo.materia : null
       const attuale = v.blocco.id === bloccoCorrente.id
       t.aggiorna(f, tempo, mano, manoOn, verso, attuale ? strati.esposizione() : [1, 1, 1])
       if (attuale) quadroDelBlocco = t.quadro
@@ -283,7 +307,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     strati.inizia()
     anello?.inizia()
     const regia = regie[bloccoCorrente.id]
-    const senzaTratto = bloccoCorrente.tipo === 'apertura' || bloccoCorrente.tipo === 'soglia' || bloccoCorrente.tipo === 'finale'
+    const senzaTratto = !conSoggetto(bloccoCorrente)
     quadroAttivo = quadroDelBlocco ?? (regia && senzaTratto ? quadroVirtuale : null)
     if (regia && quadroAttivo) regia(tempi(bloccoCorrente, u), fasiBlocco(bloccoCorrente, u), kit)
     strati.fine(quadroAttivo, tempo)
@@ -305,10 +329,27 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
         larghezza, altezza, fov: camera.fov, aspetto: camera.aspect,
       })
       anello.aggiorna(tempo, passo, z, pxUnita, camera.position.x, camera.position.y)
-      if (!nomeSegnalato && anello.nomeFormato()) {
-        nomeSegnalato = true
-        contenitore.dispatchEvent(new CustomEvent('anello', { detail: 'nome' }))
-      }
+    }
+
+    // la squadra: nasce quando ci si avvicina al suo blocco, si muove con la frazione del blocco, vive nel quadro virtuale
+    if (bloccoSquadra && !squadraChiesta && u > bloccoSquadra.da - 1.5) {
+      squadraChiesta = true
+      creaSquadra(bloccoSquadra.immagini ?? [], larghezza > 900 ? 1080 : 720)
+        .then((sq) => {
+          if (chiuso) {
+            sq.dispose()
+            return
+          }
+          squadra = sq
+          quadroVirtuale.add(sq.gruppo)
+        })
+        .catch((e) => console.error('varco: squadra non creata:', e))
+    }
+    if (squadra && bloccoSquadra) {
+      squadra.gruppo.scale.setScalar(imp.ritratto ? 0.6 : 0.58)
+      squadra.gruppo.position.y = imp.ritratto ? -0.42 : 0
+      if (bloccoCorrente.id === bloccoSquadra.id) squadra.aggiorna(fasiBlocco(bloccoSquadra, u).locale, tempo)
+      else squadra.gruppo.visible = false
     }
 
     renderer.render(scena, camera)
@@ -346,6 +387,8 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     ridimensiona,
     fuocoSchermo,
     arcoInAlto: () => anello?.arcoInAlto() ?? null,
+    nomeFormato: () => (anello ? anello.nomeFormato() : anelloFallito),
+    anelloPronto: () => anello !== null,
     impostaLivello: (l) => {
       if (l === livello) return
       livello = l
@@ -364,6 +407,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       chiuso = true
       renderer.domElement.removeEventListener('webglcontextlost', alPerso)
       anello?.dispose()
+      squadra?.dispose()
       liberaTratti()
       strati.dispose()
       scena.remove(fiumi.oggetto)

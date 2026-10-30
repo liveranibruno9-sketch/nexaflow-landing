@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import Testata from '../film/Testata'
 import type { Servizio } from '../film/dati/contatti'
-import { bloccoAl, statoFrase, trattiDaTenere } from './percorso.ts'
+import { bloccoAl, conSoggetto, statoFrase, trattiDaTenere } from './percorso.ts'
 import { livelloDopoMisura, livelloIniziale } from './livello.ts'
 import { posizioneAccento } from './testo.ts'
 import { creaTocco } from './tocco.ts'
@@ -107,6 +107,10 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
           <span aria-hidden="true">{Array.from(b.testo).map((c, i) => <span className="lettera scritta" key={i}>{c}</span>)}</span>
         </p>
       )
+    case 'titolo':
+      return <h2 className={classe} {...dati}>{conAccento(b.testo, b.accento)}</h2>
+    case 'paragrafo':
+      return <p className={classe} {...dati}>{conAccento(b.testo, b.accento)}</p>
     case 'passo':
       return (
         <div className={classe} {...dati}>
@@ -147,20 +151,27 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
         <div className="apertura-righe">
           <VoceBattuta b={di('luogo')} apertura />
           <VoceBattuta b={di('servizi')} apertura />
-          <h1 className="battuta h1-piccolo" data-da={0} data-a={0.6} data-ruolo="h1">{h1}</h1>
+          <h1 className="battuta h1-piccolo" data-da={0} data-a={0.7} data-ruolo="h1">{h1}</h1>
         </div>
         <VoceBattuta b={di('scorri')} apertura />
       </div>
     )
   }
+  const mascotte = (bl.immagini ?? [])[0]
   return (
     <div className="blocco" data-id={bl.id} data-tipo={bl.tipo} data-materia={bl.materia}>
-      <p className="solo-statico etichetta-blocco">{bl.etichetta}</p>
+      {bl.tipo !== 'intro' ? <p className="solo-statico etichetta-blocco">{bl.etichetta}</p> : null}
+      {bl.tipo === 'squadra' ? (
+        <div className="solo-statico statico-squadra">
+          {(bl.immagini ?? []).map((nome) => <Immagine nome={nome} alt="" key={nome} />)}
+        </div>
+      ) : null}
       {bl.battute.map((b) => (
         <Fragment key={b.ruolo}>
           {bl.tipo === 'tratto' && b.ruolo === 'nome' ? <Immagine nome={`${bl.id}-2`} alt={`${b.testo}, la creatura di ${bl.etichetta.replace(/^\d+ · /, '')}`} /> : null}
           {bl.tipo === 'tratto' && b.ruolo === 'beneficio-1' ? <Immagine nome={`${bl.id}-3`} alt="" /> : null}
           <VoceBattuta b={b} apertura={false} />
+          {bl.tipo === 'mascotte' && b.ruolo === 'titolo' && mascotte ? <Immagine nome={mascotte} alt={`La mascotte di ${b.testo.toLowerCase()}`} /> : null}
         </Fragment>
       ))}
     </div>
@@ -182,17 +193,21 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     if (!html.classList.contains('varco') || !tr || !pa || !contenitore) return
 
     const L = percorso.lunghezza
-    const frasi = Array.from(pa.querySelectorAll<HTMLElement>('.battuta')).map((el) => ({
-      el, da: Number(el.dataset.da), a: Number(el.dataset.a), o: -1, t: '',
-    }))
+    const frasi = Array.from(pa.querySelectorAll<HTMLElement>('.battuta')).map((el) => {
+      const a = Number(el.dataset.a)
+      // una battuta che arriva alla fine del percorso (il pulsante del finale) resta accesa: niente uscita sull'ultimo tratto
+      return { el, da: Number(el.dataset.da), a: a >= L ? L + 1 : a, o: -1, t: '' }
+    })
     const indiceNum = pa.querySelector<HTMLElement>('.indice-num')
     const indiceNome = pa.querySelector<HTMLElement>('.indice-nome')
     const barraBlu = pa.querySelector<HTMLElement>('[data-seg="blu"]')
     const segmenti = Array.from(pa.querySelectorAll<HTMLElement>('.seg'))
-    const tratti = percorso.blocchi.filter((b) => b.tipo === 'tratto')
+    const tratti = percorso.blocchi.filter(conSoggetto)
     const primoTratto = tratti[0]
     // la barra della testata si divide nei quattro colori all'1.9 della soglia («Quattro agenti. Uno studio.»)
-    const porteDa = percorso.blocchi.find((b) => b.tipo === 'soglia')?.battute.find((b) => b.ruolo === '9')?.da ?? (primoTratto ? primoTratto.da - 1.4 : Infinity)
+    const battuteSoglia = percorso.blocchi.find((b) => b.tipo === 'soglia')?.battute ?? []
+    // la barra della testata si divide nei quattro colori con l'ultima frase della soglia
+    const porteDa = battuteSoglia.length ? battuteSoglia[battuteSoglia.length - 1].da : primoTratto ? primoTratto.da - 1.4 : Infinity
 
     /* ----- misure: dove sta la traccia e quanto si scorre ----- */
     let inizio = 0
@@ -289,6 +304,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       const bl = percorso.blocchi[bloccoAl(percorso, u)]
       if (bl.id !== bloccoPrima) {
         bloccoPrima = bl.id
+        html.dataset.blocco = bl.tipo
         const m = /^(\d\d) · (.+)$/.exec(bl.etichetta)
         if (indiceNum) indiceNum.textContent = m ? m[1] : ''
         if (indiceNome) indiceNome.textContent = m ? m[2] : bl.etichetta
@@ -303,30 +319,30 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         html.dataset.tratti = tieni
       }
       html.classList.toggle('in-orbita', window.scrollY > inizio + corsa + window.innerHeight * 0.3)
-      // il poster del cerchio si dissolve con lo scroll finché l'apertura in codice non lo sostituisce (compito 6)
-      pa.style.setProperty('--poster', anelloPronto ? '0' : (1 - liscia(0.25, 0.9, u)).toFixed(3))
+      // il poster del cerchio resta finché l'anello di particelle non è in scena (e sfuma comunque con lo scroll)
+      pa.style.setProperty('--poster', mondo?.anelloPronto() ? '0' : (1 - liscia(0.25, 0.9, u)).toFixed(3))
+      // il nome HTML compare sotto le lettere di particelle quando sono complete, e sparisce quando tornano nell'anello (D38)
+      const formato = mondo ? mondo.nomeFormato() : senzaMondo
+      if (formato !== nomeVisibile) {
+        nomeVisibile = formato
+        if (formato) nomeHtml?.removeAttribute('data-nascosto')
+        else nomeHtml?.setAttribute('data-nascosto', 'si')
+      }
       // le parole dei servizi: quella dell'arco che passa in alto prende il colore della sua materia
-      const alto = mondo && u < 0.7 ? mondo.arcoInAlto() : null
+      const alto = mondo && u < 1.0 ? mondo.arcoInAlto() : null
       if (alto !== acceso) {
         acceso = alto
         for (const w of paroleServizi) w.dataset.acceso = String(w.dataset.materia === alto)
       }
     }
 
-    /* ----- l'apertura: il poster resta finché l'anello è pronto, il nome HTML compare sotto le lettere complete (D38) ----- */
+    /* ----- l'apertura: il nome HTML segue le lettere di particelle (mondo.nomeFormato); senza mondo dopo 8 s compare comunque ----- */
     const nomeHtml = pa.querySelector<HTMLElement>('.nome-apertura')
     const paroleServizi = Array.from(pa.querySelectorAll<HTMLElement>('.servizio-parola'))
-    let anelloPronto = false
     let acceso: string | null = null
-    nomeHtml?.setAttribute('data-nascosto', 'si')
-    // se l'anello non arriva (grafica lenta o rotta) il nome compare comunque dopo 6 secondi
-    const salvagente = window.setTimeout(() => nomeHtml?.removeAttribute('data-nascosto'), 6000)
-    const alAnello = (e: Event) => {
-      const fase = (e as CustomEvent<string>).detail
-      if (fase === 'pronto') anelloPronto = true
-      if (fase === 'nome') nomeHtml?.removeAttribute('data-nascosto')
-    }
-    contenitore.addEventListener('anello', alAnello)
+    let nomeVisibile = false
+    let senzaMondo = false
+    const salvagente = window.setTimeout(() => { if (!mondo) senzaMondo = true }, 8000)
 
     /* ----- il mondo, caricato quando il browser è libero ----- */
     let mondo: Mondo | null = null
@@ -493,7 +509,6 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       tocco?.dispose()
       for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
       for (const a of accenti) a.el.classList.remove('toccata')
-      contenitore.removeEventListener('anello', alAnello)
       nomeHtml?.removeAttribute('data-nascosto')
       mondo?.distruggi()
     }
@@ -518,7 +533,11 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
               {percorso.blocchi.filter((bl) => bl.tipo === 'apertura').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
             <div className="fascia">
-              {percorso.blocchi.filter((bl) => bl.tipo !== 'apertura').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+              {percorso.blocchi.filter((bl) => bl.tipo !== 'apertura' && bl.tipo !== 'squadra').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+            </div>
+            {/* la squadra: la frase sopra e sotto le quattro mascotte riunite */}
+            <div className="squadra-strato">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'squadra').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
           </div>
         </div>

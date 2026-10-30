@@ -52,15 +52,18 @@ function pixel(img: CanvasImageSource, w: number, h: number): Pixel & { canvas: 
 
 export async function creaTratto(o: { blocco: Blocco; indice: number; livello: Livello; misura: 720 | 1080; colori: Colori }): Promise<Tratto> {
   const { blocco, livello } = o
-  const immagini = (blocco.immagini ?? []) as Immagine[]
-  if (immagini.length !== 3 || !blocco.materia) throw new Error(`tratto ${blocco.id}: servono tre immagini e una materia`)
+  const date = (blocco.immagini ?? []) as Immagine[]
+  if ((date.length !== 3 && date.length !== 1) || !blocco.materia) throw new Error(`tratto ${blocco.id}: servono una o tre immagini e una materia`)
+  // una mascotte ha una sola immagine: la stessa forma per le tre fasi, una sola foto (quella centrale)
+  const unica = date.length === 1
+  const immagini = unica ? [date[0], date[0], date[0]] : date
   const conteggi = CONTEGGI[livello]
   const n = conteggi.punti
 
   // le tre immagini e le tre mappe di profondità (la mappa è facoltativa: senza, niente parallasse)
   const foto: HTMLImageElement[] = []
   const prof: (Pixel & { canvas: HTMLCanvasElement } | null)[] = []
-  for (const nome of immagini) {
+  for (const nome of unica ? [date[0]] : immagini) {
     foto.push(await carica(`/film/scene/${nome}-${o.misura}.webp`))
     try {
       prof.push(pixel(await carica(`/film/profondita/${nome}.png`), 144, 256))
@@ -68,14 +71,19 @@ export async function creaTratto(o: { blocco: Blocco; indice: number; livello: L
       prof.push(null)
     }
   }
+  if (unica) {
+    foto.push(foto[0], foto[0])
+    prof.push(prof[0], prof[0])
+  }
   const conParallasse = conteggi.parallasse && prof.every((p) => p !== null)
 
   // una immagine per volta, quando il browser è libero: tre campionamenti sono il lavoro più pesante del tratto
   const forme: { pos: Float32Array; col: Float32Array }[] = []
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < (unica ? 1 : 3); i++) {
     await idle()
     forme.push(campiona(pixel(foto[i], 360, 640), prof[i], n, o.indice * 3 + i + 1))
   }
+  if (unica) forme.push(forme[0], forme[0])
 
   const caso = mulberry32(o.indice * 977 + 13)
   const aCaso = new Float32Array(n * 4)
@@ -117,7 +125,8 @@ export async function creaTratto(o: { blocco: Blocco; indice: number; livello: L
   const geometriaFoto = new PlaneGeometry(LARGHEZZA, ALTEZZA, conParallasse ? 48 : 1, conParallasse ? 86 : 1)
   const grigio = new Texture() // mappa neutra se manca: con uPar = 0 non serve a nulla, ma la texture ci vuole
   const texture: Texture[] = []
-  const piani: { mesh: Mesh; materiale: ShaderMaterial }[] = immagini.map((nome, i) => {
+  // con una sola immagine c'è un solo piano, quello della foto centrale (f.foto[1])
+  const piani: { mesh: Mesh; materiale: ShaderMaterial }[] = (unica ? [date[0]] : immagini).map((nome, i) => {
     const mappa = new Texture(foto[i])
     mappa.colorSpace = NoColorSpace // il colore esatto dell'immagine: il suo nero è il nero del mondo (stessa regola dei dentisti)
     mappa.minFilter = LinearFilter
@@ -169,7 +178,8 @@ export async function creaTratto(o: { blocco: Blocco; indice: number; livello: L
       if (mano) uniformi.uMano.value.copy(mano)
       uniformi.uManoOn.value = mano ? manoOn : 0
       let piena = 0
-      piani.forEach((p, i) => {
+      piani.forEach((p, k) => {
+        const i = unica ? 1 : k
         const op = f.foto[i] * esposizione[i]
         p.materiale.uniforms.uOp.value = op
         p.mesh.visible = op > 0.002

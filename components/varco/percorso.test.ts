@@ -116,3 +116,22 @@ test('pesiMateria', () => {
   }
   for (let u = 0; u < 31.6; u += 0.1) assert.ok(vicino(pesiMateria(HOME_FINTA, u).reduce((s, x) => s + x, 0), 1, 1e-9), `somma a u = ${u}`)
 })
+
+test('mascotte (home v2): si compone in mezza schermata, la foto affiora dopo, alla fine si disfa; nessuna uscita', () => {
+  const m = blocco('atlas', 'mascotte', 3.4, 6.6, { materia: 'polvere' })
+  assert.equal(fasiBlocco(m, 3.4).composto, 0); assert.equal(fasiBlocco(m, 3.9).composto, 1); assert.equal(fasiBlocco(m, 6.6).composto, 0)
+  assert.equal(fasiBlocco(m, 3.4).foto[1], 0); assert.equal(fasiBlocco(m, 4.1).foto[1], 1); assert.ok(fasiBlocco(m, 6.4).foto[1] < 0.5)
+  assert.equal(fasiBlocco(m, 5).forma, 1); assert.equal(fasiBlocco(m, 5).uscita, 0); assert.deepEqual([fasiBlocco(m, 5).foto[0], fasiBlocco(m, 5).foto[2]], [0, 0])
+})
+
+test('le mascotte contano come soggetti: trattiDaTenere e pesiMateria le vedono', () => {
+  const p: Percorso = { lunghezza: 10, blocchi: [blocco('soglia', 'soglia', 0, 2), blocco('a', 'mascotte', 2, 5, { materia: 'vetro' }), blocco('b', 'mascotte', 5, 8, { materia: 'cromo' }), blocco('fine', 'finale', 8, 10)] }
+  assert.deepEqual(trattiDaTenere(p, 1), ['a']); assert.deepEqual(trattiDaTenere(p, 3), ['a', 'b']); assert.deepEqual(trattiDaTenere(p, 9), [])
+  assert.deepEqual(pesiMateria(p, 3), [0, 1, 0, 0]); assert.deepEqual(pesiMateria(p, 6), [0, 0, 0, 1])
+})
+
+test('profiloDistanza con una lunghezza diversa: la sosta e l\'uscita si spostano con il blocco', () => {
+  const c = profiloDistanza(4, 3.2)
+  assert.equal(zAl(c, 0.4), 7); assert.equal(zAl(c, 2.1), 4); assert.equal(zAl(c, 3.2), -27)
+  for (let u = -0.5; u < 3.2; u += 0.01) assert.ok(zAl(c, u + 0.01) <= zAl(c, u))
+})

@@ -39,7 +39,7 @@ export const ANELLO_PUNTI_VERT = /* glsl */ `
     vec3 porta = vec3(anello * uLato * 4.0, uPorta[m]);
     float to = smoothstep(0.0, 1.0, clamp(uApri * 1.3 - aCaso.y * 0.3, 0.0, 1.0));
     vec3 pos = mix(vista, porta, to);
-    pos.xy += 0.008 * uLato * vec2(sin(uTempo * 0.7 + aCaso.z * 20.0), cos(uTempo * 0.6 + aCaso.w * 20.0)) * (1.0 - tn);
+    pos.xy += 0.014 * uLato * vec2(sin(uTempo * 1.1 + aCaso.z * 20.0), cos(uTempo * 0.9 + aCaso.w * 20.0)) * (1.0 - tn);
 
     float acc = uAccese[m];
     vec3 col = aCol * (0.6 + 0.6 * acc);

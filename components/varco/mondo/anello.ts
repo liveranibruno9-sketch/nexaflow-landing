@@ -11,8 +11,6 @@ import { ANELLO_PUNTI_FRAG, ANELLO_PUNTI_VERT } from './shader-anello.ts'
 
 export type Anello = {
   gruppo: Group
-  /** parte l'apertura a tempo (una volta, al caricamento): ora in secondi */
-  avvia(ora: number): void
   /** camZ = z della camera; px = pixel per unità a distanza 1 */
   aggiorna(tempo: number, dt: number, camZ: number, px: number, camX: number, camY: number): void
   /** centro in frazioni dello schermo (cx da sinistra, cy dall'alto) e lato del quadrato del poster in px CSS */
@@ -23,7 +21,7 @@ export type Anello = {
   usato(): boolean
   porte(z: [number, number, number, number]): void
   arcoInAlto(): Materia | null
-  /** 0..1 il nome è formato (lettere complete) */
+  /** true quando le lettere sono complete (comando `nome` ≥ 0,97): il nome HTML può comparire sotto */
   nomeFormato(): boolean
   dispose(): void
 }
@@ -165,13 +163,12 @@ export async function creaAnello(o: {
   alone.frustumCulled = false
   gruppo.add(alone)
 
-  /* ----- stato: a tempo (l'apertura, una volta) e a comandi (regia, ogni fotogramma) ----- */
-  let t0 = -1
-  let intro = 0
-  let formato = false
+  /* ----- stato: solo a comandi (la regia, ogni fotogramma); il nome segue lo scroll, non il tempo ----- */
+  let nato = -1 // il momento in cui l'anello è comparso: sfuma dentro in 0,6 s al posto del poster
   let ang = 0
   let usatoOra = false
-  let cmd = { ritorno: 0, caldo: 0, giro: 0.35, apri: 0, punto: 0, accese: [0.35, 0.35, 0.35, 0.35], nome: 1 }
+  const RIPOSO = { ritorno: 0, caldo: 0, giro: 0.9, apri: 0, punto: 0, accese: [0.35, 0.35, 0.35, 0.35], nome: 0 }
+  let cmd = { ...RIPOSO, accese: [...RIPOSO.accese] }
   let lato2 = 4
   let cxw = 0
   let cyw = 0
@@ -189,12 +186,9 @@ export async function creaAnello(o: {
   return {
     gruppo,
     comandi,
-    avvia(ora) {
-      t0 = ora
-    },
     inizia() {
       usatoOra = false
-      cmd = { ritorno: 0, caldo: 0, giro: 0.35, apri: 0, punto: 0, accese: [0.35, 0.35, 0.35, 0.35], nome: 1 }
+      cmd = { ...RIPOSO, accese: [...RIPOSO.accese] }
     },
     usato: () => usatoOra,
     porte(z) {
@@ -207,13 +201,10 @@ export async function creaAnello(o: {
       cyw = (1 - p.cy * 2) * meta
     },
     aggiorna(tempo, dt, camZ, px, camX, camY) {
-      if (t0 < 0) t0 = tempo
-      // 0-1,2 s le particelle salgono; 1,2-2,6 s (curva espressiva) compongono il nome; poi fermo
-      const s = clamp((tempo - t0 - 1.2) / 1.4, 0, 1)
-      intro = s * s * (3 - 2 * s)
-      if (!formato && s >= 1) formato = true
+      if (nato < 0) nato = tempo
       ang -= dt * 0.15 * cmd.giro
-      const nomeEff = intro * (1 - cmd.ritorno)
+      const nomeEff = clamp(cmd.nome, 0, 1) * (1 - cmd.ritorno)
+      const formato = nomeEff >= 0.97
       u.uAng.value = ang
       u.uNome.value = nomeEff
       u.uApri.value = cmd.apri
@@ -225,7 +216,7 @@ export async function creaAnello(o: {
       u.uCamZ.value = camZ
       u.uCam.value.set(camX, camY, 0)
       u.uAccese.value = cmd.accese
-      u.uAlfa.value = clamp((tempo - t0) / 0.6, 0, 1)
+      u.uAlfa.value = clamp((tempo - nato) / 0.6, 0, 1)
       // sul nome formato le particelle restano un brillio sottile sul contorno e si spengono
       u.uAlfaNome.value = formato ? 0.3 : 1
       u.uPunto.value = (1.5 * lato2) / Math.sqrt(n)
@@ -240,10 +231,10 @@ export async function creaAnello(o: {
         if (d < scarto) { scarto = d; migliore = MATERIE[m] }
       }
       arcoAlto = scarto < 0.9 ? migliore : null
-      gruppo.visible = usatoOra || tempo - t0 < 3
+      gruppo.visible = usatoOra
     },
     arcoInAlto: () => arcoAlto,
-    nomeFormato: () => formato,
+    nomeFormato: () => clamp(cmd.nome, 0, 1) * (1 - cmd.ritorno) >= 0.97,
     dispose() {
       gruppo.removeFromParent()
       g.dispose()

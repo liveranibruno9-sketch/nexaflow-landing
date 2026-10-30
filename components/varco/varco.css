@@ -10,6 +10,8 @@
   --notte: #020403;
 }
 .film-radice {
+  /* il centro verticale del cerchio dell'apertura: lo usano il poster, il nome e l'anello */
+  --cerchio-y: 40%;
   --perla: #f4f1ff;
   --neutro: rgba(244, 241, 255, 0.62);
   --accento-blocco: var(--blu);
@@ -63,6 +65,29 @@
   line-height: 0.92;
   letter-spacing: -0.01em;
   text-shadow: var(--ombra-grande);
+}
+/* i titoli dei servizi (home v2): Archivo stretto, peso medio; il titolo di sezione un po' più grande */
+.film-radice .battuta-titolo {
+  font-family: var(--titoli);
+  font-stretch: 70%;
+  font-weight: 500;
+  font-size: clamp(34px, 9.6vw, 46px);
+  line-height: 0.96;
+  letter-spacing: -0.01em;
+  text-shadow: var(--ombra-grande);
+  margin: 0;
+}
+.film-radice .blocco[data-tipo='intro'] .battuta-titolo { font-size: clamp(38px, 11vw, 54px); }
+/* il paragrafo di un servizio: Archivo a larghezza normale, leggero, corto */
+.film-radice .battuta-paragrafo {
+  font-family: var(--titoli);
+  font-stretch: 100%;
+  font-weight: 400;
+  font-size: clamp(15px, 4.1vw, 17px);
+  line-height: 1.36;
+  color: rgba(244, 241, 255, 0.9);
+  text-shadow: var(--ombra-piccolo);
+  max-width: 38ch;
 }
 /* le frasi: Archivo a larghezza normale, peso 400-500 */
 .film-radice .battuta-frase,
@@ -188,6 +213,9 @@
   mask-image: radial-gradient(ellipse 72% 64% at 50% 50%, #000 52%, transparent 100%);
 }
 .film-radice .battuta-pulsante { margin-top: 1.6em; }
+.film-radice .squadra-strato { display: block; max-width: 560px; margin: 0 auto; padding: 0 var(--margine); }
+.film-radice .statico-squadra { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 1.2em auto; }
+.film-radice .statico-squadra .statico-immagine { margin: 0; }
 /* «Scorri» invita a scorrere il varco: nella pagina normale non serve */
 html:not(.varco) .film-radice .battuta-scorri { display: none; }
 
@@ -221,7 +249,7 @@ html.varco .film-radice .varco-poster {
   position: absolute;
   z-index: 0;
   left: 50%;
-  top: 40%;
+  top: var(--cerchio-y);
   width: 92vw;
   max-width: none;
   margin: 0;
@@ -231,12 +259,13 @@ html.varco .film-radice .varco-poster {
   pointer-events: none;
 }
 @media (min-aspect-ratio: 1/1) {
-  html.varco .film-radice .varco-poster { top: 50%; width: 70vh; width: 70svh; }
+  .film-radice { --cerchio-y: 50%; }
+  html.varco .film-radice .varco-poster { width: 70vh; width: 70svh; }
 }
 
 /* il nome dell'apertura aspetta le lettere di particelle: compare sotto, nello stesso punto, quando sono complete (D38) */
-html.varco .film-radice .nome-apertura[data-nascosto] { color: transparent; text-shadow: none; animation: nome-salvagente 0.01s 7s forwards; }
-@keyframes nome-salvagente { to { color: var(--perla); text-shadow: var(--ombra-grande); } }
+html.varco .film-radice .nome-apertura { transition: color 0.45s var(--curva), text-shadow 0.45s; }
+html.varco .film-radice .nome-apertura[data-nascosto] { color: transparent; text-shadow: none; }
 /* le parole dei servizi: grigio perla, poi il colore della materia quando il suo arco passa in alto */
 .film-radice .servizio-parola { transition: color 0.4s var(--curva); }
 .film-radice .servizio-parola[data-materia='polvere'] { --c: var(--polvere); }
@@ -284,7 +313,11 @@ html.varco .film-radice .fascia {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
 }
+html.varco[data-blocco='mascotte'] .film-radice .fascia { top: 61%; height: 31%; }
 html.varco .film-radice .fascia .blocco { display: contents; margin: 0; }
+html.varco .film-radice .battuta-titolo { grid-column: 1; grid-row: 1; align-self: end; }
+html.varco .film-radice .blocco[data-tipo='intro'] .battuta-titolo { grid-row: 1 / span 3; align-self: center; }
+html.varco .film-radice .battuta-paragrafo { grid-column: 1; grid-row: 2; align-self: start; margin-top: 0.6em; }
 html.varco .film-radice .battuta-frase,
 html.varco .film-radice .battuta-passo { grid-column: 1; grid-row: 1 / span 2; align-self: start; max-width: 100%; }
 html.varco .film-radice .battuta-nome { grid-column: 1; grid-row: 1; align-self: end; margin: 0; }
@@ -307,7 +340,7 @@ html.varco .film-radice .apertura-strato .blocco { display: block; margin: 0; }
 html.varco .film-radice .apertura-strato .nome-apertura,
 html.varco .film-radice .apertura-strato .battuta-scorri { position: absolute; left: 0; right: 0; margin: 0; padding: 0 var(--margine); text-align: center; }
 html.varco .film-radice .apertura-strato .nome-apertura {
-  top: 40%;
+  top: var(--cerchio-y);
   width: auto;
   height: 0;
   display: flex;
@@ -329,6 +362,13 @@ html.varco .film-radice .apertura-strato .apertura-righe {
 html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: center; max-width: 34ch; }
 html.varco .film-radice .apertura-strato .battuta-scorri { top: auto; bottom: calc(var(--sotto) + 18px); justify-content: center; }
 
+/* la squadra: le quattro mascotte riunite al centro, la frase sopra e la frase sotto */
+html.varco .film-radice .squadra-strato { position: absolute; inset: 0; z-index: 1; max-width: none; margin: 0; padding: 0; pointer-events: none; }
+html.varco .film-radice .squadra-strato .blocco { display: block; margin: 0; }
+html.varco .film-radice .squadra-strato .battuta { position: absolute; left: 6%; width: 88%; margin: 0; text-align: center; }
+html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 9%; }
+html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 75%; }
+
 /* ---------- telefono in orizzontale (844x390) e schermi bassi: tutto più basso ---------- */
 @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
   html.varco .film-radice .fascia { top: 22%; height: 58%; left: 6%; width: 34%; }
@@ -337,6 +377,12 @@ html.varco .film-radice .apertura-strato .battuta-scorri { top: auto; bottom: ca
   html.varco .film-radice .battuta-frase,
   html.varco .film-radice .battuta-passo { font-size: clamp(20px, 5.4vh, 28px); }
   html.varco .film-radice .nome-apertura { font-size: 12vh; font-size: 12svh; }
+  html.varco .film-radice .battuta-titolo { font-size: clamp(22px, 7vh, 34px); }
+  html.varco .film-radice .battuta-paragrafo { font-size: 14px; max-width: 34ch; }
+  html.varco[data-blocco='mascotte'] .film-radice .fascia { top: 20%; height: 62%; }
+  html.varco .film-radice .squadra-strato .battuta { left: 42%; width: 52%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 18%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 66%; }
   html.varco .film-radice .apertura-strato .apertura-righe { left: 6%; right: auto; width: 34%; top: 36%; align-items: flex-start; padding: 0; }
   html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: left; }
   html.varco .film-radice .apertura-strato .battuta-scorri { left: 6%; right: auto; bottom: calc(var(--sotto) + 6px); justify-content: flex-start; padding: 0; text-align: left; }
@@ -351,6 +397,13 @@ html.varco .film-radice .apertura-strato .battuta-scorri { top: auto; bottom: ca
   html.varco .film-radice .battuta-frase,
   html.varco .film-radice .battuta-passo { font-size: clamp(44px, 3.6vw, 64px); }
   html.varco .film-radice .nome-apertura { font-size: min(128px, 12vh); font-size: min(128px, 12svh); }
+  html.varco .film-radice .battuta-titolo { font-size: clamp(44px, 4.2vw, 66px); }
+  html.varco .film-radice .blocco[data-tipo='intro'] .battuta-titolo { font-size: clamp(52px, 5vw, 80px); }
+  html.varco .film-radice .battuta-paragrafo { font-size: clamp(18px, 1.45vw, 22px); max-width: 40ch; }
+  html.varco[data-blocco='mascotte'] .film-radice .fascia { top: 22%; height: 56%; }
+  html.varco .film-radice .squadra-strato .battuta { left: 45%; width: 45%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sopra'] { top: 8%; }
+  html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 81%; }
   html.varco .film-radice .apertura-strato .apertura-righe { left: 6%; right: auto; width: 34%; top: 62%; align-items: flex-start; padding: 0; }
   html.varco .film-radice .apertura-strato .apertura-righe .battuta { text-align: left; }
   html.varco .film-radice .apertura-strato .battuta-scorri { left: 6%; right: auto; justify-content: flex-start; padding: 0; text-align: left; }

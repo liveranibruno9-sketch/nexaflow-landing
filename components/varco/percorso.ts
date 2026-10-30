@@ -52,6 +52,12 @@ export function fasiBlocco(bl: Blocco, u: number): Fasi {
   const locale = bl.a > bl.da ? tra01((u - bl.da) / (bl.a - bl.da)) : u >= bl.a ? 1 : 0
   if (bl.tipo === 'servizio') return { locale, composto: 1, forma: 1, foto: [0, 1, 0], uscita: 0 }
   if (bl.tipo === 'passi') return { locale, composto: 1, forma: 1, foto: [0, 1, 0], uscita: liscio(bl.da, bl.a, u) }
+  if (bl.tipo === 'mascotte') {
+    // la mascotte si compone dalle particelle in mezza schermata, la foto affiora subito dopo, alla fine si disfa
+    const su = (da: number, a: number) => liscio(bl.da + da, bl.da + a, u)
+    const giu = (da: number, a: number) => 1 - liscio(bl.a - da, bl.a - a, u)
+    return { locale, composto: su(0, 0.5) * giu(0.5, 0), forma: 1, foto: [0, su(0.35, 0.65) * giu(0.55, 0.3), 0], uscita: 0 }
+  }
   return { locale, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }
 }
 
@@ -113,31 +119,34 @@ export function zAl(c: Curva, uu: number): number {
  * Distanza fra la camera e il quadro di un tratto (u relativa all'inizio del tratto): all'inizio viene incontro alla
  * camera, durante le frasi la accompagna (si avvicina piano), alla fine la camera lo supera. `sosta` = la distanza di riposo.
  */
-export function profiloDistanza(sosta: number): Curva {
+export function profiloDistanza(sosta: number, lunghezza = 5.5): Curva {
   return preparaPercorso([
     { u: -0.5, z: sosta + 28 },
     { u: 0.4, z: sosta + 3 },
-    { u: 4.4, z: sosta },
-    { u: 5.0, z: -2 },
-    { u: 5.5, z: -27 },
+    { u: lunghezza - 1.1, z: sosta },
+    { u: lunghezza - 0.5, z: -2 },
+    { u: lunghezza, z: -27 },
   ])
 }
 
 /** gli id dei tratti da tenere in memoria: quelli con [da - 0,5; a + 0,3] ∋ u, poi il primo tratto dopo u; al massimo 2 */
 export function trattiDaTenere(p: Percorso, u: number): string[] {
-  const tratti = p.blocchi.filter((b) => b.tipo === 'tratto')
+  const tratti = p.blocchi.filter((b) => conSoggetto(b))
   const id = tratti.filter((b) => u >= b.da - 0.5 && u <= b.a + 0.3).map((b) => b.id)
   const dopo = tratti.find((b) => b.da > u)
   if (dopo && !id.includes(dopo.id)) id.push(dopo.id)
   return id.slice(0, 2)
 }
 
+/** i blocchi che hanno un soggetto di particelle nel mondo (un tratto completo o una mascotte) */
+export const conSoggetto = (b: Blocco) => b.tipo === 'tratto' || b.tipo === 'mascotte'
+
 type Pesi = [number, number, number, number]
 const INDICE: Record<Materia, number> = { polvere: 0, vetro: 1, saette: 2, cromo: 3 }
 const UGUALI: Pesi = [0.25, 0.25, 0.25, 0.25]
 
 const pesiDi = (b: Blocco): Pesi => {
-  if (b.tipo !== 'tratto' || !b.materia) return UGUALI
+  if (!conSoggetto(b) || !b.materia) return UGUALI
   const w: Pesi = [0, 0, 0, 0]
   w[INDICE[b.materia]] = 1
   return w

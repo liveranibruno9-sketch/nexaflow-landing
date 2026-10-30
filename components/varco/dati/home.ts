@@ -1,128 +1,102 @@
-// Il percorso della home: sette blocchi, le battute di ogni blocco con il loro `ruolo` (piano-costruzione-v2, «Il percorso della home»).
-// Unità `u` = schermate (1 = 100svh). lunghezza = 31,6: lo storyboard ne stimava 37 contando l'orbita; si tara al telefono nella prima anteprima.
-// Testi copiati lettera per lettera da testi.md §3 (ordine approvato il 30/10: il problema prima del nome); `accento` = la parola in grassetto.
-// Indice in testata = `etichetta` del blocco. Nessun prezzo (R4); nessun blocco «Lavori» finché la bacheca è vuota (R7).
-// Modulo puro: lo importano anche i test di Node (solo `import type`, estensione .ts fra moduli puri).
-import type { Battuta, Blocco, Immagine, Materia, Percorso, TipoBattuta } from '../tipi.ts'
+// Il percorso della home, versione 2 (brief di Bruno del 30/10 dopo il voto 5 all'anteprima A):
+// apertura (il nome si forma allo scroll) → soglia a due frasi → «I servizi che offriamo» → quattro servizi, ciascuno con la
+// sua mascotte (le creature restano, i loro nomi no), un titolo e un paragrafo → la squadra che si riunisce → il finale verso il modulo.
+// Unità `u` = schermate (1 = 100svh). I paragrafi sono PROVVISORI (li riscriverà l'agente dei copy): condensano testi.md §4.
+// Nessun prezzo (R4); nessun blocco «Lavori» finché la bacheca è vuota (R7). Modulo puro: lo importano anche i test di Node.
+import type { Battuta, Blocco, Immagine, Materia, Percorso } from '../tipi.ts'
 
 /** una frase: [testo, parola d'accento?] */
 type Frase = [string, string?]
-
-/** arrotonda a 3 decimali: le somme b + 0,4 non devono lasciare 6.000000000000001 nei dati */
 const r = (x: number) => Math.round(x * 1000) / 1000
-
 const frase = (ruolo: string, [testo, accento]: Frase, da: number, a: number): Battuta =>
   accento ? { tipo: 'frase', testo, ruolo, accento, da, a } : { tipo: 'frase', testo, ruolo, da, a }
 
-// ---------- apertura · 0 → 0,6 ----------
-// Le battute con da = 0 sono visibili subito (nessuna entrata). Il nome finisce con il blocco (0,6): il suo `ritorno` (le lettere
-// che tornano nell'anello) si chiude dove la soglia lo tiene a 1, senza salti (revisione finale del Blocco A).
+// ---------- apertura · 0 → 1,0: il cerchio gira; scorrendo, le particelle compongono il nome ----------
 const APERTURA: Blocco = {
-  id: 'apertura', tipo: 'apertura', da: 0, a: 0.6, etichetta: '00 · Apertura',
+  id: 'apertura', tipo: 'apertura', da: 0, a: 1.0, etichetta: '00 · Apertura',
   battute: [
-    { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 0.6 },
-    { tipo: 'etichetta', testo: 'Agenzia AI · Faenza, Romagna', ruolo: 'luogo', da: 0, a: 0.6 },
-    { tipo: 'etichetta', testo: 'Automazioni · Siti web · Contenuti · Campagne', ruolo: 'servizi', da: 0, a: 0.6 },
+    { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 1.0 },
+    { tipo: 'etichetta', testo: 'Agenzia AI · Faenza, Romagna', ruolo: 'luogo', da: 0, a: 0.7 },
+    { tipo: 'etichetta', testo: 'Automazioni · Siti web · Contenuti · Campagne', ruolo: 'servizi', da: 0, a: 0.7 },
     { tipo: 'scorri', testo: 'Scorri', ruolo: 'scorri', da: 0, a: 0.5 },
   ],
 }
 
-// ---------- soglia (tempo 1, «Lo studio») · 0,6 → 5,6 ----------
-const SOGLIA_FRASI: [Frase, number, number][] = [
-  [['Tu fai il tuo mestiere.', 'mestiere'], 0.7, 1.15],
-  [['Al resto pensiamo noi.', 'noi'], 1.15, 1.6],
-  [['Ai messaggi a negozio chiuso.'], 1.6, 2.0],
-  [['Al sito che nessuno trova.'], 2.0, 2.4],
-  [['Ai post rimandati da mesi.'], 2.4, 2.8],
-  [['Ai clienti che non sanno che esisti.'], 2.8, 3.2],
-  [["Con l'intelligenza artificiale.", 'intelligenza artificiale'], 3.25, 3.7],
-  [['E con una persona vera che risponde.', 'persona'], 3.7, 4.15],
-  [['Quattro agenti. Uno studio.', 'agenti'], 4.2, 4.65],
-  [['Nomi antichi, lavoro nuovo.'], 4.65, 5.1],
-  [['Te li presentiamo.'], 5.1, 5.6],
-]
+// ---------- soglia · 1,0 → 2,6: due frasi sole (le altre vanno nelle pagine dei servizi) ----------
 const SOGLIA: Blocco = {
-  id: 'soglia', tipo: 'soglia', da: 0.6, a: 5.6, etichetta: 'Lo studio',
-  battute: SOGLIA_FRASI.map(([f, da, a], i) => frase(String(i + 1), f, da, a)),
+  id: 'soglia', tipo: 'soglia', da: 1.0, a: 2.6, etichetta: 'Lo studio',
+  battute: [
+    frase('1', ['Tu fai il tuo mestiere.', 'mestiere'], 1.1, 1.8),
+    frase('2', ['Al resto pensiamo noi.', 'noi'], 1.8, 2.6),
+  ],
 }
 
-// ---------- i quattro tratti · 5,5 schermate ciascuno ----------
-type Agente = 'atlas' | 'janus' | 'prometheus' | 'hermes'
+// ---------- i servizi · 2,6 → 3,4 il titolo di sezione, poi 3,2 schermate per servizio ----------
+const INTRO: Blocco = {
+  id: 'servizi', tipo: 'intro', da: 2.6, a: 3.4, etichetta: 'I servizi',
+  battute: [{ tipo: 'titolo', testo: 'I servizi che offriamo', ruolo: 'titolo', da: 2.7, a: 3.4 }],
+}
 
-/**
- * Un tratto che comincia in b: composizione del problema [b; b+0,4] · `problema` [b+0,4; b+1,0] · creatura che si compone
- * [b+1,0; b+2,1] · `nome` [b+1,2; b+2,5] · `motto` [b+1,6; b+2,5] · beneficio che si compone [b+2,4; b+2,8] ·
- * `beneficio-1…4` a quattro finestre da 0,5 da b+2,8 · `link` [b+3,8; b+5,0] · uscita [b+4,4; b+5,0] · passaggio [b+5,0; b+5,5].
- */
-function tratto(b: number, o: {
-  id: Agente; etichetta: string; materia: Materia; uscita: 'entra' | 'accanto'; sfuma?: Blocco['sfuma']
-  nome: string; motto: string; problema: Frase; benefici: [Frase, Frase, Frase, Frase]; link: [string, string]
-}): Blocco {
+type Mascotte = 'atlas' | 'janus' | 'prometheus' | 'hermes'
+const LUNGHEZZA_SERVIZIO = 3.2
+
+/** un servizio: la mascotte si compone dalle particelle, poi titolo, paragrafo e collegamento alla pagina */
+function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Materia; titolo: string; paragrafo: Frase; link: [string, string] }): Blocco {
   const t = (x: number) => r(b + x)
-  const tipo = (tipo: TipoBattuta, ruolo: string, testo: string, da: number, a: number): Battuta => ({ tipo, testo, ruolo, da, a })
   return {
-    id: o.id, tipo: 'tratto', da: b, a: t(5.5), etichetta: o.etichetta, materia: o.materia,
-    immagini: [`${o.id}-1`, `${o.id}-2`, `${o.id}-3`] as Immagine[], uscita: o.uscita,
-    ...(o.sfuma ? { sfuma: o.sfuma } : {}),
+    id: o.id, tipo: 'mascotte', da: b, a: t(LUNGHEZZA_SERVIZIO), etichetta: o.etichetta, materia: o.materia,
+    immagini: [`${o.id}-2`] as Immagine[],
     battute: [
-      frase('problema', o.problema, t(0.4), t(1.0)),
-      tipo('nome', 'nome', o.nome, t(1.2), t(2.5)),
-      tipo('motto', 'motto', o.motto, t(1.6), t(2.5)),
-      frase('beneficio-1', o.benefici[0], t(2.8), t(3.3)),
-      frase('beneficio-2', o.benefici[1], t(3.3), t(3.8)),
-      frase('beneficio-3', o.benefici[2], t(3.8), t(4.3)),
-      frase('beneficio-4', o.benefici[3], t(4.3), t(4.8)),
-      { tipo: 'link', testo: o.link[0], ruolo: 'link', href: o.link[1], da: t(3.8), a: t(5.0) },
+      { tipo: 'titolo', testo: o.titolo, ruolo: 'titolo', da: t(0.5), a: t(2.8) },
+      { tipo: 'paragrafo', testo: o.paragrafo[0], ruolo: 'paragrafo', da: t(0.8), a: t(2.8), ...(o.paragrafo[1] ? { accento: o.paragrafo[1] } : {}) },
+      { tipo: 'link', testo: o.link[0], ruolo: 'link', href: o.link[1], da: t(1.4), a: t(2.9) },
     ],
   }
 }
 
-const ATLAS = tratto(5.6, {
-  id: 'atlas', etichetta: '01 · Automazioni', materia: 'polvere', uscita: 'entra', sfuma: { 'atlas-1': { basso: 0.25 } },
-  nome: 'Atlas', motto: 'Il peso lo porto io.', problema: ['23:47. Un cliente scrive.'],
-  benefici: [['Risposta in pochi secondi.', 'secondi'], ['Preventivo dimenticato? Ricontattato.', 'Ricontattato'], ['Recensione? Chiesta, a tutti.', 'Chiesta'], ['E tu stavi dormendo.']],
-  link: ['Le automazioni →', '/automazioni'],
-})
-
-const JANUS = tratto(11.1, {
-  id: 'janus', etichetta: '02 · Siti web', materia: 'vetro', uscita: 'entra', sfuma: { 'janus-3': { alto: 0.35 } },
-  nome: 'Janus', motto: 'Chi ti cerca, trova me.', problema: ['Ti cercano.'],
-  benefici: [['Ti trovano.', 'trovano'], ['Capiscono chi sei, subito.'], ['Un tocco: prenotato.', 'prenotato'], ['Da Google alla tua porta.']],
-  link: ['I siti web →', '/siti-web'],
-})
-
-const PROMETHEUS = tratto(16.6, {
-  id: 'prometheus', etichetta: '03 · Contenuti', materia: 'saette', uscita: 'accanto', sfuma: { 'prometheus-1': { basso: 0.25 } },
-  nome: 'Prometheus', motto: "Il bello c'è già. Io lo accendo.", problema: ['Social fermi da mesi?'],
-  benefici: [['Lampo. Un post.', 'post'], ['Lampo. Un video.', 'video'], ['Ogni settimana, pronti sul tuo telefono.'], ['Tu dici sì. Pubblicato.', 'Pubblicato']],
-  link: ['I contenuti →', '/contenuti'],
-})
-
-const HERMES = tratto(22.1, {
-  id: 'hermes', etichetta: '04 · Campagne', materia: 'cromo', uscita: 'accanto',
-  nome: 'Hermes', motto: 'Porto da te chi ancora non ti conosce.', problema: ['Clienti nuovi?'],
-  benefici: [['Trovati.', 'Trovati'], ['Solo quelli giusti.'], ['Ogni euro lascia una traccia.', 'traccia'], ['E il telefono squilla.']],
-  link: ['Le campagne →', '/campagne'],
-})
-
-// ---------- finale · 27,6 → 31,6 ----------
-const FINALE_FRASI: [Frase, number, number][] = [
-  [["Stasera qualcuno cercherà un'attività come la tua."], 27.8, 28.3],
-  [['Troverà te, o un altro.', 'un altro'], 28.3, 28.8],
-  [['Più tempo per il tuo mestiere.', 'tempo'], 28.9, 29.35],
-  [['Più margine a fine mese.', 'margine'], 29.35, 29.8],
-  [['Seguiamo poche attività alla volta.'], 29.9, 30.35],
-  [['La prossima può essere la tua.', 'la tua'], 30.35, 30.8],
+const SERVIZI: Blocco[] = [
+  servizio(3.4, {
+    id: 'atlas', etichetta: '01 · Automazioni', materia: 'polvere', titolo: 'Automazioni aziendali',
+    paragrafo: ['Rispondono ai messaggi e alle chiamate perse anche a negozio chiuso, ricontattano chi ha chiesto un preventivo ed è sparito, chiedono una recensione a ogni cliente. Tu smetti di rincorrere i messaggi: nessuno resta senza risposta.', 'senza risposta'],
+    link: ['Le automazioni →', '/automazioni'],
+  }),
+  servizio(6.6, {
+    id: 'janus', etichetta: '02 · Siti web', materia: 'vetro', titolo: 'Sviluppo siti web e app',
+    paragrafo: ["Un sito all'altezza di quello che fai: si apre come un film dal primo scroll, è bello prima dal telefono, è fatto per farti trovare su Google. Richieste e prenotazioni arrivano da sole. Chi arriva capisce, chi capisce prenota.", 'prenota'],
+    link: ['I siti web →', '/siti-web'],
+  }),
+  servizio(9.8, {
+    id: 'prometheus', etichetta: '03 · Contenuti', materia: 'saette', titolo: 'Creazione contenuti',
+    paragrafo: ["Post, caroselli e video brevi sulla tua attività, raccontata com'è davvero, con un piano chiaro su cosa pubblicare e quando. Ogni settimana i contenuti pronti arrivano sul tuo telefono: tu li approvi con un tocco.", 'un tocco'],
+    link: ['I contenuti →', '/contenuti'],
+  }),
+  servizio(13.0, {
+    id: 'hermes', etichetta: '04 · Campagne', materia: 'cromo', titolo: 'Campagne pubblicitarie',
+    paragrafo: ['Pubblicità su Instagram, Facebook e Google per le persone giuste, vicine o lontane, con un obiettivo chiaro. Ogni settimana guardiamo cosa funziona e spostiamo lì il budget: alla fine sai quanto ti è costato ogni nuovo contatto.', 'contatto'],
+    link: ['Le campagne →', '/campagne'],
+  }),
 ]
-const LUNGHEZZA = 31.6
-const FINALE: Blocco = {
-  id: 'finale', tipo: 'finale', da: 27.6, a: LUNGHEZZA, etichetta: 'Il finale',
+
+// ---------- la squadra · 16,2 → 19,0: le quattro mascotte si riuniscono al centro, la frase sopra e sotto ----------
+const SQUADRA: Blocco = {
+  id: 'squadra', tipo: 'squadra', da: 16.2, a: 19.0, etichetta: 'La squadra',
+  immagini: ['atlas-2', 'janus-2', 'prometheus-2', 'hermes-2'],
   battute: [
-    ...FINALE_FRASI.map(([f, da, a], i) => frase(String(i + 1), f, da, a)),
-    // resta acceso fino alla fine del percorso; sotto, piccolo, la nota
-    { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 30.8, a: LUNGHEZZA },
+    frase('sopra', ['Più tempo per il tuo mestiere,', 'tempo'], 16.6, 18.8),
+    frase('sotto', ['più margine a fine mese.', 'margine'], 17.0, 18.8),
+  ],
+}
+
+// ---------- finale · 19,0 → 21,0: l'invito, poi il pulsante che resta acceso fino al modulo ----------
+const LUNGHEZZA = 21.0
+const FINALE: Blocco = {
+  id: 'finale', tipo: 'finale', da: 19.0, a: LUNGHEZZA, etichetta: 'Il finale',
+  battute: [
+    frase('1', ['Seguiamo poche attività alla volta.'], 19.1, 19.7),
+    frase('2', ['La prossima può essere la tua.', 'la tua'], 19.7, 20.3),
+    { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 20.3, a: LUNGHEZZA },
   ],
 }
 
 // QUI andrebbe il blocco «Lavori», solo quando LAVORI (components/film/dati/lavori.ts) non è vuoto (D8, R7)
-export const HOME: Percorso = { lunghezza: LUNGHEZZA, blocchi: [APERTURA, SOGLIA, ATLAS, JANUS, PROMETHEUS, HERMES, FINALE] }
+export const HOME: Percorso = { lunghezza: LUNGHEZZA, blocchi: [APERTURA, SOGLIA, INTRO, ...SERVIZI, SQUADRA, FINALE] }

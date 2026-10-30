@@ -1,4 +1,4 @@
-// npm test  ·  le regie del varco: Kit finto e controllo R18 (piano-costruzione-v2, compito 3)
+// npm test  ·  le regie del varco: Kit finto e controllo R18 (piano-costruzione-v2, compito 3; home v2 dal 30/10)
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { controllaR18, REGIE } from './indice.ts'
@@ -30,7 +30,7 @@ test('controllaR18: una regia che dà un evento a ogni frase e il fuoco alle par
   assert.deepEqual(controllaR18(p, { x: buona }), [])
 })
 
-test('controllaR18: un blocco senza regia non si controlla (le regie arrivano un compito alla volta)', () => {
+test('controllaR18: un blocco senza regia non si controlla', () => {
   assert.deepEqual(controllaR18(percorso(['1', 0.2, 0.8]), {}), [])
 })
 
@@ -45,62 +45,54 @@ test('controllaR18 coglie una luce sopra 0,85 e una saetta più grande di mezzo 
 })
 
 test('controllaR18: una frase che fa muovere solo l\'evento della frase prima non ha un\'àncora sua', () => {
-  // la regia legge solo t['1']: con la 1 a 1 e la 2 a 0 oppure a 1 non cambia nulla → la 2 è senza àncora
   const p = percorso(['1', 0.2, 0.8], ['2', 0.8, 1.4])
   const solo1: Regia = (t, f, k) => { k.onda('b', { a: [0.4, 0.4], raggio: 0.2, colore: 'polvere' }, t['1']) }
   const errori = controllaR18(p, { x: solo1 })
   assert.equal(errori.length, 1); assert.ok(errori[0].includes('2'))
 })
 
-test('R18: blocchi con regia', () => assert.deepEqual(controllaR18(HOME, REGIE), []))
-
-test('Atlas ha la sua regia e ogni sua battuta ha un\'àncora, un fuoco sulle parole d\'accento (R18)', () => {
-  assert.ok(REGIE.atlas, 'la regia di atlas non è registrata')
-  const solo = { lunghezza: HOME.lunghezza, blocchi: HOME.blocchi.filter((b) => b.id === 'atlas') }
-  assert.equal(solo.blocchi.length, 1)
-  assert.deepEqual(controllaR18(solo, REGIE), [])
+test('R18: ogni blocco della home ha la sua regia e passa il controllo', () => {
+  for (const b of HOME.blocchi) assert.ok(REGIE[b.id], `la regia di ${b.id} non è registrata`)
+  assert.deepEqual(controllaR18(HOME, REGIE), [])
 })
 
-test('apertura e soglia hanno la loro regia: ogni frase ha un\'àncora e ogni parola d\'accento il suo fuoco (R18)', () => {
-  for (const id of ['apertura', 'soglia']) {
-    assert.ok(REGIE[id], `la regia di ${id} non è registrata`)
-    const solo = { lunghezza: HOME.lunghezza, blocchi: HOME.blocchi.filter((b) => b.id === id) }
-    assert.deepEqual(controllaR18(solo, REGIE), [], id)
-  }
-})
-
-test('soglia: la barra si divide e le porte si aprono solo dall\'1.9; l\'anello si scalda dall\'1.1', () => {
-  const soglia = HOME.blocchi.find((b) => b.id === 'soglia')!
-  const chiamateA = (ruolo: string, v: number) => {
+test('apertura: da fermo l\'anello gira con più forza di quando si è scorso; il nome si compone fra il 10 e il 50% e torna alla fine', () => {
+  const chiama = (nome: number) => {
     const { kit, chiamate } = kitFinto()
-    const t = Object.fromEntries(soglia.battute.map((b) => [b.ruolo, b.ruolo === ruolo ? v : Number(b.ruolo) < Number(ruolo) ? 1 : 0]))
-    REGIE.soglia!(t, { locale: 0.5, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
-    return chiamate
+    REGIE.apertura!({ nome, luogo: 0, servizi: 0, scorri: 0 }, { locale: nome, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
+    const giro = chiamate.find((c) => c.metodo === 'anello.giro')!.valori[0]
+    const lettere = chiamate.find((c) => c.metodo === 'anello.nome')!.valori[0]
+    return { giro, lettere }
   }
-  const apri = (c: ReturnType<typeof chiamateA>) => c.filter((x) => x.metodo === 'anello.apri').map((x) => x.valori[0])
-  assert.ok(Math.max(0, ...apri(chiamateA('8', 1))) === 0, 'le porte non si aprono prima dell\'1.9')
-  assert.ok(Math.max(0, ...apri(chiamateA('9', 1))) === 1, 'all\'1.9 le porte si aprono')
-  const caldo = (c: ReturnType<typeof chiamateA>) => c.filter((x) => x.metodo === 'anello.caldo').map((x) => x.valori[0])
-  assert.ok(Math.max(0, ...caldo(chiamateA('1', 1))) === 1)
+  assert.ok(chiama(0).giro > chiama(1).giro)
+  assert.equal(chiama(0).lettere, 0); assert.equal(chiama(0.6).lettere, 1); assert.equal(chiama(1).lettere, 0)
+  assert.ok(chiama(0.3).lettere > 0 && chiama(0.3).lettere < 1)
 })
 
-test('Atlas: i getti, le orbite e le luci stanno nei limiti del Kit', () => {
-  const atlas = HOME.blocchi.find((b) => b.id === 'atlas')!
-  const { kit, chiamate } = kitFinto()
-  // l'intero tratto, da 0 a 1 a passi di 0,05, con tutte le battute alla stessa t: nessuna chiamata fuori misura
-  for (let k = 0; k <= 20; k++) {
-    const t = Object.fromEntries(atlas.battute.map((b) => [b.ruolo, k / 20]))
-    REGIE.atlas!(t, { locale: 0.5, composto: 1, forma: 2, foto: [0, 0, 1], uscita: 0 }, kit)
+test('soglia: le porte si aprono con la seconda frase, non con la prima', () => {
+  const chiama = (t1: number, t2: number) => {
+    const { kit, chiamate } = kitFinto()
+    REGIE.soglia!({ '1': t1, '2': t2 }, { locale: 0.5, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
+    return Math.max(0, ...chiamate.filter((c) => c.metodo === 'anello.apri').map((c) => c.valori[0]))
   }
-  assert.ok(chiamate.length > 0)
-  for (const c of chiamate) {
-    assert.ok(c.valori.every(Number.isFinite), `${c.metodo} ${c.id}: valore non finito`)
-    if (c.metodo === 'orbita') assert.ok(c.valori[4] <= 64, `orbita ${c.id}: più di 64 punti`)
-    if (c.metodo === 'getto') assert.ok(c.valori[4] >= 0 && c.valori[4] <= 100, `getto ${c.id}: n fuori da 0-100`)
+  assert.equal(chiama(1, 0), 0); assert.equal(chiama(1, 1), 1)
+})
+
+test('tutte le regie restano nei limiti del Kit (orbite ≤ 2, galassie ≤ 1, getti ≤ 6, n dei getti in 0-100)', () => {
+  for (const b of HOME.blocchi) {
+    const { kit, chiamate } = kitFinto()
+    for (let k = 0; k <= 20; k++) {
+      const t = Object.fromEntries(b.battute.map((x) => [x.ruolo, k / 20]))
+      REGIE[b.id]!(t, { locale: k / 20, composto: 1, forma: 1, foto: [0, 1, 0], uscita: 0 }, kit)
+    }
+    for (const c of chiamate) {
+      assert.ok(c.valori.every(Number.isFinite), `${b.id}: ${c.metodo} ${c.id}: valore non finito`)
+      if (c.metodo === 'getto') assert.ok(c.valori[4] >= 0 && c.valori[4] <= 100, `${b.id}: getto ${c.id}: n fuori da 0-100`)
+    }
+    const id = (m: string) => new Set(chiamate.filter((c) => c.metodo === m).map((c) => c.id)).size
+    assert.ok(id('orbita') <= 2, `${b.id}: più di 2 orbite`); assert.ok(id('galassia') <= 1, `${b.id}: più di una galassia`); assert.ok(id('getto') <= 6, `${b.id}: più di 6 getti`)
+    assert.ok(id('luce') <= 8, `${b.id}: più di 8 luci`)
   }
-  assert.ok(new Set(chiamate.filter((c) => c.metodo === 'orbita').map((c) => c.id)).size <= 2, 'più di 2 orbite insieme')
-  assert.ok(new Set(chiamate.filter((c) => c.metodo === 'getto').map((c) => c.id)).size <= 6, 'più di 6 getti insieme')
-  assert.ok(new Set(chiamate.filter((c) => c.metodo === 'galassia').map((c) => c.id)).size <= 1, 'più di una galassia')
 })
 
 test('kitFinto: registra ogni chiamata con i valori a 3 decimali; azzera svuota', () => {
@@ -112,7 +104,7 @@ test('kitFinto: registra ogni chiamata con i valori a 3 decimali; azzera svuota'
   assert.equal(chiamate[0].id, 'l'); assert.deepEqual(chiamate[0].valori, [0.123, 0.5, 0.3, 0.667])
   assert.deepEqual(chiamate[1].valori, [0.1, 0.2]); assert.deepEqual(chiamate[2].valori, [0.5])
   azzera(); assert.equal(chiamate.length, 0)
-  kit.fuoco([0, 0]); assert.equal(chiamate.length, 1)                       // continua a registrare nello stesso array
+  kit.fuoco([0, 0]); assert.equal(chiamate.length, 1)
 })
 
 test('kitFinto: ogni metodo del Kit si può chiamare', () => {

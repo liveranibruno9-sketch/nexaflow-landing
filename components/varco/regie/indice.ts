@@ -1,14 +1,23 @@
-// Il registro delle regie del varco e il controllo R18 (piano-costruzione-v2, compito 3).
-// Una regia per blocco, per id: i compiti 5-12 le aggiungono una alla volta. Modulo puro: lo provano i test di Node.
+// Il registro delle regie del varco e il controllo R18. Una regia per blocco, per id. Modulo puro: lo provano i test di Node.
 import { kitFinto } from '../kit-finto.ts'
 import { fasiBlocco } from '../percorso.ts'
 import type { Regia, Tempi } from '../kit.ts'
 import type { Battuta, Percorso } from '../tipi.ts'
 import { apertura } from './apertura.ts'
-import { atlas } from './atlas.ts'
+import { CENTRI, finale, intro, mascotte, squadra } from './sezioni.ts'
 import { soglia } from './soglia.ts'
 
-export const REGIE: Partial<Record<string, Regia>> = { apertura, soglia, atlas }
+export const REGIE: Partial<Record<string, Regia>> = {
+  apertura,
+  soglia,
+  servizi: intro,
+  atlas: mascotte('polvere', CENTRI.atlas),
+  janus: mascotte('vetro', CENTRI.janus),
+  prometheus: mascotte('saette', CENTRI.prometheus),
+  hermes: mascotte('cromo', CENTRI.hermes),
+  squadra,
+  finale,
+}
 
 /** tempi di tutte le battute del blocco: quelle prima della i a 1, quelle dopo a 0, la i a `ti` */
 function tempiCon(ordinate: Battuta[], i: number, ti: number): Tempi {
