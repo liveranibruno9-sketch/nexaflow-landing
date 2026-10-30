@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import { CONTATTO } from '@/components/dati'
 
 export const metadata: Metadata = {
-  title: 'Privacy policy',
+  title: { absolute: 'Privacy e cookie | Agenti Studio' },
   description: 'Informativa sul trattamento dei dati personali del sito di Agenti Studio.',
   robots: { index: false, follow: true },
 }
 
-const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
+const SEZIONI: { id?: string; titolo: string; corpo: React.ReactNode }[] = [
   {
     titolo: 'Titolare del trattamento',
     corpo: (
@@ -22,18 +22,24 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
   {
     titolo: 'Quali dati raccogliamo',
     corpo: (
-      <p>
-        Solo i dati che inserisce volontariamente nel modulo di richiesta: nome dello studio, suo nome, città,
-        telefono, indirizzo email e, se lo indica, il gestionale in uso. Il sito non usa cookie di profilazione
-        e non raccoglie dati di navigazione riconducibili alla persona.
-      </p>
+      <>
+        <p>
+          Solo i dati che inserisce volontariamente nei moduli del sito. Nel modulo di verifica gratuita per gli
+          studi dentistici: nome dello studio, suo nome, città, telefono, indirizzo email e, se lo indica, il
+          gestionale in uso. Nel modulo di richiesta di preventivo: nome, attività, telefono o email, servizio
+          di interesse, fascia di budget e, se vuole, un messaggio.
+        </p>
+        <p className="mt-3">
+          Il sito non usa cookie di profilazione e non raccoglie dati di navigazione riconducibili alla persona.
+        </p>
+      </>
     ),
   },
   {
     titolo: 'Perché li usiamo',
     corpo: (
       <p>
-        Esclusivamente per svolgere la verifica gratuita richiesta e per ricontattarla in merito. Base
+        Esclusivamente per svolgere la verifica gratuita richiesta, per rispondere alla richiesta di preventivo e per ricontattarla in merito. Base
         giuridica: misure precontrattuali adottate su richiesta dell’interessato, art. 6.1.b GDPR. Nessuna
         newsletter, nessuna cessione a terzi per finalità di marketing.
       </p>
@@ -59,6 +65,19 @@ const SEZIONI: { titolo: string; corpo: React.ReactNode }[] = [
         in Italia. Entrambi agiscono come responsabili del trattamento. Il sito è ospitato su Vercel Inc. e usa Vercel Analytics, che raccoglie statistiche di traffico
         aggregate senza cookie e senza identificare i singoli visitatori. I caratteri tipografici sono serviti
         dal nostro dominio: nessuna richiesta viene inviata a Google al caricamento della pagina.
+      </p>
+    ),
+  },
+  {
+    id: 'cookie',
+    titolo: 'Cookie',
+    corpo: (
+      <p>
+        Il sito non usa cookie di profilazione né cookie pubblicitari. L’unico cookie è un cookie tecnico, che
+        serve solo a chi entra nell’area riservata delle demo con il codice ricevuto da noi: si chiama{' '}
+        <code>demo_accesso</code>, contiene una firma che attesta l’inserimento del codice corretto, non
+        contiene dati personali e dura 30 giorni. Chi non entra nell’area demo non riceve alcun cookie dal sito.
+        Trattandosi di un cookie tecnico non è richiesto il consenso.
       </p>
     ),
   },
@@ -105,13 +124,13 @@ export default function Privacy() {
           ← Torna al sito
         </a>
 
-        <h1 className="serif mt-8 text-s4">Privacy policy</h1>
-        <p className="mt-3 text-s-1 text-[var(--neutro)]">Ultimo aggiornamento: settembre 2026</p>
+        <h1 className="serif mt-8 text-s4">Privacy e cookie</h1>
+        <p className="mt-3 text-s-1 text-[var(--neutro)]">Ultimo aggiornamento: ottobre 2026</p>
         <div className="filetto mt-8" />
 
         <div className="mt-12 space-y-10">
           {SEZIONI.map((s) => (
-            <section key={s.titolo}>
+            <section key={s.titolo} id={s.id} className={s.id ? 'scroll-mt-8' : undefined}>
               <h2 className="text-s1 font-medium tracking-[-0.02em]">{s.titolo}</h2>
               <div className="mt-3 text-s0 leading-relaxed text-[var(--neutro)]">{s.corpo}</div>
             </section>
