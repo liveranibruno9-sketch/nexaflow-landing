@@ -100,7 +100,7 @@ function BattutaHtml({ b }: { b: Battuta }) {
       // "01 · Chiamata" e la sua riga (in `nota`): i passi di "Come lavoriamo" si danno il cambio nello stesso punto
       return (
         <p className="battuta battuta-passo" {...f}>
-          <span className="passo-etichetta">{b.testo}</span>
+          <span className="passo-etichetta">{b.testo}</span>{' '}
           {b.nota ? <span className="passo-riga">{b.nota}</span> : null}
         </p>
       )

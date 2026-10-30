@@ -9,3 +9,6 @@ _sorgenti/
 
 # prove a occhio (catture), non si committano
 _controllo/
+
+# cache incrementale di TypeScript
+tsconfig.tsbuildinfo
