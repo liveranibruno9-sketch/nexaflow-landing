@@ -1,28 +1,18 @@
 import type { Metadata } from 'next'
-import Coda from '@/components/film/Coda'
-import ModuloPreventivo from '@/components/film/ModuloPreventivo'
+import PaginaServizio from '@/components/varco/sezioni/PaginaServizio'
+import { AUTOMAZIONI } from '@/components/varco/dati/automazioni'
 
-// Titolo, descrizione e H1 da testi.md §6 (lettera per lettera). Il nome grande è decorativo: l'H1 è la riga piccola.
-const TITOLO = 'Automazioni AI a Faenza e in Romagna | Agenti Studio'
-const DESCRIZIONE =
-  'Risposte ai messaggi anche a negozio chiuso, preventivi ricontattati, recensioni Google: automazioni AI per attività e studi della Romagna.'
+// Titolo, descrizione e testi dal file di dati (copy-automazioni.md). L'H1 è la frase che dice cosa fa; il nome grande è il servizio.
+const { titolo, descrizione } = AUTOMAZIONI.seo
 
 export const metadata: Metadata = {
-  title: { absolute: TITOLO },
-  description: DESCRIZIONE,
+  title: { absolute: titolo },
+  description: descrizione,
   alternates: { canonical: '/automazioni' },
-  openGraph: { type: 'website', locale: 'it_IT', url: '/automazioni', siteName: 'Agenti Studio', title: TITOLO, description: DESCRIZIONE },
-  twitter: { card: 'summary_large_image', title: TITOLO, description: DESCRIZIONE },
+  openGraph: { type: 'website', locale: 'it_IT', url: '/automazioni', siteName: 'Agenti Studio', title: titolo, description: descrizione },
+  twitter: { card: 'summary_large_image', title: titolo, description: descrizione },
 }
 
 export default function Automazioni() {
-  return (
-    <main id="contenuto">
-      {/* provvisoria: il mondo del varco arriva nel Blocco B (compito 13) */}
-      <h1>Automazioni AI per le attività della Romagna</h1>
-      <Coda servizio="automazioni">
-        <ModuloPreventivo servizio="automazioni" />
-      </Coda>
-    </main>
-  )
+  return <PaginaServizio dati={AUTOMAZIONI} />
 }
