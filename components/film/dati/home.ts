@@ -136,6 +136,7 @@ export const HOME: Regia = {
     JANUS.atto,
     PROMETHEUS.atto,
     HERMES.atto,
+    // QUI andrà l'atto '03 · Lavori', solo quando LAVORI (dati/lavori.ts) non è vuoto (D8, R7)
     {
       id: 'finale',
       nome: 'Il finale',

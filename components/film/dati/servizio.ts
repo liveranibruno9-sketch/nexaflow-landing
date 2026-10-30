@@ -70,6 +70,7 @@ export function paginaServizio(p: Pagina): Regia {
     },
     { id: 'cosa-facciamo', nome: 'Cosa facciamo', etichetta: '01 · Cosa facciamo', materia: p.materia, da: COSA_DA, a: COSA_A, battute: frasi },
     { id: 'come-lavoriamo', nome: 'Come lavoriamo', etichetta: '02 · Come lavoriamo', materia: p.materia, da: COSA_A, a: 8, battute: passi },
+    // QUI andrà l'atto '03 · Lavori', solo quando lavoriDi(servizio) (dati/lavori.ts) non è vuoto (D8, R7)
     // id diverso da 'preventivo': quell'id è già della sezione col modulo, in fondo alla pagina
     { id: 'richiesta', nome: 'Richiedi un preventivo', etichetta: '04 · Richiedi un preventivo', materia: p.materia, da: 8, a: 9, battute: p.extra ?? [] },
   ]
