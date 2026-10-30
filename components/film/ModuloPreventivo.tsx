@@ -100,7 +100,8 @@ export default function ModuloPreventivo({ servizio }: { servizio?: Servizio }) 
         />
       </div>
 
-      <div className="modulo-campo">
+      {/* sul computer il contatto ha una riga sua: le altre righe restano a coppie (nome/attività, servizio/budget) */}
+      <div className="modulo-campo modulo-largo">
         <label className="modulo-etichetta" htmlFor={`${id}-contatto`}>Dove ti ricontattiamo</label>
         <input
           className="modulo-input"
