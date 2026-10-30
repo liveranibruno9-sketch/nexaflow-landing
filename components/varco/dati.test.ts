@@ -32,7 +32,7 @@ test('home v2: ruoli unici nel blocco e conformi alla regola', () => {
     squadra: ['sopra', 'sotto'],
     finale: ['1', '2', 'pulsante'],
   }
-  for (const s of servizi) attesi[s.id] = ['titolo', 'paragrafo', 'link', 'foto-1', 'foto-2', 'foto-3']
+  for (const s of servizi) attesi[s.id] = ['titolo', 'paragrafo', 'link', 'foto-1', 'foto-2']
   for (const b of HOME.blocchi) {
     assert.equal(new Set(ruoliDi(b)).size, b.battute.length, `${b.id}: ruoli doppi`)
     assert.deepEqual([...ruoliDi(b)].sort(), [...attesi[b.id]].sort(), `${b.id}: ruoli diversi dalla regola`)
@@ -81,10 +81,10 @@ test('apertura (D45): il nome dura tutto il blocco, il banner arriva dopo che il
   assert.equal(battuta(ap, 'servizi').testo, 'Automazioni · Siti web · Contenuti · Campagne')
 })
 
-test('cartoline: tre foto per servizio, una dopo l\'altra, con il file in public/film/cartoline e un testo alternativo', () => {
+test('cartoline (D46): due foto per servizio, una dopo l\'altra, con il file in public/film/cartoline e un testo alternativo', () => {
   for (const s of servizi) {
     const foto = s.battute.filter((x) => x.tipo === 'foto')
-    assert.equal(foto.length, 3, s.id)
+    assert.equal(foto.length, 2, s.id)
     foto.forEach((f, i) => {
       assert.ok(f.src?.startsWith('/film/cartoline/') && f.src.endsWith('.webp'), f.src)
       assert.ok(f.testo.length > 10, 'alt')

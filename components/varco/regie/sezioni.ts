@@ -28,14 +28,14 @@ export function mascotte(materia: Materia, centro: Vec2): Regia {
     k.luce('mascotte', { a: centro, raggio: 0.3, colore: materia }, 0.45 * liscia(0, 0.6, t.titolo))
     k.orbita('aura', { centro, raggio: [0.55, 0.38], n: 24, colore: materia }, { accese: 24 * t.paragrafo, ordine: 0.2 + 0.8 * t.paragrafo, velocita: 0.8, alfa: 0.9 * f.foto[1] })
     k.linea('sottolinea', { punti: [[0.06, 1.03], [0.6, 1.03]], colore: materia, spessore: 1.2, gocce: 6 }, t.link)
-    // le tre cartoline: dove si posa ognuna, un piccolo battito della materia della mascotte
+    // le due foto: dove si posa ognuna, un piccolo battito della materia della mascotte
     CARTOLINE.forEach((punto, i) => k.pulsa(`cartolina-${i + 1}`, { a: punto, raggio: 0.07, colore: materia }, t[`foto-${i + 1}`] ?? 0))
     fuoco(k, t.paragrafo, centro)
   }
 }
 
-/** dove si posano le cartoline, nel quadro (a metà fra telefono e computer: è solo il battito che le accompagna) */
-const CARTOLINE: Vec2[] = [[0.15, 0.32], [0.88, 0.5], [0.15, 0.68]]
+/** dove si posano le due foto, a destra della mascotte, nel quadro (è solo il battito che le accompagna) */
+const CARTOLINE: Vec2[] = [[0.86, 0.36], [0.9, 0.6]]
 
 // Punti misurati con Read su public/film/scene/<mascotte>-2-720.webp: il centro della creatura (x da sinistra, y dall'alto, in frazioni)
 export const CENTRI: Record<'atlas' | 'janus' | 'prometheus' | 'hermes', Vec2> = {

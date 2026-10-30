@@ -40,7 +40,8 @@ const NASCOSTA: Posa = { x: 0.5, y: 0.5, altezza: 0.3, z: 0, giro: 0, inclina: 0
 
 /** dove sta la mascotte del servizio: sul telefono sopra il testo, sul computer a destra della colonna del testo */
 export function ribalta(s: Schermo): { x: number; y: number; altezza: number; lato: Lato } {
-  if (s.ritratto) return { x: 0.5, y: 0.35, altezza: 0.33, lato: 'destro' }
+  // sul telefono la mascotte sta un po' a sinistra: a destra ci sono le due foto del servizio (D46)
+  if (s.ritratto) return { x: 0.4, y: 0.35, altezza: 0.33, lato: 'sinistro' }
   if (s.basso) return { x: 0.68, y: 0.5, altezza: 0.62, lato: 'sinistro' }
   return { x: 0.67, y: 0.52, altezza: 0.56, lato: 'sinistro' }
 }

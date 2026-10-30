@@ -43,7 +43,7 @@ const INTRO: Blocco = {
 type Mascotte = 'atlas' | 'janus' | 'prometheus' | 'hermes'
 const LUNGHEZZA_SERVIZIO = 3.2
 
-/** un servizio: la mascotte arriva, poi titolo, paragrafo, tre cartoline che spiegano il servizio (foto Pexels) e collegamento alla pagina */
+/** un servizio: la mascotte arriva, poi titolo, paragrafo, due foto che spiegano il servizio (Pexels, a destra della mascotte) e collegamento */
 function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Materia; titolo: string; paragrafo: Frase; link: [string, string]; foto: { nome: string; alt: string }[] }): Blocco {
   const t = (x: number) => r(b + x)
   return {
@@ -64,9 +64,8 @@ const SERVIZI: Blocco[] = [
     paragrafo: ['Rispondono ai messaggi e alle chiamate perse anche a negozio chiuso, ricontattano chi ha chiesto un preventivo ed è sparito, chiedono una recensione a ogni cliente. Tu smetti di rincorrere i messaggi: nessuno resta senza risposta.', 'senza risposta'],
     link: ['Le automazioni →', '/automazioni'],
     foto: [
-      { nome: 'automazioni-1', alt: 'La titolare di un negozio di fiori al telefono fra i clienti' },
-      { nome: 'automazioni-2', alt: 'Lo schermo di un programma che tiene in ordine richieste e scadenze' },
-      { nome: 'automazioni-3', alt: 'Una cliente sorridente al telefono: ha avuto subito risposta' },
+      { nome: 'automazioni-1', alt: 'Una conversazione con l\'assistente virtuale sul telefono' },
+      { nome: 'automazioni-2', alt: 'Una mano robotica che tocca una rete di punti luminosi' },
     ],
   }),
   servizio(8.8, {
@@ -76,7 +75,6 @@ const SERVIZI: Blocco[] = [
     foto: [
       { nome: 'siti-1', alt: 'Un sito aperto sul portatile' },
       { nome: 'siti-2', alt: 'Un\'app sul telefono, fra le mani' },
-      { nome: 'siti-3', alt: 'Il progetto grafico di un sito, disegnato su tavoletta' },
     ],
   }),
   servizio(12.0, {
@@ -86,7 +84,6 @@ const SERVIZI: Blocco[] = [
     foto: [
       { nome: 'contenuti-1', alt: 'Un video di cucina girato col telefono sul treppiede' },
       { nome: 'contenuti-2', alt: 'Il telefono che riprende un prodotto in studio' },
-      { nome: 'contenuti-3', alt: 'Una creatrice di contenuti davanti alla luce ad anello' },
     ],
   }),
   servizio(15.2, {
@@ -95,8 +92,7 @@ const SERVIZI: Blocco[] = [
     link: ['Le campagne →', '/campagne'],
     foto: [
       { nome: 'campagne-1', alt: 'Una pubblicità su Facebook vista dal telefono' },
-      { nome: 'campagne-2', alt: 'Un profilo Instagram aperto sul telefono' },
-      { nome: 'campagne-3', alt: 'I grafici dei risultati sul portatile' },
+      { nome: 'campagne-2', alt: 'I grafici dei risultati sul portatile' },
     ],
   }),
 ]
