@@ -4,7 +4,7 @@
 // Indice in testata = `etichetta` (numero, se c'è) + `nome`: i nomi sono quelli di testi.md (§3: "00 · Apertura", "Lo studio",
 // "Il finale"); i quattro agenti hanno `0N · Servizio` (spec §6); lo studio e il finale non hanno un numero e non lo mostrano.
 // Modulo puro: lo importano anche i test di Node (solo `import type`).
-import type { Atto, Battuta, Materia, Regia, Scena } from '../regia'
+import type { Atto, Battuta, Creatura, Materia, Regia, Scena } from '../regia'
 
 /** una frase: [testo, parola d'accento?] */
 type Frase = [string, string?]
@@ -19,7 +19,7 @@ const frase = ([testo, accento]: Frase, da: number, a: number): Battuta =>
  */
 function agente(
   b: number, nome: string, file: string, servizio: string, materia: Materia, href: string, battute: Frase[],
-  testi: { num: string; motto: string; collegamento: string; fine?: number },
+  testi: { num: string; motto: string; collegamento: string; fine?: number; ritaglio: Creatura['ritaglio']; fiamma?: Creatura['fiamma'] },
 ): { scene: Scena[]; atto: Atto } {
   const [f1, f2, f3, f4, f5] = battute
   const scene: Scena[] = [
@@ -45,6 +45,8 @@ function agente(
       frase(f5, b + 4.45, b + 4.85),
       { tipo: 'link', testo: testi.collegamento, href, da: b + 4.0, a: b + 5 },
     ],
+    // la creatura entra in b+3,0 → b+3,4 e poi si muove fino a b+5 (D32); il ritaglio è misurato a occhio sul fotogramma X-2
+    creatura: { nome: `${file}-2`, da: b + 3.0, a: b + 5.0, ritaglio: testi.ritaglio, ...(testi.fiamma ? { fiamma: testi.fiamma } : {}) },
   }
   return { scene, atto }
 }
@@ -55,7 +57,7 @@ const ATLAS = agente(8, 'Atlas', 'atlas', 'Automazioni', 'polvere', '/automazion
   ['Preventivo dimenticato? Ricontattato.', 'Ricontattato'],
   ['Recensione? Chiesta, a tutti.', 'Chiesta'],
   ['E tu stavi dormendo.'],
-], { num: '01', motto: 'Il peso lo porto io.', collegamento: 'Le automazioni →' })
+], { num: '01', motto: 'Il peso lo porto io.', collegamento: 'Le automazioni →', ritaglio: [0.125, 0.176, 0.757, 0.691] })
 
 const JANUS = agente(13, 'Janus', 'janus', 'Siti web', 'vetro', '/siti-web', [
   ['Ti cercano.'],
@@ -63,7 +65,7 @@ const JANUS = agente(13, 'Janus', 'janus', 'Siti web', 'vetro', '/siti-web', [
   ['Capiscono chi sei, subito.'],
   ['Un tocco: prenotato.', 'prenotato'],
   ['Da Google alla tua porta.'],
-], { num: '02', motto: 'Chi ti cerca, trova me.', collegamento: 'I siti web →' })
+], { num: '02', motto: 'Chi ti cerca, trova me.', collegamento: 'I siti web →', ritaglio: [0.049, 0.23, 0.92, 0.605] })
 
 const PROMETHEUS = agente(18, 'Prometheus', 'prometheus', 'Contenuti', 'saette', '/contenuti', [
   ['Social fermi da mesi?'],
@@ -71,7 +73,7 @@ const PROMETHEUS = agente(18, 'Prometheus', 'prometheus', 'Contenuti', 'saette',
   ['Lampo. Un video.', 'video'],
   ['Ogni settimana, pronti sul tuo telefono.'],
   ['Tu dici sì. Pubblicato.', 'Pubblicato'],
-], { num: '03', motto: "Il bello c'è già. Io lo accendo.", collegamento: 'I contenuti →' })
+], { num: '03', motto: "Il bello c'è già. Io lo accendo.", collegamento: 'I contenuti →', ritaglio: [0.17, 0.215, 0.83, 0.615], fiamma: [0.227, 0.527] })
 
 // Hermes: la scena del beneficio finisce a 28,5 (dissolvenza di 0,5 nello studio del finale)
 const HERMES = agente(23, 'Hermes', 'hermes', 'Campagne', 'cromo', '/campagne', [
@@ -80,7 +82,7 @@ const HERMES = agente(23, 'Hermes', 'hermes', 'Campagne', 'cromo', '/campagne', 
   ['Solo quelli giusti.'],
   ['Ogni euro lascia una traccia.', 'traccia'],
   ['E il telefono squilla.'],
-], { num: '04', motto: 'Porto da te chi ancora non ti conosce.', collegamento: 'Le campagne →', fine: 28.5 })
+], { num: '04', motto: 'Porto da te chi ancora non ti conosce.', collegamento: 'Le campagne →', fine: 28.5, ritaglio: [0.007, 0.223, 0.896, 0.539] })
 
 export const HOME: Regia = {
   T: 32,

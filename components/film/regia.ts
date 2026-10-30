@@ -10,8 +10,8 @@ export type Apertura = { conteggio: Record<'pieno' | 'leggero' | 'minimo', numbe
 export type TipoBattuta = 'frase' | 'etichetta' | 'nome' | 'motto' | 'link' | 'passo' | 'cartolina' | 'scorri'
 /** burst: la frase entra con un burst della materia dell'atto vicino alla creatura (pagine servizio, D28) */
 export type Battuta = { tipo: TipoBattuta; testo: string; accento?: string; da: number; a: number; href?: string; nota?: string; s?: number; burst?: boolean }
-/** x, y, w, h in frazioni del fotogramma X-2 */
-export type Creatura = { nome: string; da: number; a: number; ritaglio: [number, number, number, number] }
+/** ritaglio = x, y, w, h in frazioni del fotogramma X-2; fiamma = punto (x, y) in frazioni del ritaglio dove brilla la fiammella (solo Prometheus) */
+export type Creatura = { nome: string; da: number; a: number; ritaglio: [number, number, number, number]; fiamma?: [number, number] }
 export type Atto = { id: string; nome: string; etichetta: string; materia?: Materia; da: number; a: number; battute: Battuta[]; creatura?: Creatura }
 export type Regia = { T: number; apertura?: Apertura; scene: Scena[]; atti: Atto[]; convergenza?: [number, number]; pulsante?: { da: number; testo: string; href: string; sotto: string } }
 

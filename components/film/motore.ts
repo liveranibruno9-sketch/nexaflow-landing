@@ -5,12 +5,14 @@
 // nome e motti scritti lettera per lettera, velo fra gli agenti, convergenza nel pulsante, scia, burst delle frasi.
 import { approach, containRect, coppia, coverRect, liscio, nearestReady } from './calcoli'
 import { creaCaricatore } from './caricatore'
+import { disegnaCreatura } from './creature'
+import { faseCreatura, piedeMassimo, postoCreatura } from './creature-calcoli'
 import { creaMateria } from './materia'
 import type { Materie } from './materia'
 import { MATERIE, limiteParticelle, materiaScena, rettangoloFotogramma } from './materia-calcoli'
 import type { Modo } from './modo'
 import { fotogrammaApertura, indiceAtto, sceneAttive, zoomScena } from './regia'
-import type { Materia, Regia, Scena } from './regia'
+import type { Atto, Creatura, Materia, Regia, Scena } from './regia'
 
 /** la scia del cursore sul computer e l'anello al tocco sul telefono (D26): è la prima cosa da togliere se R12 non regge */
 const SCIA = true
@@ -34,6 +36,9 @@ const materiaDi = (el: HTMLElement): Materia | undefined => {
   return eMateria(m) ? m : undefined
 }
 const agente = (nome: string) => nome.split('-')[0]
+/** margine fra il piede della creatura e le frasi, in px CSS (sul telefono la creatura sta sopra le frasi) */
+const MARGINE_TESTO = 12
+const MARGINE_SCHERMO = 0.03     // la creatura non sta più vicina al bordo sinistro dello schermo (quota della larghezza)
 
 export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; misura: 720 | 1080; particelle: boolean }): () => void {
   const palco = radice.querySelector<HTMLElement>('.palco')
@@ -62,6 +67,15 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
   let atto = -2
   let vivo = true
   let luce: { W: number; H: number; g: CanvasGradient } | null = null
+  let tempoCreatura = 0      // secondi dal rAF: il moto a regime della creatura (0 = ferma)
+  // le creature (D32): una per agente, nella scena del beneficio. Animate solo con particelle (non col movimento ridotto)
+  const animata = opz.particelle
+  const creature: { atto: Atto; c: Creatura }[] = regia.atti.flatMap((at) => (at.creatura ? [{ atto: at, c: at.creatura }] : []))
+  type Ostacolo = { x0: number; x1: number; y0: number }
+  const ostacoli = new Map<string, Ostacolo[]>()   // le frasi di ogni atto e i pulsanti di contatto, in px del canvas
+  let ostacoliPer = ''
+  // i caratteri si caricano dopo il primo disegno e spostano le frasi: la misura si rifà
+  if (creature.length && document.fonts) document.fonts.ready.then(() => ostacoli.clear(), () => {})
 
   const caricatore = creaCaricatore({
     modo: opz.modo, misura: opz.misura, conteggio,
@@ -159,10 +173,81 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     return disegnaImg(caricatore.scena(s.nome), alfa, zoomScena(s, u))
   }
 
+  // ---------- Le creature (D32) ----------
+  /** i rettangoli che la creatura non deve coprire (bordo alto e larghezza, px del canvas): le frasi dell'atto e la barra dei contatti */
+  function ostacolo(id: string): Ostacolo[] {
+    if (!tela) return []
+    const per = tela.width + 'x' + tela.height
+    if (per !== ostacoliPer) { ostacoli.clear(); ostacoliPer = per }
+    const noti = ostacoli.get(id)
+    if (noti) return noti
+    const out: Ostacolo[] = []
+    const c = tela.getBoundingClientRect()
+    if (c.width) {
+      const k = tela.width / c.width
+      const aggiungi = (els: HTMLElement[]) => {
+        let x0 = Infinity, x1 = -Infinity, y0 = Infinity
+        for (const el of els) {
+          const r = el.getBoundingClientRect()
+          if (!r.width || !r.height) continue
+          x0 = Math.min(x0, r.left); x1 = Math.max(x1, r.right); y0 = Math.min(y0, r.top)
+        }
+        if (x1 > x0) out.push({ x0: (x0 - c.left) * k, x1: (x1 - c.left) * k, y0: (y0 - c.top) * k })
+      }
+      aggiungi(Array.from(radice.querySelectorAll<HTMLElement>(`.atto[data-id="${id}"] .frasi`)))
+      // la barra dei contatti sta fuori dalla scena (fratello del film): si cerca nella radice della pagina
+      aggiungi(Array.from((radice.closest('.film-radice') ?? document).querySelectorAll<HTMLElement>('.barra-contatti a')))
+    }
+    ostacoli.set(id, out)
+    return out
+  }
+
+  /** il fotogramma 9:16 sul canvas e i limiti della creatura (sinistra dello schermo, sopra le frasi) */
+  function postoDi(cr: { atto: Atto; c: Creatura }, ingresso: number, aspetto: number) {
+    const W = tela ? tela.width : 0, H = tela ? tela.height : 0
+    const f = rettangoloFotogramma(W, H)
+    const fot = { dx: f.x, dy: f.y, dw: f.w, dh: f.h }
+    const xMin = MARGINE_SCHERMO * W
+    // dove sta la creatura senza il limite del piede, per sapere se le frasi le stanno sotto
+    const senza = postoCreatura(fot, aspetto, 1, { xMin })
+    const k = tela && largPalco ? tela.width / largPalco : 1
+    let piedeMax: number | undefined
+    for (const o of ostacolo(cr.atto.id)) {
+      const m = piedeMassimo({ x0: senza.x, x1: senza.x + senza.w }, o, MARGINE_TESTO * k)
+      if (m !== undefined) piedeMax = piedeMax === undefined ? m : Math.min(piedeMax, m)
+    }
+    return { fot, limiti: { xMin, piedeMax, fermo: !animata }, posto: postoCreatura(fot, aspetto, ingresso, { xMin, piedeMax }) }
+  }
+
+  /** vera finché una creatura è nella sua finestra (e ha ancora un'opacità): il moto a regime chiede un fotogramma dopo l'altro */
+  function creaturaViva(u: number): boolean {
+    for (const cr of creature) {
+      const f = faseCreatura(cr.c, u)
+      if (f.visibile && f.uscita > 0.003) return true
+    }
+    return false
+  }
+
+  /** le creature nella loro finestra, sopra la scena del beneficio, dentro il fotogramma */
+  function disegnaCreature(u: number) {
+    if (!ctx || !tela || !creature.length) return
+    for (const cr of creature) {
+      const f = faseCreatura(cr.c, u)
+      if (!f.visibile || f.uscita <= 0.003) continue
+      const im = caricatore.scena(cr.c.nome)       // X-2: già nel film; se manca parte adesso e si ridisegna da onPronto
+      if (!im || !im.naturalWidth) continue
+      const { fot, limiti } = postoDi(cr, f.ingresso, (cr.c.ritaglio[2] * 9) / (cr.c.ritaglio[3] * 16))
+      ctx.globalAlpha = f.uscita
+      disegnaCreatura(ctx, im, cr.c, fot, f.ingresso, animata ? tempoCreatura : 0, limiti)
+      ctx.globalAlpha = 1
+    }
+  }
+
   function ridisegna() {
     if (!ctx || !tela || !tela.width) return
     const u = corrente * T
-    const chiave = u.toFixed(4) + '|' + versione + '|' + tela.width + 'x' + tela.height
+    const muove = animata && creaturaViva(u)
+    const chiave = u.toFixed(4) + '|' + versione + '|' + tela.width + 'x' + tela.height + (muove ? '|' + tempoCreatura : '')
     if (chiave === ultimaChiave) return
     const { a, b, t } = sceneAttive(regia.scene, u)
     ctx.globalAlpha = 1
@@ -172,6 +257,7 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     // la sovrapposizione delle finestre è la dissolvenza: b arriva sopra a con opacità t
     if (b && t > 0.001) disegnata = disegnaScena(b, t, u) || disegnata
     ctx.globalAlpha = 1
+    if (disegnata) disegnaCreature(u)
     if (disegnata && !radice.classList.contains('pronto')) radice.classList.add('pronto')
     ultimaChiave = chiave
   }
@@ -227,6 +313,16 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
       // quando il pulsante nasce, un piccolo scoppio delle quattro materie al suo posto
       if (calmo && regia.pulsante && prima < regia.pulsante.da && u >= regia.pulsante.da && tc < 1) {
         for (const m of MATERIE) materia.burst(meta[0], meta[1], m, 6)
+      }
+    }
+
+    // la creatura che entra nella scena del beneficio: un burst della materia dell'atto dove sta per arrivare (D32)
+    if (calmo && largPalco) {
+      for (const cr of creature) {
+        if (!(prima < cr.c.da && u >= cr.c.da && u < cr.c.a)) continue
+        const { posto } = postoDi(cr, 1, (cr.c.ritaglio[2] * 9) / (cr.c.ritaglio[3] * 16))
+        const k = tela ? tela.width / largPalco : 1
+        materia.burst((posto.x + posto.w / 2) / k, (posto.y + posto.h * 0.55) / k, cr.atto.materia ?? 'polvere', Math.round(limite * 0.07))
       }
     }
 
@@ -317,6 +413,7 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     if (!vivo) return
     const dt = ultimoTempo ? Math.min(0.05, Math.max(0, (ora - ultimoTempo) / 1000)) : 1 / 60
     ultimoTempo = ora
+    tempoCreatura = ora / 1000
     if (inCorsa) {
       const r = approach(corrente, obiettivo, K, 0.0002)
       corrente = r.value
@@ -327,6 +424,11 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
       if (r.done) inCorsa = false
     }
     let ancora = inCorsa
+    // la creatura si muove da sola (balzo, rotazione, bagliore): finché è in scena un fotogramma dopo l'altro
+    if (animata && creaturaViva(corrente * T)) {
+      if (!inCorsa) ridisegna()
+      ancora = true
+    }
     // la misura del palco è quella dell'ultimo ridimensiona: leggerla qui, dopo le scritture di stato(), forzerebbe un layout
     if (materia) ancora = materia.passo(dt, largPalco, altPalco) || ancora
     if (ancora) raf = window.requestAnimationFrame(passo)
