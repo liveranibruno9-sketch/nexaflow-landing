@@ -8,18 +8,24 @@ import type { Battuta, Blocco, GestoPagina, Materia, Percorso } from '../tipi.ts
 export type Frase = [string, string?]
 export type IdPagina = 'automazioni' | 'siti-web' | 'contenuti' | 'campagne' | 'chi-siamo'
 
-export type Scheda = { id: string; nome: string; testo: string; link?: { testo: string; href: string } }
+export type Scheda = { id: string; nome: string; testo: string; link?: { testo: string; href: string }; /** una foto vera del mestiere (Pexels), mostrata nel palco del gioco */ foto?: string }
 export type Passo = { tappa: 0 | 1 | 2; titolo: string; testo: string }
 
-export type DatiPagina = {
-  id: Exclude<IdPagina, 'chi-siamo'>
-  mascotte: Mascotte
+/** quello che serve al film di ogni pagina (servizi e Chi siamo): le mascotte (una, o tutte e quattro), la materia, il percorso, il poster */
+export type DatiFilm = {
+  id: IdPagina
+  /** una sola mascotte (pagine dei servizi, R12) oppure `tutte` (Chi siamo: le quattro, caricate dopo il primo disegno) */
+  mascotte: Mascotte | 'tutte'
   materia: Materia
-  seo: { titolo: string; descrizione: string }
-  /** il film: apertura, problema, capacità (u 0 → 6) */
   percorso: Percorso
   h1: string
   poster: { src720: string; src1080: string; alt: string }
+}
+
+export type DatiPagina = DatiFilm & {
+  id: Exclude<IdPagina, 'chi-siamo'>
+  mascotte: Mascotte
+  seo: { titolo: string; descrizione: string }
   /** facoltativo: la sezione propria (Automazioni «Resti tu a decidere», Siti «E quando serve un'app») */
   extra?: { h2: string; testo?: string; elenco?: string[]; dopo: 'film' | 'tappe' }
   gioco: { h2: string; scelte: Scheda[] }
@@ -45,7 +51,7 @@ export type DefFilm = {
   nota: string
   cartoline: { nome: string; alt: string }[]
   problema: { h2: string; righe: [Frase, Frase, Frase] }
-  capacita: { h2: string; blocchi: { titolo: Frase; riga: string; gesto: GestoPagina }[]; beneficio: Frase[]; gestoBeneficio?: GestoPagina }
+  capacita: { h2: string; blocchi: { titolo: Frase; riga: string; gesto: GestoPagina }[]; beneficio: Frase[]; gestoBeneficio?: GestoPagina; /** una foto che compare nel film con il blocco `blocco` (1-6) */ foto?: { blocco: number; src: string; alt: string } }
 }
 
 const f = (ruolo: string, tipo: Battuta['tipo'], testo: string, da: number, a: number, extra: Partial<Battuta> = {}): Battuta => ({ tipo, testo, ruolo, da: r(da), a: r(a), ...extra })
@@ -75,12 +81,15 @@ export function percorsoServizio(d: DefFilm): Percorso {
   const blocchi = d.capacita.blocchi.map((b, i) =>
     f(`b${i + 1}`, 'blocco', b.titolo[0], c0 + 0.42 * i, c0 + 0.42 * (i + 1), { nota: b.riga, gesto: b.gesto, ...(b.titolo[1] ? { accento: b.titolo[1] } : {}) }))
   const cB = c0 + 0.42 * d.capacita.blocchi.length
-  const ben = d.capacita.beneficio.map((fr, i) => f(`ben${i + 1}`, 'frase', fr[0], cB + 0.1 * i + (i ? 0.12 : 0), L, {
+  const nB = d.capacita.beneficio.length
+  const ben = d.capacita.beneficio.map((fr, i) => f(`ben${i + 1}`, 'frase', fr[0], i ? cB + 0.34 : cB, i < nB - 1 ? cB + 0.4 : L, {
     ...(fr[1] ? { accento: fr[1] } : {}), ...(i === 0 && d.capacita.gestoBeneficio ? { gesto: d.capacita.gestoBeneficio } : {}),
   }))
+  const ft = d.capacita.foto
+  const foto = ft ? [f('foto-1', 'foto', ft.alt, c0 + 0.42 * (ft.blocco - 1), c0 + 0.42 * (ft.blocco + 1.2), { src: ft.src })] : []
   const capacita: Blocco = {
     id: `${d.id}-f`, tipo: 'pagina', da: P, a: L, etichetta: d.indice, materia: d.materia,
-    battute: [f('h2', 'titolo', d.capacita.h2, P, P + 0.45), ...blocchi, ...ben],
+    battute: [f('h2', 'titolo', d.capacita.h2, P, P + 0.45), ...blocchi, ...ben, ...foto],
   }
   return { lunghezza: L, blocchi: [apertura, problema, capacita] }
 }

@@ -31,7 +31,9 @@ export default function Gioco({ h2, scelte, ancoraScala = 0.9 }: { h2: string; s
 
   return (
     <section className="sezione gioco" data-modo="gioco" aria-labelledby={`${base}-t`}>
-      <div className="gioco-palco" data-ancora="gioco" data-scena="gioco" data-scala={ancoraScala} aria-hidden="true" />
+      <div className="gioco-palco" data-ancora="gioco" data-scena="gioco" data-scala={ancoraScala} aria-hidden="true">
+        {scelte[sel]?.foto ? <figure className="gioco-foto" key={scelte[sel].id}><img src={scelte[sel].foto} alt="" width={433} height={650} loading="lazy" decoding="async" /></figure> : null}
+      </div>
       <div className="gioco-testo">
         <h2 id={`${base}-t`} className="sezione-titolo cresce">{h2}</h2>
         <div className="gioco-scelte cresce" role="tablist" aria-label="Il tuo mestiere">

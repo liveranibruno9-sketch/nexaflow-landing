@@ -9,7 +9,7 @@ import { livelloDopoMisura, livelloIniziale } from './livello.ts'
 import { posizioneAccento } from './testo.ts'
 import { creaTocco } from './tocco.ts'
 import type { Battuta, Blocco, GestoPagina } from './tipi.ts'
-import type { DatiPagina } from './dati/pagine.ts'
+import type { DatiFilm } from './dati/pagine.ts'
 import type { ModoPagina, MondoPagina, StatoPagina } from './mondo/pagina'
 import type { Ancora } from './coreografia-pagina.ts'
 
@@ -25,8 +25,8 @@ const INERZIA = 3.2
 const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x))
 
 type Props = {
-  dati: DatiPagina
-  /** il nome sotto i piedi della mascotte */
+  dati: DatiFilm
+  /** il nome sotto i piedi della mascotte (una per pagina servizio; Chi siamo: le quattro) */
   nome: string
   children?: ReactNode
 }
@@ -108,7 +108,7 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
   const palco = useRef<HTMLDivElement>(null)
   const tela = useRef<HTMLDivElement>(null)
   const { percorso } = dati
-  const corrente = dati.id as Servizio
+  const corrente = dati.id as Servizio | 'chi-siamo'
 
   useEffect(() => {
     const html = document.documentElement
@@ -443,7 +443,7 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
             </div>
             {/* le due cartoline dell'apertura: come in home, volano accanto alla mascotte una alla volta */}
             <div className="cartoline-strato solo-varco">
-              {percorso.blocchi.filter((bl) => bl.id.endsWith('-a')).map((bl) => (
+              {percorso.blocchi.filter((bl) => bl.battute.some((b) => b.tipo === 'foto')).map((bl) => (
                 <div className="blocco" key={bl.id} data-id={bl.id}>
                   {bl.battute.filter((b) => b.tipo === 'foto').map((b) => <Voce key={b.ruolo} b={b} />)}
                 </div>
