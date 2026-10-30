@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITO}/siti-web`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITO}/contenuti`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITO}/campagne`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${SITO}/chi-siamo`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITO}/studi-dentistici`, changeFrequency: 'monthly', priority: 0.7 },
   ]
 }

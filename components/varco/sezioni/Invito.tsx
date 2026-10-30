@@ -18,7 +18,7 @@ function conAccento(testo: string, accento?: string) {
   )
 }
 
-export default function Invito({ frasi, nota }: { frasi: Frase[]; nota: string }) {
+export default function Invito({ frasi, nota, senzaAncora }: { frasi: Frase[]; nota: string; senzaAncora?: boolean }) {
   const radice = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Invito({ frasi, nota }: { frasi: Frase[]; nota: string }
 
   return (
     <section ref={radice} className="sezione invito" data-modo="invito" aria-label="Invito">
-      <div className="invito-ancora" data-ancora="invito" data-scala="0.85" aria-hidden="true" />
+      {senzaAncora ? null : <div className="invito-ancora" data-ancora="invito" data-scala="0.85" aria-hidden="true" />}
       <p className="invito-frase">
         {frasi.map((f) => <span className="invito-riga" key={f[0]}>{conAccento(f[0], f[1])}</span>)}
       </p>

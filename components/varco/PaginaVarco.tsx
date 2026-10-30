@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import Testata from '../film/Testata'
+import { CONTATTI } from '../film/dati/contatti'
 import type { Servizio } from '../film/dati/contatti'
 import { bloccoAl, statoFrase } from './percorso.ts'
 import { livelloDopoMisura, livelloIniziale } from './livello.ts'
@@ -26,8 +27,6 @@ const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x))
 
 type Props = {
   dati: DatiFilm
-  /** il nome sotto i piedi della mascotte (una per pagina servizio; Chi siamo: le quattro) */
-  nome: string
   children?: ReactNode
 }
 
@@ -70,6 +69,9 @@ function Voce({ b }: { b: Battuta }) {
           <p className="blocco-riga">{b.nota}</p>
         </div>
       )
+    case 'nome':
+      // il nome di Bruno scritto nella luce (la foto vera si monterà dopo: D25)
+      return <p className={`${classe} battuta-nome-luce`} {...dati}>{b.testo}</p>
     case 'foto':
       return (
         <figure className={classe} {...dati}>
@@ -86,7 +88,7 @@ function VoceBlocco({ bl }: { bl: Blocco }) {
   const fase = bl.id.slice(bl.id.lastIndexOf('-') + 1)
   return (
     <div className="blocco" data-id={bl.id} data-tipo={bl.tipo} data-fase={fase} data-materia={bl.materia}>
-      {bl.battute.map((b) => b.tipo === 'foto' ? (
+      {bl.battute.filter((b) => b.tipo !== 'nome').map((b) => b.tipo === 'foto' ? (
         <figure className="solo-statico statico-cartolina" key={b.ruolo}><img src={b.src} alt={b.testo} width={560} height={700} loading="lazy" decoding="async" /></figure>
       ) : (
         <Voce b={b} key={b.ruolo} />
@@ -103,7 +105,7 @@ const GESTO_SCELTA: Record<string, (i: number) => GestoPagina> = {
   hermes: () => ({ nome: 'salta' }),
 }
 
-export default function PaginaVarco({ dati, nome, children }: Props) {
+export default function PaginaVarco({ dati, children }: Props) {
   const traccia = useRef<HTMLDivElement>(null)
   const palco = useRef<HTMLDivElement>(null)
   const tela = useRef<HTMLDivElement>(null)
@@ -126,7 +128,8 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
     const indiceNum = pa.querySelector<HTMLElement>('.indice-num')
     const indiceNome = pa.querySelector<HTMLElement>('.indice-nome')
     const barraBlu = pa.querySelector<HTMLElement>('[data-seg="blu"]')
-    const nomeEl = pa.querySelector<HTMLElement>('.nome-mascotte')
+    const nomiEl = Array.from(pa.querySelectorAll<HTMLElement>('.nome-mascotte'))
+    const ID_TUTTE = ['atlas', 'janus', 'prometheus', 'hermes'] as const
 
     let inizio = 0
     let corsa = 1
@@ -224,6 +227,12 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
       mondo?.gesto((GESTO_SCELTA[dati.mascotte] ?? GESTO_SCELTA.atlas)(i))
     }
     window.addEventListener('pagina:scelta', allaScelta)
+    // Chi siamo: una mascotte fa la sua capacità in piccolo (al passaggio del mouse, al fuoco, o quando entra nello schermo)
+    const alGestoServizio = (e: Event) => {
+      const id = (e as CustomEvent<{ id: 'atlas' | 'janus' | 'prometheus' | 'hermes' }>).detail?.id
+      if (id) mondo?.gesto((GESTO_SCELTA[id] ?? GESTO_SCELTA.atlas)(0), id)
+    }
+    window.addEventListener('pagina:gesto-servizio', alGestoServizio)
     const aggiornaSezioni = (u: number) => {
       stato.fermo = html.classList.contains('fermo')
       stato.dopo = Math.max(0, (window.scrollY - (inizio + corsa)) / window.innerHeight)
@@ -242,7 +251,12 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
       if (modo === 'invito' && stato.modo !== 'invito') tInvito = performance.now()
       if (modo !== 'invito') tInvito = -1
       stato.modo = modo
-      stato.ancora = modo === 'quiete' || modo === 'tappe' && window.innerWidth < 901 ? null : primaAncora(ancore, modo)
+      stato.ancora = modo === 'quiete' || modo === 'servizi' || modo === 'tappe' && window.innerWidth < 901 ? null : primaAncora(ancore, modo)
+      if (modo === 'servizi') {
+        const m: NonNullable<StatoPagina['ancoreMascotte']> = {}
+        for (const id of ID_TUTTE) m[id] = primaAncora(ancore.filter((e) => e.dataset.mascotte === id), 'servizi')
+        stato.ancoreMascotte = m
+      } else stato.ancoreMascotte = undefined
       stato.ancoraScena = primaAncora(scene, modo) ?? stato.ancora
       stato.dallaScelta = (performance.now() - tScelta) / 1000
       stato.dallInvito = tInvito < 0 ? 0 : (performance.now() - tInvito) / 1000
@@ -262,11 +276,13 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
       barraBlu?.style.setProperty('--p', clamp(u / L, 0, 1).toFixed(3))
       html.classList.toggle('in-orbita', window.scrollY > inizio + corsa + window.innerHeight * 0.3)
       html.classList.toggle('dopo-film', u >= L - 0.05)
-      const p = mondo?.piedi()
-      if (nomeEl && p) {
+      const piedi = mondo?.piedi()
+      for (const el of nomiEl) {
+        const p = piedi?.find((x) => x.id === el.dataset.mascotte)
+        if (!p) { el.style.opacity = '0'; continue }
         const o = Math.round(p.luce * 100) / 100
-        nomeEl.style.opacity = String(o)
-        if (o > 0) nomeEl.style.transform = `translate3d(${p.x.toFixed(1)}px, ${(p.y + 10).toFixed(1)}px, 0) translate(-50%, 0)`
+        el.style.opacity = String(o)
+        if (o > 0) el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${(p.y + 10).toFixed(1)}px, 0) translate(-50%, 0)`
       }
     }
 
@@ -417,6 +433,7 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
       window.removeEventListener('pointermove', alPuntatore)
       window.removeEventListener('pagina:fermo', alFermo)
       window.removeEventListener('pagina:scelta', allaScelta)
+      window.removeEventListener('pagina:gesto-servizio', alGestoServizio)
       document.removeEventListener('visibilitychange', allaVisibilita)
       document.removeEventListener('click', alClic, true)
       tocco?.dispose()
@@ -442,6 +459,10 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
               {percorso.blocchi.map((bl) => <VoceBlocco key={bl.id} bl={bl} />)}
             </div>
             {/* le due cartoline dell'apertura: come in home, volano accanto alla mascotte una alla volta */}
+            <div className="nome-luce-strato solo-varco">
+              {percorso.blocchi.flatMap((bl) => bl.battute.filter((b) => b.tipo === 'nome')).map((b) => <Voce key={b.ruolo} b={b} />)}
+              {CONTATTI.fotoBruno ? <figure className="bruno-foto"><img src={CONTATTI.fotoBruno} alt="Bruno Liverani" width={600} height={800} decoding="async" style={{ filter: 'grayscale(1)' }} /></figure> : null}
+            </div>
             <div className="cartoline-strato solo-varco">
               {percorso.blocchi.filter((bl) => bl.battute.some((b) => b.tipo === 'foto')).map((bl) => (
                 <div className="blocco" key={bl.id} data-id={bl.id}>
@@ -450,7 +471,9 @@ export default function PaginaVarco({ dati, nome, children }: Props) {
               ))}
             </div>
             <div className="nomi-mascotte solo-varco" aria-hidden="true">
-              <span className="nome-mascotte" data-mascotte={dati.mascotte}>{nome}</span>
+              {(dati.mascotte === 'tutte' ? ['atlas', 'janus', 'prometheus', 'hermes'] : [dati.mascotte]).map((id) => (
+                <span className="nome-mascotte" data-mascotte={id} key={id}>{id.charAt(0).toUpperCase() + id.slice(1)}</span>
+              ))}
             </div>
           </div>
         </div>

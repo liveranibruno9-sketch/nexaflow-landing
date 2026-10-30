@@ -75,3 +75,37 @@ export function posaPagina(c: ContestoPosa): Posa {
     abbraccio: 0, abbraccioSx: false, abbraccioDx: false, felice: 0,
   }
 }
+
+/* ---------- Chi siamo: le quattro mascotte entrano nella luce attorno a Bruno ---------- */
+export type ContestoChi = {
+  u: number; secondi: number; lunghezza: number
+  /** u in cui comincia la frase «Con me lavorano...»: da lì le quattro entrano da quattro lati e si fermano a semicerchio */
+  ingresso: number
+  schermo: Schermo
+  ancora: Ancora | null
+  dopo: number
+  pesoAncora: number
+}
+/** il posto di ogni mascotte nella luce: computer a semicerchio sotto il cono, telefono due sopra e due sotto il nome */
+const NELLA_LUCE_PC: [number, number][] = [[0.5, 0.74], [0.6, 0.8], [0.74, 0.8], [0.84, 0.74]]
+const NELLA_LUCE_TEL: [number, number][] = [[0.2, 0.4], [0.4, 0.47], [0.6, 0.47], [0.8, 0.4]]
+const DA_DOVE: [number, number][] = [[-0.2, 0.9], [0.25, 1.3], [0.75, 1.3], [1.2, 0.9]]
+
+export function posaChiSiamo(i: number, c: ContestoChi): Posa {
+  const s = c.schermo
+  const fine = (s.ritratto ? NELLA_LUCE_TEL : NELLA_LUCE_PC)[i]
+  const da = DA_DOVE[i]
+  const e = liscia(c.ingresso + 0.1 * i, c.ingresso + 0.1 * i + 0.55, c.u)
+  const esce = liscia(0.06, 0.7, c.dopo)
+  const w = clamp01(c.pesoAncora)
+  const a = c.ancora
+  const x = a ? mix(mix(da[0], fine[0], e), a.x, w) : mix(da[0], fine[0], e)
+  const y = (a ? mix(mix(da[1], fine[1], e), a.y, w) : mix(da[1], fine[1], e)) - 0.5 * esce * esce * (1 - w)
+  const h0 = s.ritratto ? 0.15 : 0.22
+  const saluta = i === 3 ? liscia(c.ingresso + 0.7, c.ingresso + 0.9, c.u) * (1 - liscia(c.ingresso + 1.5, c.ingresso + 1.7, c.u)) : 0
+  return {
+    x, y, altezza: a ? mix(h0, a.altezza, w) : h0, z: 0, giro: (0.5 - x) * 0.9, inclina: 0,
+    presenza: Math.max(e * rimbalzo(clamp01(c.secondi / 0.6)) * (1 - liscia(0.55, 1, esce)), w), saluto: saluta * (1 - w),
+    lato: x < 0.5 ? 'destro' : 'sinistro', abbraccio: 0, abbraccioSx: false, abbraccioDx: false, felice: 0,
+  }
+}

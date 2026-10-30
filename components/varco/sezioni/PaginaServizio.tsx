@@ -13,14 +13,12 @@ import Invito from './Invito'
 import Rivela from './Rivela'
 import Tappe from './Tappe'
 
-const NOMI = { atlas: 'Atlas', janus: 'Janus', prometheus: 'Prometheus', hermes: 'Hermes' } as const
-
 export default function PaginaServizio({ dati }: { dati: DatiPagina }) {
   const nota = 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.'
   const extra = dati.extra ? <Extra h2={dati.extra.h2} testo={dati.extra.testo} elenco={dati.extra.elenco} /> : null
   return (
     <main id="contenuto" data-materia={dati.materia} data-pagina={dati.id}>
-      <PaginaVarco dati={dati} nome={NOMI[dati.mascotte]}>
+      <PaginaVarco dati={dati}>
         <div className="pagina-corpo">
           {dati.extra?.dopo === 'film' ? extra : null}
           <Gioco h2={dati.gioco.h2} scelte={dati.gioco.scelte} />

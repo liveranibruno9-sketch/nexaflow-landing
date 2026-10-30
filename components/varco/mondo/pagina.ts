@@ -8,9 +8,9 @@ import { impagina, sosta } from '../impagina.ts'
 import { bloccoAl, tempi, zCamera } from '../percorso.ts'
 import type { Kit, Regia } from '../kit.ts'
 import type { GestoPagina, Livello, Materia, Percorso } from '../tipi.ts'
-import { ALTEZZA_CREATURA } from '../coreografia.ts'
+import { ALTEZZA_CREATURA, ORDINE } from '../coreografia.ts'
 import type { Mascotte } from '../coreografia.ts'
-import { posaPagina } from '../coreografia-pagina.ts'
+import { posaChiSiamo, posaPagina } from '../coreografia-pagina.ts'
 import type { Ancora } from '../coreografia-pagina.ts'
 import type { Gesto } from '../ossa.ts'
 import type { RegiePagina } from '../regie/pagine/comune.ts'
@@ -20,13 +20,15 @@ import { creaStrati } from './strati.ts'
 import { caricaMascotte } from './mascotte-glb.ts'
 import type { Creatura, Creature } from './creature.ts'
 
-export type ModoPagina = 'quiete' | 'gioco' | 'tappe' | 'invito'
+export type ModoPagina = 'quiete' | 'gioco' | 'tappe' | 'invito' | 'servizi'
 /** quello che la pagina (il DOM) comunica al mondo a ogni fotogramma */
 export type StatoPagina = {
   modo: ModoPagina
   /** il posto della mascotte e (se diverso) quello della scena, dalle sezioni normali */
   ancora: Ancora | null
   ancoraScena: Ancora | null
+  /** Chi siamo: il posto di ogni mascotte nella sezione dei servizi */
+  ancoreMascotte?: Partial<Record<Mascotte, Ancora | null>>
   /** gioco: indice della scheda scelta e secondi dalla scelta; invito: secondi dall'ingresso della sezione */
   scelta: number
   dallaScelta: number
@@ -41,10 +43,10 @@ export type MondoPagina = {
   puntatore(x: number, y: number, tipo: 'mouse' | 'touch'): void
   ridimensiona(): void
   fuocoSchermo(): [number, number] | null
-  /** il nome sotto i piedi: px CSS, scala, quanto si vede */
-  piedi(): { x: number; y: number; luce: number }
-  /** un gesto subito (il gioco, l'invito) */
-  gesto(g: GestoPagina): void
+  /** il nome sotto i piedi di ogni mascotte: px CSS, quanto si vede */
+  piedi(): { id: Mascotte; x: number; y: number; luce: number }[]
+  /** un gesto subito (il gioco, l'invito, i servizi di Chi siamo); senza `id` lo fa la mascotte della pagina */
+  gesto(g: GestoPagina, id?: Mascotte): void
   impostaLivello(l: Livello): void
   distruggi(): void
 }
@@ -91,8 +93,10 @@ function smorzato(k: Kit, g: number): Kit {
   }
 }
 
-export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percorso; mascotte: Mascotte; materia: Materia; regie: RegiePagina; livello: Livello; onPerso: () => void }): MondoPagina {
+export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percorso; mascotte: Mascotte | 'tutte'; materia: Materia; regie: RegiePagina; livello: Livello; onPerso: () => void }): MondoPagina {
   const { percorso, regie } = o
+  const tutte = o.mascotte === 'tutte'
+  const ids: Mascotte[] = tutte ? [...ORDINE] : [o.mascotte as Mascotte]
   let livello = o.livello
   const L = percorso.lunghezza
   const P = leggiPalette(contenitore)
@@ -134,7 +138,7 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
   camera.add(palco)
 
   /* la mascotte: soltanto la sua, scaricata a pagina ferma */
-  let creatura: Creatura | null = null
+  const creatureIn: Partial<Record<Mascotte, Creatura>> = {}
   let creature: Creature | null = null
   let richiesta = false
   let compilata = false
@@ -176,21 +180,23 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
   const mira = { x: 0, y: 0 }, dito = { x: 0, y: 0 }, scarto = { x: 0, y: 0 }
   let ultimoPuntatore = -1e9, manoOn = 0
   let zPrima = zCamera(0), velocita = 0
-  const sguardo = { x: 0, y: 0 }
+  const sguardi: Record<string, { x: number; y: number }> = {}
   let t0: number | null = null
   let tMondo = 0
   let pesoAncora = 0
   let pesoMode = 0
   // i gesti: uno solo alla volta; il nuovo riprende dalla posa in corso (la molla delle braccia) e non si accoda
-  let gestoIn: { g: GestoPagina; inizio: number } | null = null
+  const gestiIn: Partial<Record<Mascotte, { g: GestoPagina; inizio: number }>> = {}
   const tPrima = new Map<string, number>()
   const vPiede = new Vector3()
-  const piedi = { x: 0, y: 0, luce: 0 }
+  const piedi = ids.map((id) => ({ id, x: 0, y: 0, luce: 0 }))
+  // Chi siamo: la lampada cresce fino a diventare il cono di luce sopra Bruno (spec §13)
+  const lamp = { ...LAMPADA }
   let fuocoPunto: [number, number] | null = null
   const centroFuoco = new Vector3()
 
-  const avviaGesto = (g: GestoPagina, tempo: number) => {
-    gestoIn = { g, inizio: tempo }
+  const avviaGesto = (g: GestoPagina, tempo: number, id: Mascotte = ids[0]) => {
+    gestiIn[id] = { g, inizio: tempo }
   }
 
   const aggiorna = (u: number, dt: number, tempo: number, s: StatoPagina): boolean => {
@@ -222,10 +228,18 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     const d = 10
     const meta = d * Math.tan((camera.fov * Math.PI) / 360)
     const larghezzaQuadro = imp.altezza * (9 / 16) * (2 * meta)
-    const sx = imp.cx + (LAMPADA.x - 0.5) * ((imp.altezza * 9) / 16 / camera.aspect)
-    const sy = imp.cy + (LAMPADA.y - 0.5) * imp.altezza
+    if (tutte) {
+      // la luce calda si rivela una persona: scorrendo cresce, va sopra Bruno (centro-destra sul computer, centro sul telefono) e torna a riposo dopo
+      const cresce = liscia(0.9, 2.4, uf) * (1 - liscia(0.1, 0.9, s.dopo))
+      lamp.x = LAMPADA.x + ((imp.ritratto ? 0.5 : 0.62) - LAMPADA.x) * cresce
+      lamp.y = LAMPADA.y + (-0.02 - LAMPADA.y) * cresce
+      lamp.raggio = LAMPADA.raggio + 0.6 * cresce
+      materialeAlone.uniforms.uAlfa.value = LAMPADA.alfa + 0.34 * cresce
+    }
+    const sx = imp.cx + (lamp.x - 0.5) * ((imp.altezza * 9) / 16 / camera.aspect)
+    const sy = imp.cy + (lamp.y - 0.5) * imp.altezza
     lampada.position.set((sx * 2 - 1) * meta * camera.aspect, (1 - sy * 2) * meta, -d)
-    lampada.scale.set(2 * LAMPADA.raggio * larghezzaQuadro, 2 * LAMPADA.raggio * larghezzaQuadro, 1)
+    lampada.scale.set(2 * lamp.raggio * larghezzaQuadro, 2 * lamp.raggio * larghezzaQuadro, 1)
 
     const dopo = liscia(L - 0.6, L, u)
     fiumi.aggiorna(z, tm, PESI[o.materia], (0.18 + 0.5 * liscia(0.15, 1.6, uf)) * (1 - 0.55 * dopo))
@@ -234,16 +248,19 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     // le mascotte si scaricano durante l'apertura, a pagina ferma
     if (!richiesta && (secondi > 0.6 || u > 0.3)) {
       richiesta = true
-      caricaMascotte(renderer, '/film/mascotte', [o.mascotte])
+      // Chi siamo le carica tutte e quattro (dopo il primo disegno); le pagine dei servizi soltanto la propria (R12)
+      caricaMascotte(renderer, '/film/mascotte', tutte ? undefined : ids)
         .then((c) => {
           if (chiuso) {
             c.dispose()
             return
           }
           creature = c
-          creatura = c[o.mascotte]
-          palco.add(creatura.radice)
-          creatura.radice.visible = false
+          for (const id of ids) {
+            creatureIn[id] = c[id]
+            c[id].radice.visible = false
+            palco.add(c[id].radice)
+          }
           if (c.luci) palco.add(c.luci)
           c.imposta(pxUnita)
           compilata = false
@@ -253,14 +270,17 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
 
     /* ---- chi comanda la scena ---- */
     const film = u < L - 0.05
-    const anc = s.ancora
-    pesoAncora += ((!film && anc ? 1 : 0) - pesoAncora) * (1 - Math.exp(-passo * 6))
+    const anc = tutte ? (s.ancoreMascotte?.atlas ?? null) : s.ancora
+    pesoAncora += ((!film && (anc || (tutte && s.modo === 'servizi')) ? 1 : 0) - pesoAncora) * (1 - Math.exp(-passo * 6))
     const bl = percorso.blocchi[bloccoAl(percorso, uf)]
     const tt = tempi(bl, uf)
     const problema = percorso.blocchi.find((b) => b.id.endsWith('-p'))
     const r3 = problema?.battute.find((b) => b.ruolo === 'r3')
     const schermo = { ritratto: imp.ritratto, aspetto: camera.aspect, basso: !imp.ritratto && altezza < 500 }
-    const pose = posaPagina({ u, secondi, lunghezza: L, problema: problema?.da ?? 1, terzaRiga: r3?.da ?? 2, schermo, ancora: anc, dopo: s.dopo, pesoAncora })
+    const ingresso = percorso.blocchi.find((b) => b.id.endsWith('-f'))?.battute.find((b) => b.ruolo === 'f3')?.da ?? 2
+    const pose = tutte
+      ? posaChiSiamo(0, { u, secondi, lunghezza: L, ingresso, schermo, ancora: null, dopo: s.dopo, pesoAncora: 0 })
+      : posaPagina({ u, secondi, lunghezza: L, problema: problema?.da ?? 1, terzaRiga: r3?.da ?? 2, schermo, ancora: anc, dopo: s.dopo, pesoAncora })
 
     // dove va la scena: nel film al suo posto; poi, nel gioco e nell'invito, sull'àncora della sezione; altrimenti dietro, in quiete
     const conScena = !film && (s.modo === 'gioco' || s.modo === 'invito') && s.ancoraScena !== null
@@ -281,8 +301,9 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
 
     // il soggetto nel quadro (la mascotte vista dalla scena)
     const wq = (posto.h * 9) / 16 / camera.aspect
-    kit.soggetto.centro = [0.5 + (pose.x - posto.cx) / wq, 0.5 + (pose.y - posto.cy) / posto.h]
-    kit.soggetto.altezza = pose.altezza / posto.h
+    const sogg = tutte ? { x: imp.ritratto ? 0.5 : 0.62, y: imp.ritratto ? 0.34 : 0.4, altezza: 0.3 } : pose
+    kit.soggetto.centro = [0.5 + (sogg.x - posto.cx) / wq, 0.5 + (sogg.y - posto.cy) / posto.h]
+    kit.soggetto.altezza = sogg.altezza / posto.h
 
     strati.inizia()
     const ks = film || conScena ? kit : smorzato(kit, QUIETE)
@@ -290,7 +311,7 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
       const regia: Regia | undefined = regie.film[bl.id]
       regia?.(tt, { locale: 0, composto: 1, forma: 1, foto: [0, 0, 0], uscita: 0 }, ks)
       // all'arrivo la mascotte si compone: un anello di polvere si raccoglie ai suoi piedi
-      if (u < 0.5 && secondi < 2.2) {
+      if (!tutte && u < 0.5 && secondi < 2.2) {
         const e = clamp(secondi / 1.8, 0, 1)
         const c = kit.soggetto.centro
         kit.orbita('nascita', { centro: [c[0], c[1] + 0.1 * kit.soggetto.altezza], raggio: [(0.8 * kit.soggetto.altezza * 4) / 2.25, 0.5 * kit.soggetto.altezza], n: 48, colore: o.materia }, { accese: 48 * e, ordine: e * e, velocita: 1.2, alfa: 0.9 * (1 - liscia(1.6, 2.2, secondi)) })
@@ -299,7 +320,7 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
       regie.gioco({ scelta: s.scelta, t: clamp(s.dallaScelta / 1.0, 0, 1) }, kit)
     } else if (s.modo === 'invito' && conScena) {
       regie.invito(clamp(s.dallInvito / 1.4, 0, 1), kit)
-    } else {
+    } else if (!tutte) {
       const fine = percorso.blocchi[percorso.blocchi.length - 1]
       regie.film[fine.id]?.(tempi(fine, L + 1), { locale: 1, composto: 1, forma: 1, foto: [0, 0, 0], uscita: 0 }, ks)
     }
@@ -307,61 +328,74 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     void gain
 
     /* ---- i gesti: una battuta del film che comincia ne fa partire uno, una sola volta per passaggio ---- */
+    const prima0 = ids[0]
     if (film) {
       for (const b of bl.battute) {
         if (!b.gesto) continue
         const tv = tt[b.ruolo] ?? 0
         const prima = tPrima.get(b.ruolo) ?? 0
-        if (prima < 0.12 && tv >= 0.12 && (tv < 0.95 || b.gesto.tieni)) avviaGesto(b.gesto, tm)
+        if (prima < 0.12 && tv >= 0.12 && (tv < 0.95 || b.gesto.tieni)) avviaGesto(b.gesto, tm, prima0)
         // tornando indietro un gesto «tenuto» (le braccia su) si rilascia
-        if (b.gesto.tieni && tv < 0.03 && gestoIn?.g === b.gesto) gestoIn = null
+        if (b.gesto.tieni && tv < 0.03 && gestiIn[prima0]?.g === b.gesto) delete gestiIn[prima0]
         tPrima.set(b.ruolo, tv)
       }
-    } else if (gestoIn?.g.tieni) {
-      gestoIn = null
-    }
-    let gesto: Gesto | undefined
-    if (gestoIn) {
-      const tg = (tm - gestoIn.inizio) / DURATA[gestoIn.g.nome]
-      if (tg >= 1 && !gestoIn.g.tieni) gestoIn = null
-      else gesto = { nome: gestoIn.g.nome, t: tg, lato: gestoIn.g.lato ?? (pose.x > 0.5 ? 'sinistro' : 'destro'), tieni: gestoIn.g.tieni }
+    } else if (gestiIn[prima0]?.g.tieni) {
+      delete gestiIn[prima0]
     }
 
-    /* ---- la mascotte ---- */
-    const c = creatura
-    if (c) {
-      const metaH = dRiposo * Math.tan((camera.fov * Math.PI) / 360)
-      c.radice.visible = pose.presenza > 0.001
-      if (c.radice.visible) {
-        c.radice.position.set((pose.x * 2 - 1) * metaH * camera.aspect, (1 - pose.y * 2) * metaH, pose.z)
-        c.radice.scale.setScalar((pose.altezza * 2 * metaH) / ALTEZZA_CREATURA)
-        c.radice.rotation.set(0, pose.giro, pose.inclina)
+    /* ---- le mascotte ---- */
+    let inMoto = false
+    ids.forEach((id, i) => {
+      const c = creatureIn[id]
+      if (!c) return
+      const p = tutte
+        ? posaChiSiamo(i, { u, secondi, lunghezza: L, ingresso, schermo, ancora: s.ancoreMascotte?.[id] ?? null, dopo: s.dopo, pesoAncora: s.modo === 'servizi' && s.ancoreMascotte?.[id] ? 1 : 0 })
+        : pose
+      const g = gestiIn[id]
+      let gesto: Gesto | undefined
+      if (g) {
+        const tg = (tm - g.inizio) / DURATA[g.g.nome]
+        if (tg >= 1 && !g.g.tieni) delete gestiIn[id]
+        else gesto = { nome: g.g.nome, t: tg, lato: g.g.lato ?? (p.x > 0.5 ? 'sinistro' : 'destro'), tieni: g.g.tieni }
+        inMoto = true
       }
-      const gx = clamp(dito.x - (pose.x * 2 - 1), -1, 1) * manoOn
-      const gy = clamp(dito.y - (pose.y * 2 - 1), -1, 1) * manoOn
-      sguardo.x += (gx - sguardo.x) * (1 - Math.exp(-passo * 3))
-      sguardo.y += (gy - sguardo.y) * (1 - Math.exp(-passo * 3))
-      c.aggiorna(tm, { ...pose, sguardo: [sguardo.x, sguardo.y], gesto })
+      const metaH = dRiposo * Math.tan((camera.fov * Math.PI) / 360)
+      c.radice.visible = p.presenza > 0.001
+      if (c.radice.visible) {
+        c.radice.position.set((p.x * 2 - 1) * metaH * camera.aspect, (1 - p.y * 2) * metaH, p.z)
+        c.radice.scale.setScalar((p.altezza * 2 * metaH) / ALTEZZA_CREATURA)
+        c.radice.rotation.set(0, p.giro, p.inclina)
+      }
+      const sg = (sguardi[id] ??= { x: 0, y: 0 })
+      const gx = clamp(dito.x - (p.x * 2 - 1), -1, 1) * manoOn
+      const gy = clamp(dito.y - (p.y * 2 - 1), -1, 1) * manoOn
+      sg.x += (gx - sg.x) * (1 - Math.exp(-passo * 3))
+      sg.y += (gy - sg.y) * (1 - Math.exp(-passo * 3))
+      c.aggiorna(tm, { ...p, sguardo: [sg.x, sg.y], gesto })
+      const pd = piedi[i]
       if (c.radice.visible) {
         c.radice.updateWorldMatrix(true, false)
         vPiede.set(0, -ALTEZZA_CREATURA / 2 - 0.05, 0)
         c.radice.localToWorld(vPiede)
         vPiede.project(camera)
-        piedi.x = ((vPiede.x + 1) / 2) * larghezza
-        piedi.y = ((1 - vPiede.y) / 2) * altezza
-        piedi.luce = pose.presenza * pose.presenza
-      } else piedi.luce = 0
-      if (!compilata && velocita < 0.3) {
-        compilata = true
+        pd.x = ((vPiede.x + 1) / 2) * larghezza
+        pd.y = ((1 - vPiede.y) / 2) * altezza
+        pd.luce = p.presenza * p.presenza
+      } else pd.luce = 0
+    })
+    if (!compilata && creature && velocita < 0.3) {
+      compilata = true
+      for (const id of ids) {
+        const c = creatureIn[id]
+        if (!c) continue
         c.radice.visible = true
         c.corpo.visible = true
-        renderer.compile(scena, camera)
-        c.radice.visible = pose.presenza > 0.001
       }
+      renderer.compile(scena, camera)
     }
     fuocoPunto = strati.fuoco()
     renderer.render(scena, camera)
-    return velocita > 0.3 || (c !== null && (gestoIn !== null || secondi < 3.5))
+    return velocita > 0.3 || inMoto || (creature !== null && secondi < 3.5)
   }
 
   const fuocoSchermo = (): [number, number] | null => {
@@ -388,7 +422,7 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     ridimensiona,
     fuocoSchermo,
     piedi: () => piedi,
-    gesto: (g) => avviaGesto(g, tMondo),
+    gesto: (g, id) => avviaGesto(g, tMondo, id),
     impostaLivello: (l) => {
       if (l === livello) return
       livello = l
