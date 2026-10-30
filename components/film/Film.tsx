@@ -10,6 +10,7 @@ import type { Servizio } from './dati/contatti'
 import { scegliModo } from './modo'
 import Testata from './Testata'
 import { avviaFilm } from './motore'
+import { posizioneAccento } from './regia'
 import type { Atto, Battuta, Regia } from './regia'
 
 type Props = {
@@ -24,9 +25,9 @@ type Finestra = { 'data-da': number; 'data-a': number; 'data-s': number }
 
 const finestra = (da: number, a: number, s?: number): Finestra => ({ 'data-da': da, 'data-a': a, 'data-s': s ?? 0.18 })
 
-/** la frase con la parola d'accento colorata (la prima occorrenza di `accento` dentro `testo`) */
+/** la frase con la parola d'accento colorata (la prima occorrenza di `accento` come parola intera dentro `testo`) */
 function Testo({ testo, accento }: { testo: string; accento?: string }) {
-  const i = accento ? testo.indexOf(accento) : -1
+  const i = posizioneAccento(testo, accento)
   if (!accento || i < 0) return <>{testo}</>
   return (
     <>
@@ -50,7 +51,7 @@ function spezza(testo: string, chiave: string): ReactNode[] {
  * Senza JavaScript, col movimento ridotto o senza particelle le lettere sono tutte accese (film.css).
  */
 function Lettere({ testo, accento }: { testo: string; accento?: string }) {
-  const i = accento ? testo.indexOf(accento) : -1
+  const i = posizioneAccento(testo, accento)
   if (!accento || i < 0) return <>{spezza(testo, 't')}</>
   return (
     <>
@@ -94,6 +95,14 @@ function BattutaHtml({ b }: { b: Battuta }) {
           {b.nota ? <span className="cartolina-nota">{b.nota}</span> : null}
         </a>
       )
+    case 'passo':
+      // "01 · Chiamata" e la sua riga (in `nota`): i passi di "Come lavoriamo" si danno il cambio nello stesso punto
+      return (
+        <p className="battuta battuta-passo" {...f}>
+          <span className="passo-etichetta">{b.testo}</span>
+          {b.nota ? <span className="passo-riga">{b.nota}</span> : null}
+        </p>
+      )
     case 'scorri':
       return <p className="battuta scorri" {...f}><span className="scorri-linea" aria-hidden="true" />{b.testo}</p>
     default:
@@ -101,13 +110,14 @@ function BattutaHtml({ b }: { b: Battuta }) {
   }
 }
 
-/** le frasi consecutive stanno nello stesso punto e si danno il cambio: si raggruppano in un .frasi */
+/** le frasi (e i passi) consecutivi stanno nello stesso punto e si danno il cambio: si raggruppano in un .frasi */
+const siAvvicenda = (b: Battuta) => b.tipo === 'frase' || b.tipo === 'passo'
 function gruppi(battute: Battuta[]): (Battuta | Battuta[])[] {
   const out: (Battuta | Battuta[])[] = []
   for (const b of battute) {
     const ultimo = out[out.length - 1]
-    if (b.tipo === 'frase' && Array.isArray(ultimo)) ultimo.push(b)
-    else out.push(b.tipo === 'frase' ? [b] : b)
+    if (siAvvicenda(b) && Array.isArray(ultimo) && ultimo[0].tipo === b.tipo) ultimo.push(b)
+    else out.push(siAvvicenda(b) ? [b] : b)
   }
   return out
 }
@@ -121,7 +131,7 @@ function AttoHtml({ atto, h1, regia, ultimo }: { atto: Atto; h1?: string; regia:
       {conNome ? null : titolo}
       {gruppi(atto.battute).map((g, i) =>
         Array.isArray(g) ? (
-          <div className="frasi" key={i}>
+          <div className={g[0].tipo === 'passo' ? 'frasi passi' : 'frasi'} key={i}>
             {g.map((b, j) => <BattutaHtml b={b} key={j} />)}
           </div>
         ) : (

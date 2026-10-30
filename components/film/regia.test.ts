@@ -3,6 +3,11 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import * as C from './regia.ts'
 import { HOME } from './dati/home.ts'
+import { AUTOMAZIONI } from './dati/automazioni.ts'
+import { SITI_WEB } from './dati/siti-web.ts'
+import { CONTENUTI } from './dati/contenuti.ts'
+import { CAMPAGNE } from './dati/campagne.ts'
+import { existsSync, readFileSync } from 'node:fs'
 
 const scene = [{ nome: 'studio', da: 2, a: 8.4 }, { nome: 'atlas-1', da: 8, a: 9.4 }, { nome: 'atlas-2', da: 9.4, a: 10.9 }]
 
@@ -132,4 +137,122 @@ test('HOME: scene in ordine di da, apertura e studio dove dice la regia', () => 
 
 test('HOME: accenti dentro la frase', () => {
   for (const at of HOME.atti) for (const b of at.battute) if (b.accento) assert.ok(b.testo.includes(b.accento), `${at.id}: ${b.testo}`)
+})
+
+// ---------- Le quattro pagine servizio (Compito 9) ----------
+const SERVIZI_REGIA = { AUTOMAZIONI, SITI_WEB, CONTENUTI, CAMPAGNE }
+
+test('pagine servizio: valida() senza errori', () => {
+  for (const [nome, r] of Object.entries(SERVIZI_REGIA)) assert.deepEqual(C.valida(r), [], nome)
+})
+
+test('pagine servizio: stessa struttura per tutte (R8) e nessun atto Lavori (R7)', () => {
+  const id = (r: C.Regia) => r.atti.map((a) => a.id)
+  assert.equal(CAMPAGNE.atti.length, SITI_WEB.atti.length)
+  assert.deepEqual(id(CAMPAGNE), id(SITI_WEB))
+  assert.deepEqual(id(CONTENUTI), id(SITI_WEB))
+  assert.deepEqual(id(AUTOMAZIONI), id(SITI_WEB))
+  assert.deepEqual(SITI_WEB.atti.map((a) => a.etichetta), ['00 · Apertura', '01 · Cosa facciamo', '02 · Come lavoriamo', '04 · Richiedi un preventivo'])
+  for (const r of Object.values(SERVIZI_REGIA)) { assert.ok(!r.atti.some((a) => a.etichetta.startsWith('03') || a.nome === "Lavori"), 'atto Lavori assente'); assert.ok(!JSON.stringify(r).includes('/lavori'), 'nessun collegamento a /lavori') }
+})
+
+test('pagine servizio: niente pilota, in arrivo, beta, prezzi', () => {
+  for (const [nome, r] of Object.entries(SERVIZI_REGIA)) {
+    const t = JSON.stringify(r).toLowerCase()
+    for (const vietata of ['pilota', 'in arrivo', 'beta', '€']) assert.ok(!t.includes(vietata), `${nome}: ${vietata}`)
+  }
+})
+
+test('pagine servizio: solo AUTOMAZIONI porta a /studi-dentistici, come collegamento semplice', () => {
+  assert.ok(JSON.stringify(AUTOMAZIONI).includes('/studi-dentistici'))
+  for (const r of [SITI_WEB, CONTENUTI, CAMPAGNE]) assert.ok(!JSON.stringify(r).includes('/studi-dentistici'))
+  const cartoline = AUTOMAZIONI.atti.flatMap((a) => a.battute).filter((b) => b.tipo === 'cartolina')
+  assert.equal(cartoline.length, 1)
+  assert.deepEqual(cartoline[0], { tipo: 'cartolina', testo: 'Settore specializzato: studi dentistici', nota: 'Per gli studi dentistici abbiamo un percorso dedicato.', href: '/studi-dentistici', da: 7.6, a: Infinity })
+})
+
+test('pagine servizio: tempi della tabella (T 9, scene X-2 e X-3, convergenza, pulsante)', () => {
+  const att = { AUTOMAZIONI: 'atlas', SITI_WEB: 'janus', CONTENUTI: 'prometheus', CAMPAGNE: 'hermes' } as const
+  for (const [nome, r] of Object.entries(SERVIZI_REGIA)) {
+    const x = att[nome as keyof typeof att]
+    assert.equal(r.T, 9, nome)
+    assert.deepEqual(r.scene, [{ nome: `${x}-2`, da: 0, a: 6.6, zoom: [1, 1.06] }, { nome: `${x}-3`, da: 6.2, a: 9 }], nome)
+    assert.deepEqual(r.atti.map((a) => [a.da, a.a]), [[0, 1.4], [1.4, 6.2], [6.2, 8], [8, 9]], nome)
+    assert.deepEqual(r.convergenza, [8.2, 9], nome)
+    assert.deepEqual(r.pulsante, { da: 8.7, testo: 'Richiedi un preventivo', href: '#preventivo', sotto: 'Raccontaci cosa ti serve. Senza impegno, ti risponde Bruno entro un giorno lavorativo.' }, nome)
+    assert.equal(r.apertura, undefined, nome)
+    for (const a of r.atti) { assert.ok(a.materia, `${nome}/${a.id}: materia`); assert.equal(a.creatura, undefined, `${nome}/${a.id}: nessuna creatura ritagliata`) }
+    assert.equal(C.sceneAttive(r.scene, 6.4).b?.nome, `${x}-3`)
+  }
+  assert.deepEqual([AUTOMAZIONI, SITI_WEB, CONTENUTI, CAMPAGNE].map((r) => r.atti[0].materia), ['polvere', 'vetro', 'saette', 'cromo'])
+})
+
+test('pagine servizio: ogni frase di "Cosa facciamo" ha burst, finestre uguali, accento dentro la frase', () => {
+  for (const [nome, r] of Object.entries(SERVIZI_REGIA)) {
+    const frasi = r.atti[1].battute.filter((b) => b.tipo === 'frase')
+    assert.ok(frasi.length === 8 || frasi.length === 9, `${nome}: ${frasi.length} frasi`)
+    const w = 4.8 / frasi.length
+    frasi.forEach((f, i) => {
+      assert.equal(f.burst, true, `${nome} frase ${i}: burst`)
+      assert.equal(f.s, 0.15)
+      assert.ok(Math.abs(f.da - (1.4 + i * w)) < 1e-9 && Math.abs(f.a - (1.4 + (i + 1) * w)) < 1e-9, `${nome} frase ${i}: finestra`)
+      if (f.accento) assert.ok(f.testo.includes(f.accento), `${nome}: ${f.testo}`)
+    })
+    for (const a of r.atti) for (const b of a.battute) assert.ok(b.da >= 0 && (b.a <= r.T || b.a === Infinity), `${nome}: ${b.testo}`)
+  }
+})
+
+// Testi di testi.md §4 copiati a mano qui: prima e ultima frase, motto, passo 3 di ogni servizio.
+test('pagine servizio: testi di testi.md §4 (prima e ultima frase, motto, passo 3)', () => {
+  const attesi: [C.Regia, string, string, string, string, string, number][] = [
+    [AUTOMAZIONI, 'Risponde ai messaggi e alle chiamate perse, anche di notte.', 'E nessun cliente resta senza risposta.', 'Il peso lo porto io.', '03 · Avvio', "L'automazione parte e la seguiamo da vicino nelle prime settimane.", 8],
+    [SITI_WEB, "Un sito all'altezza di quello che fai.", 'Chi arriva capisce. Chi capisce prenota.', 'Chi ti cerca, trova me.', '03 · Online', 'Il sito va online e ti spieghiamo tutto. È tuo.', 9],
+    [CONTENUTI, 'Post, caroselli e video brevi sulla tua attività.', 'Chi ti segue ti riconosce. Chi non ti conosce si ferma.', "Il bello c'è già. Io lo accendo.", '03 · Primi contenuti', 'Ricevi i primi contenuti e li approvi tu, uno per uno.', 8],
+    [CAMPAGNE, 'Pubblicità su Instagram, Facebook e Google.', 'Sempre sotto i tuoi occhi.', 'Porto da te chi ancora non ti conosce.', '03 · Partenza', 'La campagna parte e ricevi il resoconto, con i numeri veri.', 8],
+  ]
+  for (const [r, prima, ultima, motto, passo3, riga3, n] of attesi) {
+    const f = r.atti[1].battute.map((b) => b.testo)
+    assert.equal(f.length, n); assert.equal(f[0], prima); assert.equal(f[n - 1], ultima)
+    assert.equal(r.atti[0].battute.find((b) => b.tipo === 'motto')?.testo, motto)
+    const passi = r.atti[2].battute.filter((b) => b.tipo === 'passo')
+    assert.deepEqual(passi.map((p) => p.testo), ['01 · Chiamata', '02 · Proposta', passo3])
+    assert.deepEqual(passi.map((p) => p.nota), ['Una chiamata gratuita, senza impegno. Ci racconti la tua attività e capiamo cosa ti serve.', 'Ti scriviamo cosa facciamo, i tempi e un prezzo chiaro. Nessuna sorpresa dopo.', riga3])
+    assert.deepEqual(passi.map((p) => [p.da, p.a]), [[6.5, 7], [7, 7.5], [7.5, 8]])
+  }
+})
+
+// Tutte le frasi (e le parole in grassetto) contro il file vero di testi.md, se c'è (nel repo pubblico non c'è: si salta).
+const TESTI_MD = 'C:/Users/Bruno/OneDrive/Desktop/CLAUDE.MD.PROGETTO/bruno-vault/20-projects/sito-agentistudio/agenzia-360/testi.md'
+test('pagine servizio: tutte le frasi uguali a testi.md §4 (se il file c\'è)', { skip: !existsSync(TESTI_MD) }, () => {
+  const md = readFileSync(TESTI_MD, 'utf8')
+  const sezione = md.slice(md.indexOf('## 4. Le pagine dei servizi'), md.indexOf('## 5. Il modulo'))
+  const per: [string, C.Regia][] = [['### 4.1', AUTOMAZIONI], ['### 4.2', SITI_WEB], ['### 4.3', CONTENUTI], ['### 4.4', CAMPAGNE]]
+  per.forEach(([titolo, r], i) => {
+    const da = sezione.indexOf(titolo), a = i < 3 ? sezione.indexOf(per[i + 1][0]) : sezione.indexOf('**`04 · Richiedi')
+    const blocco = sezione.slice(da, a)
+    const cosa = blocco.slice(blocco.indexOf('**`01 · Cosa facciamo`**'), blocco.indexOf('**`02 · Come lavoriamo`**'))
+    const righe = Array.from(cosa.matchAll(/^\d+\. (.+)$/gm), (m) => m[1])
+    const dati = r.atti[1].battute
+    assert.equal(righe.length, dati.length)
+    righe.forEach((riga, k) => {
+      const grassetto = Array.from(riga.matchAll(/\*\*(.+?)\*\*/g), (m) => m[1])
+      assert.equal(riga.replace(/\*\*/g, ''), dati[k].testo)
+      assert.deepEqual(grassetto, dati[k].accento ? [dati[k].accento] : [], dati[k].testo)
+    })
+  })
+})
+
+test('posizioneAccento: parola intera, non un pezzo di un\'altra parola', () => {
+  assert.equal(C.posizioneAccento('Sito, dominio e account intestati a te.', 'te'), 36)
+  assert.equal(C.posizioneAccento('Un sito all\'altezza di quello che fai.', 'fai'), 34)
+  assert.equal(C.posizioneAccento('Troverà te, o un altro.', 'un altro'), 14)
+  assert.equal(C.posizioneAccento('Tu dici sì. Pubblicato.', 'Pubblicato'), 12)
+  assert.equal(C.posizioneAccento('La prossima può essere la tua.', 'la tua'), 23)
+  assert.equal(C.posizioneAccento('niente di tutto questo', 'te'), -1)
+  assert.equal(C.posizioneAccento('qualcosa', undefined), -1)
+})
+
+test('pagine servizio: ogni accento è una parola intera dentro la frase', () => {
+  for (const r of [AUTOMAZIONI, SITI_WEB, CONTENUTI, CAMPAGNE]) for (const a of r.atti) for (const b of a.battute) if (b.accento) assert.ok(C.posizioneAccento(b.testo, b.accento) >= 0, b.testo)
+  for (const b of HOME.atti.flatMap((a) => a.battute)) if (b.accento) assert.ok(C.posizioneAccento(b.testo, b.accento) >= 0, b.testo)
 })
