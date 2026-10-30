@@ -1,4 +1,5 @@
 import type { Viewport } from 'next'
+import BarraContatti from '@/components/film/BarraContatti'
 import '@/components/film/film.css'
 
 // `film`: fondo nero. `film-js`: c'è JavaScript, il primo disegno è già lo stato del film a u = 0 (poster a tutto
@@ -16,7 +17,11 @@ export default function FilmLayout({ children }: { children: React.ReactNode }) 
     <>
       {/* Primo figlio del body: mette le classi su <html> prima del disegno (SCELTA_FILM). */}
       <script dangerouslySetInnerHTML={{ __html: SCELTA_FILM }} />
-      <div className="film-radice">{children}</div>
+      {/* la barra dei contatti è su tutte le pagine film (R10), dopo i figli */}
+      <div className="film-radice">
+        {children}
+        <BarraContatti />
+      </div>
     </>
   )
 }

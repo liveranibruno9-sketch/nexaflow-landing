@@ -8,6 +8,7 @@ import { Fragment, useEffect, useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import type { Servizio } from './dati/contatti'
 import { scegliModo } from './modo'
+import Testata from './Testata'
 import { avviaFilm } from './motore'
 import type { Atto, Battuta, Regia } from './regia'
 
@@ -140,8 +141,7 @@ export default function Film({ regia, poster, h1, corrente, children }: Props) {
           <canvas className="tela" aria-hidden="true" />
           <canvas className="tela-materia" aria-hidden="true" />
           <div className="interfaccia">
-            {/* Testata con indice e menu: compito 5 (riceverà `corrente`) */}
-            <div className="testata" data-corrente={corrente} />
+            <Testata corrente={corrente} />
             {regia.atti.map((at, i) => (
               <AttoHtml atto={at} h1={at === primo ? h1 : undefined} regia={regia} ultimo={i === regia.atti.length - 1} key={at.id} />
             ))}

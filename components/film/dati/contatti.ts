@@ -10,3 +10,11 @@ export const CONTATTI = {
   piva: '',
   fotoBruno: '' as string,
 }
+
+/** le quattro pagine servizio, nell'ordine del menu (D35); il numero e il colore sono quelli dell'agente */
+export const VOCI_MENU = [
+  { href: '/automazioni', num: '01', testo: 'Automazioni', materia: 'polvere' },
+  { href: '/siti-web', num: '02', testo: 'Siti web', materia: 'vetro' },
+  { href: '/contenuti', num: '03', testo: 'Contenuti', materia: 'saette' },
+  { href: '/campagne', num: '04', testo: 'Campagne', materia: 'cromo' },
+] as const

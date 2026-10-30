@@ -1,6 +1,8 @@
 // La regia della home: scene, atti e battute in "schermi" di scroll (u, 1 = 100svh), T = 32.
 // Tempi dalla tabella "La regia della home" (piano S5), provvisori: si tarano al telefono nella prima anteprima.
 // Testi copiati lettera per lettera da testi.md §3; `accento` = la parola in grassetto.
+// Indice in testata = `etichetta` (numero, se c'è) + `nome`: i nomi sono quelli di testi.md (§3: "00 · Apertura", "Lo studio",
+// "Il finale"); i quattro agenti hanno `0N · Servizio` (spec §6); lo studio e il finale non hanno un numero e non lo mostrano.
 // Modulo puro: lo importano anche i test di Node (solo `import type`).
 import type { Atto, Battuta, Materia, Regia, Scena } from '../regia'
 
@@ -97,8 +99,8 @@ export const HOME: Regia = {
   atti: [
     {
       id: 'apertura',
-      nome: 'Agenti Studio',
-      etichetta: '00 · Agenti Studio',
+      nome: 'Apertura',
+      etichetta: '00 · Apertura',
       da: 0,
       a: 2.4,
       battute: [
@@ -111,7 +113,7 @@ export const HOME: Regia = {
     {
       id: 'studio',
       nome: 'Lo studio',
-      etichetta: '00 · Lo studio',
+      etichetta: 'Lo studio',
       da: 2.4,
       a: 8.0,
       battute: [
@@ -134,8 +136,8 @@ export const HOME: Regia = {
     HERMES.atto,
     {
       id: 'finale',
-      nome: 'Preventivo',
-      etichetta: '05 · Preventivo',
+      nome: 'Il finale',
+      etichetta: 'Il finale',
       da: 28,
       a: 32,
       battute: [

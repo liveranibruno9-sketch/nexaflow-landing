@@ -174,7 +174,7 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
       atto = i
       const at = regia.atti[Math.max(0, i)]
       const num = at ? at.etichetta.split(' · ')[0] : ''
-      if (numero) numero.textContent = /^\d+$/.test(num) ? num : String(Math.max(0, i)).padStart(2, '0')
+      if (numero) numero.textContent = /^\d+$/.test(num) ? num : ''   // lo studio e il finale non hanno un numero
       if (nomeAtto) nomeAtto.textContent = at ? at.nome : ''
     }
 
