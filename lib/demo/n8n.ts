@@ -1,6 +1,6 @@
 import type { ModuloDemo, RispostaDemo } from './tipi'
 
-// Tramite verso i workflow n8n (demo e modulo "Verifica gratuita"). Da importare solo nelle route
+// Tramite verso i workflow n8n (demo, modulo "Verifica gratuita" e modulo "Richiedi un preventivo"). Da importare solo nelle route
 // /api (server): la chiave non deve mai arrivare al browser.
 
 export const MODULI_DEMO: readonly ModuloDemo[] = ['m1', 'm2', 'm3', 'm5', 'm6']
@@ -13,6 +13,11 @@ export function chiamaN8n(modulo: ModuloDemo | 'accesso', corpo: unknown): Promi
 // il modulo "Verifica gratuita" del sito: salva la richiesta e avvisa Bruno (workflow "SITO - Richiesta verifica gratuita")
 export function inviaRichiestaSito(corpo: unknown): Promise<RispostaDemo<unknown>> {
   return chiamaWebhook('sito-richiesta-verifica', corpo)
+}
+
+// il modulo "Richiedi un preventivo" delle pagine film: salva la richiesta e avvisa Bruno (workflow "SITO - Richiesta preventivo", D34)
+export function inviaRichiestaPreventivo(corpo: unknown): Promise<RispostaDemo<unknown>> {
+  return chiamaWebhook('sito-richiesta-preventivo', corpo)
 }
 
 async function chiamaWebhook(percorso: string, corpo: unknown): Promise<RispostaDemo<unknown>> {

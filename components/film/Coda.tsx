@@ -1,6 +1,7 @@
-// La coda di ogni pagina film: preventivo (modulo al compito 6), Bruno (solo in home), contatti, informazioni.
+// La coda di ogni pagina film: preventivo (modulo del compito 6), Bruno (solo in home), contatti, informazioni.
 // Sta sul nero con la luce calda dello studio, in CSS. Testi da testi.md §3 tempo 4, §4 fine, §5; copiati lettera per lettera.
 import type { ReactNode } from 'react'
+import ModuloPreventivo from './ModuloPreventivo'
 import { CONTATTI, VOCI_MENU } from './dati/contatti'
 import type { Servizio } from './dati/contatti'
 
@@ -22,8 +23,8 @@ export default function Coda({ servizio, conBruno, children }: Props) {
         <div id="preventivo" className="coda-preventivo">
           <h2 className="coda-titolo">Richiedi un preventivo</h2>
           <p className="coda-sotto">Raccontaci cosa ti serve. Senza impegno, ti risponde Bruno entro un giorno lavorativo.</p>
-          {/* il modulo arriva al compito 6; finché non c'è, un segnaposto */}
-          {children ?? <p className="modulo-segnaposto">Modulo in arrivo</p>}
+          {/* il servizio della pagina è già scelto nel modulo; `children` resta per un contenuto diverso dal modulo */}
+          {children ?? <ModuloPreventivo servizio={servizio} />}
         </div>
 
         {conBruno ? (
