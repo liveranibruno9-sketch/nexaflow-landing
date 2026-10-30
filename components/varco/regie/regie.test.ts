@@ -56,7 +56,7 @@ test('R18: ogni blocco della home ha la sua regia e passa il controllo', () => {
   assert.deepEqual(controllaR18(HOME, REGIE), [])
 })
 
-test('apertura: da fermo l\'anello gira con più forza di quando si è scorso; il nome si compone fra il 10 e il 50% e torna alla fine', () => {
+test('apertura (D45): da fermo l\'anello gira con più forza di quando si è scorso; il nome si compone subito scorrendo, resta a lungo, poi torna', () => {
   const chiama = (nome: number) => {
     const { kit, chiamate } = kitFinto()
     REGIE.apertura!({ nome, luogo: 0, servizi: 0, scorri: 0 }, { locale: nome, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
@@ -65,8 +65,9 @@ test('apertura: da fermo l\'anello gira con più forza di quando si è scorso; i
     return { giro, lettere }
   }
   assert.ok(chiama(0).giro > chiama(1).giro)
-  assert.equal(chiama(0).lettere, 0); assert.equal(chiama(0.6).lettere, 1); assert.equal(chiama(1).lettere, 0)
-  assert.ok(chiama(0.3).lettere > 0 && chiama(0.3).lettere < 1)
+  assert.equal(chiama(0).lettere, 0); assert.equal(chiama(1).lettere, 0)
+  for (const t of [0.25, 0.35, 0.45, 0.54]) assert.equal(chiama(t).lettere, 1, `nome pieno a ${t}`)
+  assert.ok(chiama(0.12).lettere > 0 && chiama(0.12).lettere < 1)
 })
 
 test('soglia: le porte si aprono con la seconda frase, non con la prima', () => {

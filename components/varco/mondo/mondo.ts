@@ -13,6 +13,7 @@ import { ALONE_FRAG, ALONE_VERT } from './shader.ts'
 import { creaStrati, type Strati } from './strati.ts'
 import { creaAnello, type Anello } from './anello.ts'
 import { creaCreature, type Creature } from './creature.ts'
+import { caricaMascotte } from './mascotte-glb.ts'
 import { ALTEZZA_CREATURA, ORDINE, coreografia } from '../coreografia.ts'
 import { creaTratto, type Tratto } from './tratto.ts'
 
@@ -30,6 +31,8 @@ export type Mondo = {
   nomeFormato(): boolean
   /** l'anello di particelle è in scena: il poster può sparire */
   anelloPronto(): boolean
+  /** l'anello non si è potuto creare: torna il poster */
+  anelloFallito(): boolean
   impostaLivello(l: Livello): void
   distruggi(): void
 }
@@ -156,14 +159,29 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     anelloFallito = true
   }
 
-  // le quattro mascotte in codice (home v2.1): un palco figlio della camera, alla distanza del quadro a riposo; la coreografia
+  // le quattro mascotte (home v2.2: modelli 3D dalle foto; in codice se non arrivano): un palco figlio della camera, alla distanza
+  // del quadro a riposo; la coreografia
   // dice dove sta ognuna. Solo se il percorso ha i blocchi delle mascotte con i loro nomi.
   const palco = new Group()
   camera.add(palco)
   const conMascotte = percorso.blocchi.some((b) => b.tipo === 'mascotte' && (ORDINE as readonly string[]).includes(b.id))
-  const creature: Creature | null = conMascotte ? creaCreature() : null
-  if (creature) for (const id of ORDINE) palco.add(creature[id].radice)
-  let creatureCompilate = !creature
+  let creature: Creature | null = null
+  let creatureChieste = !conMascotte
+  let creatureCompilate = true
+  const mettiInScena = (c: Creature) => {
+    if (chiuso) {
+      c.dispose()
+      return
+    }
+    creature = c
+    for (const id of ORDINE) {
+      palco.add(c[id].radice)
+      c[id].radice.visible = false
+    }
+    if (c.luci) palco.add(c.luci)
+    c.imposta(pxUnita)
+    creatureCompilate = false
+  }
   let scorre = 0
   const sguardi = ORDINE.map(() => ({ x: 0, y: 0 }))
   const tratti = new Map<string, Voce>()
@@ -335,8 +353,9 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
         for (const m of ['polvere', 'vetro', 'saette', 'cromo'] as const) anello.comandi.arco(m, 0.8)
       }
       // la posa: dal cerchio dell'apertura (grande, al centro) all'anello della soglia (più piccolo, in alto o a destra del centro)
-      const lato0 = imp.ritratto ? 0.92 * larghezza : 0.7 * altezza
-      const s = liscia(0.3, 1.3, u)
+      // il cerchio dell'apertura è grande (il nome sta dentro, imponente); passa alla posa della soglia mentre passa il banner
+      const lato0 = imp.ritratto ? 0.94 * larghezza : 0.86 * altezza
+      const s = liscia(1.4, 2.4, u)
       const mix = (a: number, b: number) => a + (b - a) * s
       anello.posa({
         cx: mix(0.5, imp.ritratto ? 0.5 : 0.62), cy: mix(imp.ritratto ? 0.4 : 0.5, imp.ritratto ? 0.34 : 0.5), lato: mix(lato0, lato0 * 0.75),
@@ -345,14 +364,24 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
       anello.aggiorna(tempo, passo, z, pxUnita, camera.position.x, camera.position.y)
     }
 
-    // le mascotte: la coreografia dice dove stanno; mentre si scorre salutano, la testa segue il puntatore
-    if (creature) {
+    // le mascotte: i modelli si scaricano durante l'apertura; la coreografia dice dove stanno; mentre si scorre salutano
+    if (!creatureChieste && (tempo > 2.5 || u > 0.6)) {
+      creatureChieste = true
+      caricaMascotte(renderer)
+        .then(mettiInScena)
+        .catch((e) => {
+          console.error('varco: mascotte 3D non caricate, restano quelle in codice:', e)
+          mettiInScena(creaCreature())
+        })
+    }
+    const cr: Creature | null = creature
+    if (cr) {
       const bersaglio = clamp(velocita / 45, 0, 1)
       scorre += (bersaglio - scorre) * (1 - Math.exp(-passo * (bersaglio > scorre ? 5 : 1.2)))
       const pose = coreografia(percorso, u, tempo, { ritratto: imp.ritratto, aspetto: camera.aspect, basso: !imp.ritratto && altezza < 500 }, scorre)
       const metaH = sostaCorrente * Math.tan((camera.fov * Math.PI) / 360)
       ORDINE.forEach((id, i) => {
-        const c = creature[id]
+        const c = cr[id]
         const p = pose[id]
         const sguardo = sguardi[i]
         c.radice.visible = p.presenza > 0.001
@@ -369,14 +398,14 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
         c.aggiorna(tempo, { ...p, sguardo: [sguardo.x, sguardo.y] })
       })
       // i programmi delle creature si preparano a pagina ferma, prima che servano (niente scatto quando compaiono)
-      if (!creatureCompilate && tempo > 1.5 && velocita < 0.3) {
+      if (!creatureCompilate && velocita < 0.3) {
         creatureCompilate = true
         for (const id of ORDINE) {
-          creature[id].radice.visible = true
-          creature[id].corpo.visible = true
+          cr[id].radice.visible = true
+          cr[id].corpo.visible = true
         }
         renderer.compile(scena, camera)
-        for (const id of ORDINE) creature[id].radice.visible = pose[id].presenza > 0.001
+        for (const id of ORDINE) cr[id].radice.visible = pose[id].presenza > 0.001
       }
     }
 
@@ -417,6 +446,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     arcoInAlto: () => anello?.arcoInAlto() ?? null,
     nomeFormato: () => (anello ? anello.nomeFormato() : anelloFallito),
     anelloPronto: () => anello !== null,
+    anelloFallito: () => anelloFallito,
     impostaLivello: (l) => {
       if (l === livello) return
       livello = l

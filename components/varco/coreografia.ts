@@ -20,7 +20,7 @@ export type Schermo = { ritratto: boolean; aspetto: number; basso: boolean }
 export const ALTEZZA_CREATURA = 1.55
 export const LARGHEZZA_CREATURA = 0.95
 /** distanza fra due creature abbracciate, nelle loro unità: si toccano spalla a spalla (le braccia dell'abbraccio la usano) */
-export const PASSO_SQUADRA = 0.7
+export const PASSO_SQUADRA = 0.8
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x)
 const liscia = (a: number, b: number, x: number) => {

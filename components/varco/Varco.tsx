@@ -107,6 +107,12 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
           <span aria-hidden="true">{Array.from(b.testo).map((c, i) => <span className="lettera scritta" key={i}>{c}</span>)}</span>
         </p>
       )
+    case 'foto':
+      return (
+        <figure className={classe} {...dati}>
+          <span className="cartolina-carta"><img src={b.src} alt={b.testo} width={560} height={700} loading="lazy" decoding="async" /></span>
+        </figure>
+      )
     case 'titolo':
       return <h2 className={classe} {...dati}>{conAccento(b.testo, b.accento)}</h2>
     case 'paragrafo':
@@ -121,6 +127,57 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
     default:
       return <p className={classe} {...dati}>{conAccento(b.testo, b.accento)}</p>
   }
+}
+
+/**
+ * La grafica del finale (D45): un campo di attività nel buio e un riflettore che ne tiene poche alla volta. Con «Seguiamo poche
+ * attività alla volta.» quattro punti delle quattro materie entrano nella luce; con «La prossima può essere la tua.» compare il
+ * posto libero, che pulsa sopra il pulsante. Nessun nome di cliente: è una metafora, non un elenco.
+ */
+const CAMPO = Array.from({ length: 30 }, (_, i) => {
+  const a = i * 2.39996
+  const r = 58 + ((i * 37) % 34)
+  return { x: Math.cos(a) * r, y: Math.sin(a) * r * 0.82, d: (i % 5) * 0.4 }
+})
+const DENTRO: { x: number; y: number; da: [number, number]; m: string }[] = [
+  { x: -22, y: -14, da: [-78, -40], m: 'polvere' },
+  { x: 20, y: -18, da: [82, -52], m: 'vetro' },
+  { x: -26, y: 14, da: [-90, 46], m: 'saette' },
+  { x: 24, y: 12, da: [76, 60], m: 'cromo' },
+]
+function GraficaPosti() {
+  return (
+    <div className="posti-strato solo-varco" aria-hidden="true">
+      <svg viewBox="-100 -100 200 200" className="posti">
+        <defs>
+          <radialGradient id="riflettore">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.16" />
+            <stop offset="0.7" stopColor="#9fb8ff" stopOpacity="0.06" />
+            <stop offset="1" stopColor="#9fb8ff" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="quattro" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="var(--polvere)" />
+            <stop offset="0.35" stopColor="var(--vetro)" />
+            <stop offset="0.7" stopColor="var(--saette-viola)" />
+            <stop offset="1" stopColor="var(--cromo)" />
+          </linearGradient>
+        </defs>
+        {CAMPO.map((p, i) => <circle key={i} className="posti-campo" cx={p.x} cy={p.y} r={2.2} style={{ animationDelay: `${p.d}s` }} />)}
+        <circle className="posti-luce" r={56} fill="url(#riflettore)" />
+        <circle className="posti-bordo" r={56} />
+        {DENTRO.map((p, i) => (
+          <g key={p.m} className="posti-dentro" style={{ ['--da-x' as string]: `${p.da[0] - p.x}px`, ['--da-y' as string]: `${p.da[1] - p.y}px`, transitionDelay: `${0.12 * i}s` }}>
+            <circle cx={p.x} cy={p.y} r={6} className="posti-punto" style={{ fill: `var(--${p.m === 'saette' ? 'saette-viola' : p.m})` }} />
+          </g>
+        ))}
+        <g className="posti-tuo">
+          <circle className="posti-onda" cx={0} cy={30} r={11} />
+          <circle className="posti-libero" cx={0} cy={30} r={10.5} />
+          <circle className="posti-pieno" cx={0} cy={30} r={8.5} fill="url(#quattro)" />
+        </g>
+      </svg>
+    </div>
+  )
 }
 
 /** le immagini della pagina normale: la creatura (X-2) e il beneficio (X-3), con la sfumatura nel nero */
@@ -143,15 +200,24 @@ function Immagine({ nome, alt }: { nome: string; alt: string }) {
 
 function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
   if (bl.tipo === 'apertura') {
-    // il nome sta nel cerchio; luogo, servizi e la riga piccola (H1) in una colonna sotto; `Scorri` sopra la barra dei contatti
+    // il nome sta nel cerchio; sotto l'apertura passa il banner (chi siamo = l'H1, cosa facciamo, dove siamo, D45); `Scorri` in basso
     const di = (ruolo: string) => bl.battute.find((b) => b.ruolo === ruolo)!
     return (
       <div className="blocco" data-id={bl.id} data-tipo={bl.tipo}>
         <VoceBattuta b={di('nome')} apertura />
-        <div className="apertura-righe">
-          <VoceBattuta b={di('luogo')} apertura />
-          <VoceBattuta b={di('servizi')} apertura />
-          <h1 className="battuta h1-piccolo" data-da={0} data-a={0.7} data-ruolo="h1">{h1}</h1>
+        <div className="apertura-banner">
+          <div className="banner-voce">
+            <p className="banner-etichetta">Chi siamo</p>
+            <h1 className="banner-h1">{h1}</h1>
+          </div>
+          <div className="banner-voce">
+            <p className="banner-etichetta">Cosa facciamo</p>
+            <VoceBattuta b={di('servizi')} apertura />
+          </div>
+          <div className="banner-voce">
+            <p className="banner-etichetta">Dove siamo</p>
+            <VoceBattuta b={di('luogo')} apertura />
+          </div>
         </div>
         <VoceBattuta b={di('scorri')} apertura />
       </div>
@@ -166,7 +232,9 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
           {(bl.immagini ?? []).map((nome) => <Immagine nome={nome} alt="" key={nome} />)}
         </div>
       ) : null}
-      {bl.battute.map((b) => (
+      {bl.battute.map((b) => b.tipo === 'foto' ? (
+        <figure className="solo-statico statico-cartolina" key={b.ruolo}><img src={b.src} alt={b.testo} width={560} height={700} loading="lazy" decoding="async" /></figure>
+      ) : (
         <Fragment key={b.ruolo}>
           {bl.tipo === 'tratto' && b.ruolo === 'nome' ? <Immagine nome={`${bl.id}-2`} alt={`${b.testo}, la creatura di ${bl.etichetta.replace(/^\d+ · /, '')}`} /> : null}
           {bl.tipo === 'tratto' && b.ruolo === 'beneficio-1' ? <Immagine nome={`${bl.id}-3`} alt="" /> : null}
@@ -212,7 +280,9 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     /* ----- misure: dove sta la traccia e quanto si scorre ----- */
     let inizio = 0
     let corsa = 1
+    let altezzaVista = window.innerHeight
     const misura = () => {
+      altezzaVista = window.innerHeight
       const r = tr.getBoundingClientRect()
       inizio = r.top + window.scrollY
       corsa = Math.max(1, tr.offsetHeight - pa.offsetHeight)
@@ -319,8 +389,19 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         html.dataset.tratti = tieni
       }
       html.classList.toggle('in-orbita', window.scrollY > inizio + corsa + window.innerHeight * 0.3)
-      // il poster del cerchio resta finché l'anello di particelle non è in scena (e sfuma comunque con lo scroll)
-      pa.style.setProperty('--poster', mondo?.anelloPronto() ? '0' : (1 - liscia(0.25, 0.9, u)).toFixed(3))
+      // D45: l'apertura nasce dal nulla (un punto, poi il big bang): il poster del cerchio torna solo se l'anello non c'è
+      const senzaAnello = senzaMondo || (mondo?.anelloFallito() ?? false)
+      pa.style.setProperty('--poster', senzaAnello ? (1 - liscia(0.25, 0.9, u)).toFixed(3) : '0')
+      pa.style.setProperty('--puntino', mondo?.anelloPronto() || senzaAnello ? '0' : '1')
+      // il banner passa come una fascia di pagina, un po' più veloce dello scroll
+      if (banner && bandaDa !== null) {
+        const y = (1 - 1.3 * (u - bandaDa)) * altezzaVista
+        const dentro = y < altezzaVista && y > -banner.offsetHeight
+        banner.style.visibility = dentro ? 'visible' : 'hidden'
+        if (dentro) banner.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0)`
+      }
+      const fase = finale && u >= finale.da ? (u >= finale.due ? '2' : u >= finale.uno ? '1' : '0') : '0'
+      if (fase !== pa.dataset.posti) pa.dataset.posti = fase
       // il nome HTML compare sotto le lettere di particelle quando sono complete, e sparisce quando tornano nell'anello (D38)
       const formato = mondo ? mondo.nomeFormato() : senzaMondo
       if (formato !== nomeVisibile) {
@@ -329,7 +410,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         else nomeHtml?.setAttribute('data-nascosto', 'si')
       }
       // le parole dei servizi: quella dell'arco che passa in alto prende il colore della sua materia
-      const alto = mondo && u < 1.0 ? mondo.arcoInAlto() : null
+      const alto = mondo && bandaDa !== null && u < bandaDa + 1.3 ? mondo.arcoInAlto() : null
       if (alto !== acceso) {
         acceso = alto
         for (const w of paroleServizi) w.dataset.acceso = String(w.dataset.materia === alto)
@@ -338,6 +419,10 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
 
     /* ----- l'apertura: il nome HTML segue le lettere di particelle (mondo.nomeFormato); senza mondo dopo 8 s compare comunque ----- */
     const nomeHtml = pa.querySelector<HTMLElement>('.nome-apertura')
+    const banner = pa.querySelector<HTMLElement>('.apertura-banner')
+    const bandaDa = percorso.blocchi[0]?.battute.find((b) => b.ruolo === 'servizi')?.da ?? null
+    const bloccoFinale = percorso.blocchi.find((b) => b.tipo === 'finale')
+    const finale = bloccoFinale ? { da: bloccoFinale.da, uno: bloccoFinale.battute.find((b) => b.ruolo === '1')?.da ?? Infinity, due: bloccoFinale.battute.find((b) => b.ruolo === '2')?.da ?? Infinity } : null
     const paroleServizi = Array.from(pa.querySelectorAll<HTMLElement>('.servizio-parola'))
     let acceso: string | null = null
     let nomeVisibile = false
@@ -527,6 +612,8 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
               {/* è l'immagine più grande della prima schermata (LCP): priorità alta, come l'hero dei dentisti */}
               <img src={poster.src720} alt={poster.alt} width={720} height={1280} decoding="async" fetchPriority="high" />
             </picture>
+            {/* il punto da cui nasce tutto (D45): visibile dal primo fotogramma, sparisce quando parte il big bang */}
+            <span className="varco-puntino solo-varco" aria-hidden="true" />
             <canvas className="tela-materia" aria-hidden="true" />
             {/* l'apertura sta sopra tutto il palco (il nome nel cerchio); le altre battute nella fascia del testo */}
             <div className="apertura-strato">
@@ -535,6 +622,16 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
             <div className="fascia">
               {percorso.blocchi.filter((bl) => bl.tipo !== 'apertura' && bl.tipo !== 'squadra').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
+            {/* le cartoline dei servizi: volano accanto alla mascotte una alla volta */}
+            <div className="cartoline-strato solo-varco">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'mascotte').map((bl) => (
+                <div className="blocco" key={bl.id} data-id={bl.id}>
+                  {bl.battute.filter((b) => b.tipo === 'foto').map((b) => <VoceBattuta key={b.ruolo} b={b} apertura={false} />)}
+                </div>
+              ))}
+            </div>
+            {/* il finale: pochi posti nella luce, poi quello libero (D45) */}
+            {percorso.blocchi.some((bl) => bl.tipo === 'finale') ? <GraficaPosti /> : null}
             {/* la squadra: la frase sopra e sotto le quattro mascotte riunite */}
             <div className="squadra-strato">
               {percorso.blocchi.filter((bl) => bl.tipo === 'squadra').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}

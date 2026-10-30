@@ -28,9 +28,14 @@ export function mascotte(materia: Materia, centro: Vec2): Regia {
     k.luce('mascotte', { a: centro, raggio: 0.3, colore: materia }, 0.45 * liscia(0, 0.6, t.titolo))
     k.orbita('aura', { centro, raggio: [0.55, 0.38], n: 24, colore: materia }, { accese: 24 * t.paragrafo, ordine: 0.2 + 0.8 * t.paragrafo, velocita: 0.8, alfa: 0.9 * f.foto[1] })
     k.linea('sottolinea', { punti: [[0.06, 1.03], [0.6, 1.03]], colore: materia, spessore: 1.2, gocce: 6 }, t.link)
+    // le tre cartoline: dove si posa ognuna, un piccolo battito della materia della mascotte
+    CARTOLINE.forEach((punto, i) => k.pulsa(`cartolina-${i + 1}`, { a: punto, raggio: 0.07, colore: materia }, t[`foto-${i + 1}`] ?? 0))
     fuoco(k, t.paragrafo, centro)
   }
 }
+
+/** dove si posano le cartoline, nel quadro (a metà fra telefono e computer: è solo il battito che le accompagna) */
+const CARTOLINE: Vec2[] = [[0.15, 0.32], [0.88, 0.5], [0.15, 0.68]]
 
 // Punti misurati con Read su public/film/scene/<mascotte>-2-720.webp: il centro della creatura (x da sinistra, y dall'alto, in frazioni)
 export const CENTRI: Record<'atlas' | 'janus' | 'prometheus' | 'hermes', Vec2> = {
@@ -60,7 +65,7 @@ export const finale: Regia = (t, f, k) => {
     const a: Vec2 = [angoli[i][0] + (0.5 - angoli[i][0]) * 0.6 * t['2'], angoli[i][1] + (0.5 - angoli[i][1]) * 0.6 * t['2']]
     k.luce(`materia-${m}`, { a, raggio: 0.14, colore: m }, 0.4 * v)
   })
-  k.orbita('cerchio', { centro: CENTRO, raggio: [0.2, 0.1125], n: 32, colore: 'blu' }, { accese: 32 * t['2'], ordine: 1, velocita: 0.5, alfa: 0.9 * liscia(0, 0.3, t['2']) })
+  // il cerchio di particelle attorno al pulsante non c'è più: c'è la grafica dei posti (Varco.tsx, D45)
   k.luce('pulsante', { a: CENTRO, raggio: 0.3, colore: 'blu' }, 0.3 * t.pulsante)
   fuoco(k, t['2'], CENTRO)
 }

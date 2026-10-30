@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { Vector3 } from 'three'
 import { creaCreature } from './creature.ts'
-import { ORDINE } from '../coreografia.ts'
+import { ORDINE, PASSO_SQUADRA } from '../coreografia.ts'
 import type { PosaCorpo } from './creature.ts'
 
 const posa = (p: Partial<PosaCorpo> = {}): PosaCorpo => ({
@@ -42,14 +42,15 @@ test('il saluto alza il braccio dal lato chiesto sopra la spalla, l\'altro resta
   c.dispose()
 })
 
-test('abbraccio: ogni mano spunta davanti alla spalla lontana del vicino (a 0,7 + 0,3), le braccia orizzontali', () => {
+test('abbraccio: ogni mano spunta davanti alla spalla lontana del vicino (PASSO_SQUADRA + 0,3), le braccia orizzontali', () => {
   const c = creaCreature()
   const [sx, dx] = c.hermes.braccia
   c.hermes.aggiorna(3, posa({ abbraccio: 1, abbraccioSx: true, abbraccioDx: true }))
   for (const [b, lato] of [[sx, -1], [dx, 1]] as const) assert.ok(Math.abs(b.rotation.z - (lato * Math.PI) / 2) < 0.3, `orizzontale: ${b.rotation.z}`)
   c.hermes.radice.updateMatrixWorld(true)
   const [ms, md] = c.hermes.mani.map((m) => m.getWorldPosition(new Vector3()))
-  assert.ok(Math.abs(md.x - 1) < 0.1 && Math.abs(ms.x + 1) < 0.1, `x delle mani: ${ms.x.toFixed(2)} ${md.x.toFixed(2)}`)
+  const lontana = PASSO_SQUADRA + 0.3
+  assert.ok(Math.abs(md.x - lontana) < 0.1 && Math.abs(ms.x + lontana) < 0.1, `x delle mani: ${ms.x.toFixed(2)} ${md.x.toFixed(2)}`)
   assert.ok(md.z > 0.1 && ms.z > 0.1, `davanti alla spalla del vicino, quindi si vedono: ${ms.z.toFixed(2)} ${md.z.toFixed(2)}`)
   assert.ok(Math.abs(md.y - ms.y) < 0.12)
   // il braccio libero dell'ultimo della fila saluta anche durante l'abbraccio

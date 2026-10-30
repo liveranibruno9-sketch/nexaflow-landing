@@ -61,7 +61,7 @@
   text-shadow: var(--ombra-grande);
 }
 .film-radice .nome-apertura {
-  font-size: 15vw;
+  font-size: 19vw;
   line-height: 0.92;
   letter-spacing: -0.01em;
   text-shadow: var(--ombra-grande);
@@ -254,13 +254,13 @@ html.varco .film-radice .varco-poster {
   max-width: none;
   margin: 0;
   transform: translate(-50%, -50%);
-  opacity: var(--poster, 1);
+  opacity: var(--poster, 0);
   transition: opacity 0.8s linear;
   pointer-events: none;
 }
 @media (min-aspect-ratio: 1/1) {
   .film-radice { --cerchio-y: 50%; }
-  html.varco .film-radice .varco-poster { width: 70vh; width: 70svh; }
+  html.varco .film-radice .varco-poster { width: 86vh; width: 86svh; }
 }
 
 /* il nome dell'apertura aspetta le lettere di particelle: compare sotto, nello stesso punto, quando sono complete (D38) */
@@ -376,7 +376,7 @@ html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 64%;
   html.varco .film-radice .battuta-motto { font-size: 18px; }
   html.varco .film-radice .battuta-frase,
   html.varco .film-radice .battuta-passo { font-size: clamp(20px, 5.4vh, 28px); }
-  html.varco .film-radice .nome-apertura { font-size: 12vh; font-size: 12svh; }
+  html.varco .film-radice .nome-apertura { font-size: 15vh; font-size: 15svh; }
   html.varco .film-radice .battuta-titolo { font-size: clamp(22px, 7vh, 34px); }
   html.varco .film-radice .battuta-paragrafo { font-size: 14px; max-width: 34ch; }
   html.varco[data-blocco='mascotte'] .film-radice .fascia { top: 20%; height: 62%; }
@@ -396,7 +396,7 @@ html.varco .film-radice .squadra-strato .battuta[data-ruolo='sotto'] { top: 64%;
   html.varco .film-radice .battuta-motto { font-size: clamp(30px, 2.6vw, 38px); }
   html.varco .film-radice .battuta-frase,
   html.varco .film-radice .battuta-passo { font-size: clamp(44px, 3.6vw, 64px); }
-  html.varco .film-radice .nome-apertura { font-size: min(128px, 12vh); font-size: min(128px, 12svh); }
+  html.varco .film-radice .nome-apertura { font-size: min(176px, 16vh); font-size: min(176px, 16svh); }
   html.varco .film-radice .battuta-titolo { font-size: clamp(44px, 4.2vw, 66px); }
   html.varco .film-radice .blocco[data-tipo='intro'] .battuta-titolo { font-size: clamp(52px, 5vw, 80px); }
   html.varco .film-radice .battuta-paragrafo { font-size: clamp(18px, 1.45vw, 22px); max-width: 40ch; }
@@ -415,4 +415,108 @@ html.varco .film-radice .coda { background: rgba(2, 4, 3, 0.8); }
 @media (prefers-reduced-motion: reduce) {
   .film-radice .scorri-linea { animation: none; }
   .film-radice .lettera { transition: none; }
+}
+
+/* ==========================================================================================================================
+   HOME v2.2 (D45): il punto del big bang, il banner sotto l'apertura, le cartoline dei servizi, i posti del finale
+   ========================================================================================================================== */
+html.varco .film-radice .solo-varco { display: block; }
+
+/* il punto da cui nasce il cerchio: c'è dal primo fotogramma, pulsa, e lascia il posto al big bang */
+html.varco .film-radice .varco-puntino {
+  position: absolute; z-index: 0; left: 50%; top: var(--cerchio-y);
+  width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px 3px rgba(190, 210, 255, 0.9), 0 0 42px 14px rgba(91, 140, 255, 0.35);
+  opacity: var(--puntino, 1);
+  transition: opacity 0.25s linear;
+  animation: varco-puntino 1.4s var(--curva) infinite;
+  pointer-events: none;
+}
+@keyframes varco-puntino { 50% { transform: scale(1.7); } }
+
+/* il banner: chi siamo, cosa facciamo, dove siamo. Nella pagina normale è una fascia in colonna; nel varco passa sotto l'apertura */
+.film-radice .apertura-banner { display: grid; gap: 18px; margin: 2em auto; padding: 26px var(--margine); text-align: left; max-width: 560px; }
+.film-radice .banner-etichetta { font: 500 11px/1.3 var(--mono); letter-spacing: 0.24em; text-transform: uppercase; color: rgba(244, 241, 255, 0.55); margin: 0 0 7px; }
+.film-radice .banner-h1,
+.film-radice .apertura-banner .battuta {
+  font-family: var(--titoli); font-stretch: 85%; font-weight: 500; font-size: clamp(19px, 5.2vw, 23px); line-height: 1.22;
+  letter-spacing: -0.005em; color: #f4f1ff; margin: 0; max-width: none; text-align: left;
+}
+html.varco .film-radice .apertura-banner {
+  position: absolute; left: 0; right: 0; top: 0; z-index: 2;
+  max-width: none; margin: 0; padding: 30px var(--margine) 34px;
+  background: linear-gradient(180deg, rgba(5, 8, 16, 0.9), rgba(3, 5, 10, 0.96));
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid; border-bottom: 1px solid;
+  border-image: linear-gradient(90deg, var(--polvere), var(--vetro), var(--saette-viola), var(--cromo)) 1;
+  visibility: hidden; will-change: transform;
+}
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .apertura-banner { grid-template-columns: 1.25fr 1.35fr 0.8fr; gap: 0; padding: 44px 6% 46px; }
+  html.varco .film-radice .banner-voce { padding: 0 34px; border-left: 1px solid rgba(244, 241, 255, 0.12); }
+  html.varco .film-radice .banner-voce:first-child { padding-left: 0; border-left: 0; }
+  .film-radice .banner-h1, .film-radice .apertura-banner .battuta { font-size: clamp(22px, 1.9vw, 30px); }
+}
+@media (min-aspect-ratio: 1/1) and (max-height: 520px) {
+  html.varco .film-radice .apertura-banner { grid-template-columns: repeat(3, 1fr); gap: 22px; padding: 22px 6%; }
+}
+
+/* le cartoline: foto col bordo bianco accanto alla mascotte; volano al loro posto quando la loro battuta si accende */
+.film-radice .statico-cartolina { margin: 1em auto; max-width: 300px; }
+.film-radice .statico-cartolina img { display: block; width: 100%; height: auto; }
+html.varco .film-radice .cartoline-strato { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+html.varco .film-radice .cartoline-strato .blocco { display: contents; }
+html.varco .film-radice .battuta-foto { position: absolute; margin: 0; width: 25vw; max-width: 180px; }
+html.varco .film-radice .cartolina-carta {
+  display: block; padding: 5px 5px 16px; border-radius: 3px; background: #f3efe6;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.45);
+  transform: rotate(var(--giro, 0deg));
+  transition: transform 0.85s cubic-bezier(0.2, 1.25, 0.32, 1), opacity 0.35s linear;
+}
+html.varco .film-radice .battuta-foto:not([data-attivo='true']) .cartolina-carta {
+  opacity: 0; transform: translate3d(var(--da-x, 0), 55vh, 0) rotate(calc(var(--giro, 0deg) * 4)) scale(0.8);
+  transition: transform 0.5s ease-in, opacity 0.3s linear;
+}
+html.varco .film-radice .cartolina-carta img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 1px; }
+html.varco .film-radice .battuta-foto[data-ruolo='foto-1'] { left: 2%; top: 12%; --giro: -7deg; --da-x: -30vw; }
+html.varco .film-radice .battuta-foto[data-ruolo='foto-2'] { right: 2%; top: 22%; --giro: 6deg; --da-x: 30vw; }
+html.varco .film-radice .battuta-foto[data-ruolo='foto-3'] { left: 3%; top: 36%; --giro: 3deg; --da-x: -30vw; }
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .battuta-foto { width: 12.5vw; max-width: 210px; }
+  html.varco .film-radice .battuta-foto[data-ruolo='foto-1'] { left: 43%; top: 13%; right: auto; }
+  html.varco .film-radice .battuta-foto[data-ruolo='foto-2'] { left: 80%; top: 25%; right: auto; }
+  html.varco .film-radice .battuta-foto[data-ruolo='foto-3'] { left: 45%; top: 52%; right: auto; }
+}
+@media (min-aspect-ratio: 1/1) and (max-height: 520px) {
+  html.varco .film-radice .battuta-foto { width: 11vw; }
+  html.varco .film-radice .battuta-foto[data-ruolo='foto-1'] { left: 44%; top: 10%; }
+  html.varco .film-radice .battuta-foto[data-ruolo='foto-2'] { left: 82%; right: auto; top: 22%; }
+  html.varco .film-radice .battuta-foto[data-ruolo='foto-3'] { left: 46%; top: 50%; }
+}
+
+/* i posti del finale: il campo di attività nel buio, il riflettore, quattro punti che entrano, il posto libero che pulsa */
+html.varco .film-radice .posti-strato { position: absolute; z-index: 0; left: 50%; top: 34%; width: min(92vw, 52vh); transform: translate(-50%, -50%); pointer-events: none; }
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) { html.varco .film-radice .posti-strato { left: 64%; top: 50%; width: min(44vw, 82vh); } }
+@media (min-aspect-ratio: 1/1) and (max-height: 520px) { html.varco .film-radice .posti-strato { left: 68%; top: 50%; width: 62vh; } }
+.film-radice .posti { display: block; width: 100%; height: auto; overflow: visible; }
+.film-radice .posti-campo { fill: rgba(244, 241, 255, 0.5); opacity: 0; transition: opacity 0.8s linear; animation: posti-brilla 3s ease-in-out infinite; }
+.film-radice .posti-luce, .film-radice .posti-bordo { opacity: 0; transform: scale(0.6); transform-origin: 0 0; transition: opacity 0.9s linear, transform 1s var(--curva); }
+.film-radice .posti-bordo { fill: none; stroke: rgba(244, 241, 255, 0.4); stroke-width: 0.8; stroke-dasharray: 2 3; }
+.film-radice .posti-dentro { opacity: 0; transform: translate(var(--da-x), var(--da-y)); transition: transform 1.1s var(--curva), opacity 0.5s linear; }
+.film-radice .posti-punto { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8)); }
+.film-radice .posti-tuo { opacity: 0; transition: opacity 0.6s linear; }
+.film-radice .posti-libero { fill: none; stroke: rgba(244, 241, 255, 0.75); stroke-width: 0.8; stroke-dasharray: 2.2 2.2; }
+.film-radice .posti-pieno { opacity: 0; transform: scale(0.3); transform-origin: 0 30px; transition: opacity 0.6s linear 0.5s, transform 0.9s cubic-bezier(0.2, 1.4, 0.3, 1) 0.5s; }
+.film-radice .posti-onda { fill: none; stroke: rgba(244, 241, 255, 0.6); stroke-width: 0.6; transform-origin: 0 30px; animation: posti-onda 1.8s ease-out infinite; }
+@keyframes posti-brilla { 50% { fill-opacity: 0.35; } }
+@keyframes posti-onda { from { transform: scale(1); opacity: 0.8; } to { transform: scale(2.6); opacity: 0; } }
+.film-radice [data-posti='1'] .posti-campo, .film-radice [data-posti='2'] .posti-campo { opacity: 1; }
+.film-radice [data-posti='1'] .posti-luce, .film-radice [data-posti='2'] .posti-luce,
+.film-radice [data-posti='1'] .posti-bordo, .film-radice [data-posti='2'] .posti-bordo { opacity: 1; transform: scale(1); }
+.film-radice [data-posti='1'] .posti-dentro, .film-radice [data-posti='2'] .posti-dentro { opacity: 1; transform: translate(0, 0); }
+.film-radice [data-posti='2'] .posti-tuo { opacity: 1; }
+.film-radice [data-posti='2'] .posti-pieno { opacity: 1; transform: scale(1); }
+@media (prefers-reduced-motion: reduce) {
+  html.varco .film-radice .varco-puntino, .film-radice .posti-onda, .film-radice .posti-campo { animation: none; }
 }

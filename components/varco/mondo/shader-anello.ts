@@ -7,6 +7,7 @@ export const ANELLO_PUNTI_VERT = /* glsl */ `
   attribute float aMat;
   attribute vec4 aCaso;
   uniform float uAng;
+  uniform float uNascita;
   uniform float uNome;
   uniform float uApri;
   uniform float uCaldo;
@@ -30,6 +31,14 @@ export const ANELLO_PUNTI_VERT = /* glsl */ `
     float c = cos(uAng);
     float s = sin(uAng);
     vec2 anello = vec2(aAnello.x * c - aAnello.y * s, aAnello.x * s + aAnello.y * c);
+    // il big bang (D45): all'inizio tutte le particelle stanno in un punto; il punto esplode in una nube che vortica,
+    // poi ogni particella trova il suo posto nell'anello (dal caos all'ordine), ognuna col suo ritardo
+    float th = aCaso.z * 6.2832 + aCaso.y * 2.0;
+    float esplode = smoothstep(0.05, 0.3, uNascita);
+    float vortice = (1.0 - smoothstep(0.25, 1.0, uNascita)) * (3.0 + 2.5 * aCaso.w);
+    float r0 = (0.06 + 0.9 * aCaso.y) * 0.62 * esplode * (1.0 + 0.3 * sin(aCaso.x * 40.0));
+    vec2 caos = r0 * vec2(cos(th + vortice), sin(th + vortice));
+    anello = mix(caos, anello, smoothstep(0.28 + 0.34 * aCaso.x, 0.9 + 0.1 * aCaso.x, uNascita));
     // il nome: ogni particella parte con un ritardo suo, così le lettere si compongono come uno sciame
     float tn = smoothstep(0.0, 1.0, clamp(uNome * 1.45 - aCaso.x * 0.45, 0.0, 1.0));
     tn *= step(aCaso.w, 0.45);        // solo una parte delle particelle compone le lettere, le altre restano nell'anello (come in anello.ts)

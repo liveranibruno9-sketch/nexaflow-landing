@@ -146,7 +146,7 @@ export async function creaAnello(o: {
   g.setAttribute('aCaso', new BufferAttribute(aCaso, 4))
   const v3 = (c: number[]) => new Vector3(c[0], c[1], c[2])
   const u = {
-    uAng: { value: 0 }, uNome: { value: 0 }, uApri: { value: 0 }, uCaldo: { value: 0 }, uTempo: { value: 0 }, uPx: { value: 1 },
+    uAng: { value: 0 }, uNascita: { value: 0 }, uNome: { value: 0 }, uApri: { value: 0 }, uCaldo: { value: 0 }, uTempo: { value: 0 }, uPx: { value: 1 },
     uLato: { value: 4 }, uCentro: { value: new Vector3() }, uCam: { value: new Vector3() }, uCamZ: { value: 0 }, uDist: { value: DIST }, uPunto: { value: 0.03 },
     uAccese: { value: [0.35, 0.35, 0.35, 0.35] }, uPorta: { value: [-100, -200, -300, -400] }, uAlfa: { value: 1 }, uAlfaNome: { value: 1 },
     uLuce: { value: v3(o.colori.luce) },
@@ -164,7 +164,8 @@ export async function creaAnello(o: {
   gruppo.add(alone)
 
   /* ----- stato: solo a comandi (la regia, ogni fotogramma); il nome segue lo scroll, non il tempo ----- */
-  let nato = -1 // il momento in cui l'anello è comparso: sfuma dentro in 0,6 s al posto del poster
+  let nato = -1 // il momento in cui l'anello è comparso: da lì parte il big bang (D45)
+  let nascita = 0
   let ang = 0
   let usatoOra = false
   const RIPOSO = { ritorno: 0, caldo: 0, giro: 0.9, apri: 0, punto: 0, accese: [0.35, 0.35, 0.35, 0.35], nome: 0 }
@@ -202,10 +203,13 @@ export async function creaAnello(o: {
     },
     aggiorna(tempo, dt, camZ, px, camX, camY) {
       if (nato < 0) nato = tempo
-      ang -= dt * 0.15 * cmd.giro
+      // il big bang dura circa 3 s; mentre la materia si ordina l'anello gira molto più forte, poi si assesta sul giro della regia
+      nascita = clamp((tempo - nato - 0.15) / 3.0, 0, 1)
+      ang -= dt * 0.15 * cmd.giro * (1 + 5 * (1 - nascita) * (1 - nascita))
       const nomeEff = clamp(cmd.nome, 0, 1) * (1 - cmd.ritorno)
-      const formato = nomeEff >= 0.97
+      const formato = nomeEff >= 0.97 && nascita > 0.85
       u.uAng.value = ang
+      u.uNascita.value = nascita
       u.uNome.value = nomeEff
       u.uApri.value = cmd.apri
       u.uCaldo.value = cmd.caldo
@@ -216,13 +220,16 @@ export async function creaAnello(o: {
       u.uCamZ.value = camZ
       u.uCam.value.set(camX, camY, 0)
       u.uAccese.value = cmd.accese
-      u.uAlfa.value = clamp((tempo - nato) / 0.6, 0, 1)
+      u.uAlfa.value = clamp((tempo - nato) / 0.25, 0, 1)
       // sul nome formato le particelle restano un brillio sottile sul contorno e si spengono
       u.uAlfaNome.value = formato ? 0.3 : 1
       u.uPunto.value = (1.5 * lato2) / Math.sqrt(n)
-      matAlone.uniforms.uAlfa.value = 0.55 * cmd.punto * (1 - cmd.apri)
+      // il lampo del big bang: il punto si accende, esplode in un alone grande che si spegne mentre nasce l'anello
+      const lampo = liscia(0, 0.05, nascita) * (1 - liscia(0.12, 0.45, nascita))
+      matAlone.uniforms.uAlfa.value = Math.max(0.55 * cmd.punto * (1 - cmd.apri), 0.85 * lampo)
       alone.position.set(cxw, cyw, -DIST)
-      alone.scale.set(lato2 * 0.18, lato2 * 0.18, 1)
+      const scalaAlone = lato2 * (0.18 + 0.9 * liscia(0.02, 0.3, nascita) * (1 - liscia(0.3, 0.6, nascita)))
+      alone.scale.set(scalaAlone, scalaAlone, 1)
       // l'arco che passa in alto: quello il cui angolo medio, ruotato, è più vicino a 90°
       let migliore: Materia | null = null
       let scarto = Infinity
@@ -234,7 +241,7 @@ export async function creaAnello(o: {
       gruppo.visible = usatoOra
     },
     arcoInAlto: () => arcoAlto,
-    nomeFormato: () => clamp(cmd.nome, 0, 1) * (1 - cmd.ritorno) >= 0.97,
+    nomeFormato: () => clamp(cmd.nome, 0, 1) * (1 - cmd.ritorno) >= 0.97 && nascita > 0.85,
     dispose() {
       gruppo.removeFromParent()
       g.dispose()

@@ -28,6 +28,8 @@ export type Creatura = {
   aggiorna(tempo: number, posa: PosaCorpo): void
 }
 export type Creature = Record<Mascotte, Creatura> & {
+  /** le luci che le illuminano (solo le mascotte 3D): il mondo le mette nel palco */
+  luci?: Group
   /** px per unità a distanza 1 (come gli altri strati), per la grandezza della polvere attorno */
   imposta(px: number): void
   dispose(): void
@@ -59,7 +61,7 @@ const PELLI: Record<Mascotte, { tipo: number; base: number; chiaro: number; bord
 }
 
 /** la luna di Atlas: una falce fra due cerchi, poi estrusa con un bordo morbido */
-function falce(): ExtrudeGeometry {
+export function falce(): ExtrudeGeometry {
   const fuori = 0.25
   const a = 2.0
   const fine = new Vector2(fuori * Math.cos(a), fuori * Math.sin(a))

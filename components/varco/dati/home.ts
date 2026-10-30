@@ -12,37 +12,39 @@ const r = (x: number) => Math.round(x * 1000) / 1000
 const frase = (ruolo: string, [testo, accento]: Frase, da: number, a: number): Battuta =>
   accento ? { tipo: 'frase', testo, ruolo, accento, da, a } : { tipo: 'frase', testo, ruolo, da, a }
 
-// ---------- apertura · 0 → 1,0: il cerchio gira; scorrendo, le particelle compongono il nome ----------
+// ---------- apertura · 0 → 2,4: il big bang (da un punto nasce il cerchio che gira), scorrendo il nome si compone e resta,
+// poi il banner (chi siamo, cosa facciamo, dove siamo) passa come una fascia di pagina e separa l'apertura dal viaggio (D45) ----------
+export const BANNER = { da: 1.15, a: 2.35 }
 const APERTURA: Blocco = {
-  id: 'apertura', tipo: 'apertura', da: 0, a: 1.0, etichetta: '00 · Apertura',
+  id: 'apertura', tipo: 'apertura', da: 0, a: 2.4, etichetta: '00 · Apertura',
   battute: [
-    { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 1.0 },
-    { tipo: 'etichetta', testo: 'Agenzia AI · Faenza, Romagna', ruolo: 'luogo', da: 0, a: 0.7 },
-    { tipo: 'etichetta', testo: 'Automazioni · Siti web · Contenuti · Campagne', ruolo: 'servizi', da: 0, a: 0.7 },
-    { tipo: 'scorri', testo: 'Scorri', ruolo: 'scorri', da: 0, a: 0.5 },
+    { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 2.4 },
+    { tipo: 'etichetta', testo: 'Automazioni · Siti web · Contenuti · Campagne', ruolo: 'servizi', da: BANNER.da, a: BANNER.a },
+    { tipo: 'etichetta', testo: 'Faenza, Romagna', ruolo: 'luogo', da: BANNER.da, a: BANNER.a },
+    { tipo: 'scorri', testo: 'Scorri', ruolo: 'scorri', da: 0, a: 0.4 },
   ],
 }
 
-// ---------- soglia · 1,0 → 2,6: due frasi sole (le altre vanno nelle pagine dei servizi) ----------
+// ---------- soglia · 2,4 → 4,0: due frasi sole (le altre vanno nelle pagine dei servizi) ----------
 const SOGLIA: Blocco = {
-  id: 'soglia', tipo: 'soglia', da: 1.0, a: 2.6, etichetta: 'Lo studio',
+  id: 'soglia', tipo: 'soglia', da: 2.4, a: 4.0, etichetta: 'Lo studio',
   battute: [
-    frase('1', ['Tu fai il tuo mestiere.', 'mestiere'], 1.1, 1.8),
-    frase('2', ['Al resto pensiamo noi.', 'noi'], 1.8, 2.6),
+    frase('1', ['Tu fai il tuo mestiere.', 'mestiere'], 2.5, 3.2),
+    frase('2', ['Al resto pensiamo noi.', 'noi'], 3.2, 4.0),
   ],
 }
 
-// ---------- i servizi · 2,6 → 4,2 il titolo di sezione con le quattro mascotte che girano, poi 3,2 schermate per servizio ----------
+// ---------- i servizi · 4,0 → 5,6 il titolo di sezione con le quattro mascotte che girano, poi 3,2 schermate per servizio ----------
 const INTRO: Blocco = {
-  id: 'servizi', tipo: 'intro', da: 2.6, a: 4.2, etichetta: 'I servizi',
-  battute: [{ tipo: 'titolo', testo: 'I nostri servizi', ruolo: 'titolo', da: 2.7, a: 4.2 }],
+  id: 'servizi', tipo: 'intro', da: 4.0, a: 5.6, etichetta: 'I servizi',
+  battute: [{ tipo: 'titolo', testo: 'I nostri servizi', ruolo: 'titolo', da: 4.1, a: 5.6 }],
 }
 
 type Mascotte = 'atlas' | 'janus' | 'prometheus' | 'hermes'
 const LUNGHEZZA_SERVIZIO = 3.2
 
-/** un servizio: la mascotte si compone dalle particelle, poi titolo, paragrafo e collegamento alla pagina */
-function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Materia; titolo: string; paragrafo: Frase; link: [string, string] }): Blocco {
+/** un servizio: la mascotte arriva, poi titolo, paragrafo, tre cartoline che spiegano il servizio (foto Pexels) e collegamento alla pagina */
+function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Materia; titolo: string; paragrafo: Frase; link: [string, string]; foto: { nome: string; alt: string }[] }): Blocco {
   const t = (x: number) => r(b + x)
   return {
     id: o.id, tipo: 'mascotte', da: b, a: t(LUNGHEZZA_SERVIZIO), etichetta: o.etichetta, materia: o.materia,
@@ -50,52 +52,73 @@ function servizio(b: number, o: { id: Mascotte; etichetta: string; materia: Mate
     battute: [
       { tipo: 'titolo', testo: o.titolo, ruolo: 'titolo', da: t(0.5), a: t(2.8) },
       { tipo: 'paragrafo', testo: o.paragrafo[0], ruolo: 'paragrafo', da: t(0.8), a: t(2.8), ...(o.paragrafo[1] ? { accento: o.paragrafo[1] } : {}) },
+      ...o.foto.map((f, i): Battuta => ({ tipo: 'foto', testo: f.alt, ruolo: `foto-${i + 1}`, src: `/film/cartoline/${f.nome}.webp`, da: t(0.75 + 0.3 * i), a: t(2.85) })),
       { tipo: 'link', testo: o.link[0], ruolo: 'link', href: o.link[1], da: t(1.4), a: t(2.9) },
     ],
   }
 }
 
 const SERVIZI: Blocco[] = [
-  servizio(4.2, {
+  servizio(5.6, {
     id: 'atlas', etichetta: '01 · Automazioni', materia: 'polvere', titolo: 'Automazioni aziendali',
     paragrafo: ['Rispondono ai messaggi e alle chiamate perse anche a negozio chiuso, ricontattano chi ha chiesto un preventivo ed è sparito, chiedono una recensione a ogni cliente. Tu smetti di rincorrere i messaggi: nessuno resta senza risposta.', 'senza risposta'],
     link: ['Le automazioni →', '/automazioni'],
+    foto: [
+      { nome: 'automazioni-1', alt: 'La titolare di un negozio di fiori al telefono fra i clienti' },
+      { nome: 'automazioni-2', alt: 'Lo schermo di un programma che tiene in ordine richieste e scadenze' },
+      { nome: 'automazioni-3', alt: 'Una cliente sorridente al telefono: ha avuto subito risposta' },
+    ],
   }),
-  servizio(7.4, {
+  servizio(8.8, {
     id: 'janus', etichetta: '02 · Siti web', materia: 'vetro', titolo: 'Sviluppo siti web e app',
     paragrafo: ["Un sito all'altezza di quello che fai: si apre come un film dal primo scroll, è bello prima dal telefono, è fatto per farti trovare su Google. Richieste e prenotazioni arrivano da sole. Chi arriva capisce, chi capisce prenota.", 'prenota'],
     link: ['I siti web →', '/siti-web'],
+    foto: [
+      { nome: 'siti-1', alt: 'Un sito aperto sul portatile' },
+      { nome: 'siti-2', alt: 'Un\'app sul telefono, fra le mani' },
+      { nome: 'siti-3', alt: 'Il progetto grafico di un sito, disegnato su tavoletta' },
+    ],
   }),
-  servizio(10.6, {
+  servizio(12.0, {
     id: 'prometheus', etichetta: '03 · Contenuti', materia: 'saette', titolo: 'Creazione contenuti',
     paragrafo: ["Post, caroselli e video brevi sulla tua attività, raccontata com'è davvero, con un piano chiaro su cosa pubblicare e quando. Ogni settimana i contenuti pronti arrivano sul tuo telefono: tu li approvi con un tocco.", 'un tocco'],
     link: ['I contenuti →', '/contenuti'],
+    foto: [
+      { nome: 'contenuti-1', alt: 'Un video di cucina girato col telefono sul treppiede' },
+      { nome: 'contenuti-2', alt: 'Il telefono che riprende un prodotto in studio' },
+      { nome: 'contenuti-3', alt: 'Una creatrice di contenuti davanti alla luce ad anello' },
+    ],
   }),
-  servizio(13.8, {
+  servizio(15.2, {
     id: 'hermes', etichetta: '04 · Campagne', materia: 'cromo', titolo: 'Campagne pubblicitarie',
     paragrafo: ['Pubblicità su Instagram, Facebook e Google per le persone giuste, vicine o lontane, con un obiettivo chiaro. Ogni settimana guardiamo cosa funziona e spostiamo lì il budget: alla fine sai quanto ti è costato ogni nuovo contatto.', 'contatto'],
     link: ['Le campagne →', '/campagne'],
+    foto: [
+      { nome: 'campagne-1', alt: 'Una pubblicità su Facebook vista dal telefono' },
+      { nome: 'campagne-2', alt: 'Un profilo Instagram aperto sul telefono' },
+      { nome: 'campagne-3', alt: 'I grafici dei risultati sul portatile' },
+    ],
   }),
 ]
 
-// ---------- la squadra · 17,0 → 19,8: mentre si compone la seconda riga le mascotte tornano dall'alto e si abbracciano ----------
+// ---------- la squadra · 18,4 → 21,2: mentre si compone la seconda riga le mascotte tornano dall'alto e si abbracciano ----------
 const SQUADRA: Blocco = {
-  id: 'squadra', tipo: 'squadra', da: 17.0, a: 19.8, etichetta: 'La squadra',
+  id: 'squadra', tipo: 'squadra', da: 18.4, a: 21.2, etichetta: 'La squadra',
   immagini: ['atlas-2', 'janus-2', 'prometheus-2', 'hermes-2'],
   battute: [
-    frase('sopra', ['Più tempo per il tuo mestiere,', 'tempo'], 17.4, 19.6),
-    frase('sotto', ['più margine a fine mese.', 'margine'], 17.8, 19.6),
+    frase('sopra', ['Più tempo per il tuo mestiere,', 'tempo'], 18.8, 21.0),
+    frase('sotto', ['più margine a fine mese.', 'margine'], 19.2, 21.0),
   ],
 }
 
-// ---------- finale · 19,8 → 21,8: l'invito, poi il pulsante che resta acceso fino al modulo ----------
-const LUNGHEZZA = 21.8
+// ---------- finale · 21,2 → 23,2: l'invito con la grafica dei posti (quattro occupati, il quinto libero), poi il pulsante ----------
+const LUNGHEZZA = 23.2
 const FINALE: Blocco = {
-  id: 'finale', tipo: 'finale', da: 19.8, a: LUNGHEZZA, etichetta: 'Il finale',
+  id: 'finale', tipo: 'finale', da: 21.2, a: LUNGHEZZA, etichetta: 'Il finale',
   battute: [
-    frase('1', ['Seguiamo poche attività alla volta.'], 19.9, 20.5),
-    frase('2', ['La prossima può essere la tua.', 'la tua'], 20.5, 21.1),
-    { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 21.1, a: LUNGHEZZA },
+    frase('1', ['Seguiamo poche attività alla volta.'], 21.3, 21.9),
+    frase('2', ['La prossima può essere la tua.', 'la tua'], 21.9, 22.5),
+    { tipo: 'pulsante', testo: 'Richiedi un preventivo', ruolo: 'pulsante', href: '#preventivo', nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.', da: 22.5, a: LUNGHEZZA },
   ],
 }
 

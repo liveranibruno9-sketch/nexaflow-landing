@@ -9,8 +9,8 @@ const ruoliDi = (b: Blocco) => b.battute.map((x) => x.ruolo)
 const battuta = (b: Blocco, ruolo: string) => b.battute.find((x) => x.ruolo === ruolo)!
 const servizi = HOME.blocchi.filter((b) => b.tipo === 'mascotte')
 
-test('home v2: nove blocchi contigui, dall\'inizio alla lunghezza (21,8)', () => {
-  assert.equal(HOME.lunghezza, 21.8)
+test('home v2: nove blocchi contigui, dall\'inizio alla lunghezza (23,2)', () => {
+  assert.equal(HOME.lunghezza, 23.2)
   assert.deepEqual(HOME.blocchi.map((b) => b.id), ['apertura', 'soglia', 'servizi', 'atlas', 'janus', 'prometheus', 'hermes', 'squadra', 'finale'])
   assert.deepEqual(HOME.blocchi.map((b) => b.tipo), ['apertura', 'soglia', 'intro', 'mascotte', 'mascotte', 'mascotte', 'mascotte', 'squadra', 'finale'])
   assert.equal(HOME.blocchi[0].da, 0); assert.equal(HOME.blocchi[HOME.blocchi.length - 1].a, HOME.lunghezza)
@@ -32,7 +32,7 @@ test('home v2: ruoli unici nel blocco e conformi alla regola', () => {
     squadra: ['sopra', 'sotto'],
     finale: ['1', '2', 'pulsante'],
   }
-  for (const s of servizi) attesi[s.id] = ['titolo', 'paragrafo', 'link']
+  for (const s of servizi) attesi[s.id] = ['titolo', 'paragrafo', 'link', 'foto-1', 'foto-2', 'foto-3']
   for (const b of HOME.blocchi) {
     assert.equal(new Set(ruoliDi(b)).size, b.battute.length, `${b.id}: ruoli doppi`)
     assert.deepEqual([...ruoliDi(b)].sort(), [...attesi[b.id]].sort(), `${b.id}: ruoli diversi dalla regola`)
@@ -72,11 +72,25 @@ test('squadra e finale: le frasi che restano della home (brief 30/10)', () => {
   assert.equal(p.href, '#preventivo'); assert.equal(p.a, HOME.lunghezza); assert.equal(p.nota, 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.')
 })
 
-test('home v2: apertura, il nome dura tutto il blocco (si forma allo scroll), le righe sfumano prima', () => {
+test('apertura (D45): il nome dura tutto il blocco, il banner arriva dopo che il nome si è formato e finisce prima della soglia', () => {
   const ap = HOME.blocchi[0]
   assert.deepEqual([battuta(ap, 'nome').da, battuta(ap, 'nome').a], [0, ap.a])
-  assert.ok(battuta(ap, 'luogo').a < ap.a && battuta(ap, 'scorri').a < battuta(ap, 'luogo').a)
+  assert.equal(ap.a, 2.4)
+  for (const r of ['luogo', 'servizi']) assert.ok(battuta(ap, r).da >= 1 && battuta(ap, r).a < ap.a, r)
+  assert.ok(battuta(ap, 'scorri').a < battuta(ap, 'luogo').da)
   assert.equal(battuta(ap, 'servizi').testo, 'Automazioni · Siti web · Contenuti · Campagne')
+})
+
+test('cartoline: tre foto per servizio, una dopo l\'altra, con il file in public/film/cartoline e un testo alternativo', () => {
+  for (const s of servizi) {
+    const foto = s.battute.filter((x) => x.tipo === 'foto')
+    assert.equal(foto.length, 3, s.id)
+    foto.forEach((f, i) => {
+      assert.ok(f.src?.startsWith('/film/cartoline/') && f.src.endsWith('.webp'), f.src)
+      assert.ok(f.testo.length > 10, 'alt')
+      if (i) assert.ok(f.da > foto[i - 1].da, 'una alla volta')
+    })
+  }
 })
 
 test('home v2: ogni accento sta dentro il suo testo, come parola intera', () => {
