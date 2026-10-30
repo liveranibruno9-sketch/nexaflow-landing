@@ -1,8 +1,7 @@
 // Calcoli puri della materia (le particelle del film): nessun accesso al DOM, si provano con `npm test`.
 // Solo TypeScript "cancellabile" (Node toglie i tipi): niente enum, namespace o parametri-proprietà.
 import { liscio } from './calcoli.ts'
-import type { Modo } from './modo.ts'
-import type { Materia } from './regia.ts'
+import type { Livello, Materia } from '../varco/tipi.ts'
 
 export type Forma = 'punto' | 'scheggia' | 'segmento' | 'goccia'
 
@@ -24,10 +23,9 @@ export const PRESET: Record<Materia, { colore: string; colore2?: string; raggio:
 /** l'ordine delle materie (anche quello del 'ciclo' del nome in apertura) */
 export const MATERIE: readonly Materia[] = ['polvere', 'vetro', 'saette', 'cromo']
 
-/** quante particelle al massimo: nessuna col modo minimo, 400 sul telefono (larghezza ≤ 900, come modo.ts), 900 sul computer */
-export function limiteParticelle(modo: Modo, larghezza: number): number {
-  if (modo === 'minimo') return 0
-  return larghezza <= 900 ? 400 : 900
+/** quante particelle al massimo sopra le frasi, per livello (piano-costruzione-v2): 900 computer, 400 telefono, 150 minimo */
+export function limiteParticelle(livello: Livello): number {
+  return { alto: 900, medio: 400, minimo: 150 }[livello]
 }
 
 /** quante lettere su n sono scritte a t ∈ [0, 1]: intero, monotona; la prima compare appena t > 0 */

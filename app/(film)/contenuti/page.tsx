@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import Coda from '@/components/film/Coda'
-import Film from '@/components/film/Film'
 import ModuloPreventivo from '@/components/film/ModuloPreventivo'
-import { CONTENUTI } from '@/components/film/dati/contenuti'
 
 // Titolo, descrizione e H1 da testi.md §6 (lettera per lettera). Il nome grande è decorativo: l'H1 è la riga piccola.
 const TITOLO = 'Gestione social e contenuti in Romagna | Agenti Studio'
@@ -20,19 +18,11 @@ export const metadata: Metadata = {
 export default function Contenuti() {
   return (
     <main id="contenuto">
-      <Film
-        regia={CONTENUTI}
-        corrente="contenuti"
-        h1="Contenuti e gestione social per le attività della Romagna"
-        poster={{
-          src: '/film/scene/prometheus-2-720.webp',
-          alt: 'Prometheus, lo scoiattolo di saette che rappresenta i contenuti di Agenti Studio',
-        }}
-      >
-        <Coda servizio="contenuti">
-          <ModuloPreventivo servizio="contenuti" />
-        </Coda>
-      </Film>
+      {/* provvisoria: il mondo del varco arriva nel Blocco B (compito 13) */}
+      <h1>Contenuti e gestione social per le attività della Romagna</h1>
+      <Coda servizio="contenuti">
+        <ModuloPreventivo servizio="contenuti" />
+      </Coda>
     </main>
   )
 }

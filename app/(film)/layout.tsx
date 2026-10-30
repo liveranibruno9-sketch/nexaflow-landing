@@ -1,6 +1,7 @@
 import type { Viewport } from 'next'
 import BarraContatti from '@/components/film/BarraContatti'
 import '@/components/film/film.css'
+import '@/components/varco/varco.css'
 
 // `film`: fondo nero. `film-js`: c'è JavaScript, il primo disegno è già lo stato del film a u = 0 (poster a tutto
 // schermo, accese solo le battute da 0) invece dei testi in fila: nessun salto quando il motore mette `film-attivo`.

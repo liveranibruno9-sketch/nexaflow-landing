@@ -1,0 +1,12 @@
+/* Il varco · variabili del mondo (compito 0; stili e layout arrivano nel compito 4).
+   Le variabili degli accenti (--polvere --vetro --saette --saette-viola --cromo --blu --luce) restano in
+   components/film/film.css con gli stessi valori di storyboard 5.1: il mondo le legge con getComputedStyle.
+   --luce è la terna "242, 194, 122" (si usa come rgba(var(--luce), alfa)). */
+.film-radice {
+  /* il nero del mondo: mediana del 10% più scuro delle 13 scene (strumenti/nero-del-mondo.py, 30/10/2026).
+     È il fondo del canvas e della pagina, lo stesso nero delle foto: le sfumature non fanno alone. */
+  --notte: #020403;
+  --perla: #f4f1ff;
+  /* perla al 62% (etichette mono, righe piccole) */
+  --neutro: rgba(244, 241, 255, 0.62);
+}

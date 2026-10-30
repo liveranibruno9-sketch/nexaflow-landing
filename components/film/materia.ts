@@ -10,7 +10,7 @@
 // una volta e `passo` dice al motore che può fermarsi.
 import { liscio } from './calcoli'
 import { MATERIE, PRESET, convergenzaIn, letteraVisibile, rettangoloFotogramma } from './materia-calcoli'
-import type { Materia } from './regia'
+import type { Materia } from '../varco/tipi'
 
 export type Materie = {
   /** n particelle della materia m attorno a (x, y) in px CSS del palco; `anello` = in cerchio (il tocco sul telefono) */

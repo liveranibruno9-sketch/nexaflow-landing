@@ -26,13 +26,10 @@ test('letteraVisibile', () => {
   assert.equal(letteraVisibile(13, 0.01), 1)
 })
 
-test('limiteParticelle', () => {
-  assert.equal(limiteParticelle('minimo', 390), 0)
-  assert.equal(limiteParticelle('leggero', 390), 400)
-  assert.equal(limiteParticelle('pieno', 1440), 900)
-  assert.equal(limiteParticelle('minimo', 1440), 0)
-  assert.equal(limiteParticelle('leggero', 1440), 900)   // computer con rete lenta: il tetto è quello del computer
-  assert.equal(limiteParticelle('leggero', 900), 400)    // 900 è ancora telefono (come modo.ts)
+test('limiteParticelle: un tetto per livello', () => {
+  assert.equal(limiteParticelle('alto'), 900)
+  assert.equal(limiteParticelle('medio'), 400)
+  assert.equal(limiteParticelle('minimo'), 150)
 })
 
 test('convergenza', () => {
