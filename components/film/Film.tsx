@@ -6,6 +6,7 @@
 // navigazione morbida).
 import { Fragment, useEffect, useRef } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
+import { preload } from 'react-dom'
 import type { Servizio } from './dati/contatti'
 import { scegliModo } from './modo'
 import Testata from './Testata'
@@ -154,6 +155,9 @@ function AttoHtml({ atto, h1, regia, ultimo }: { atto: Atto; h1?: string; regia:
 }
 
 export default function Film({ regia, poster, h1, corrente, children }: Props) {
+  // il poster è l'LCP: <link rel="preload" as="image" fetchpriority="high"> nell'head del server (R12). I metadati di Next
+  // non lo emettono per le immagini; preload() di react-dom sì, e non duplica quello che lo stesso <img> chiede.
+  preload(poster.src, { as: 'image', fetchPriority: 'high' })
   const radice = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

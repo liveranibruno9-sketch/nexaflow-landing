@@ -81,7 +81,9 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     modo: opz.modo, misura: opz.misura, conteggio,
     onPronto: () => { versione++; if (vivo && !inCorsa) ridisegna() },
   })
-  caricatore.precarica(regia.scene.map((s) => s.nome))
+  // le 12 scene si mettono in coda solo dopo il primo disegno vero (vedi ridisegna): fino ad allora la rete è del poster
+  // e dei primi fotogrammi dell'apertura
+  let scenePrecaricate = false
 
   const battute: StatoBattuta[] = Array.from(radice.querySelectorAll<HTMLElement>('.battuta[data-da][data-a]')).map((el) => ({
     el, da: Number(el.dataset.da), a: Number(el.dataset.a), s: el.dataset.s ? Number(el.dataset.s) : 0.18, o: -1, y: NaN, vis: null,
@@ -259,6 +261,7 @@ export function avviaFilm(radice: HTMLElement, regia: Regia, opz: { modo: Modo; 
     ctx.globalAlpha = 1
     if (disegnata) disegnaCreature(u)
     if (disegnata && !radice.classList.contains('pronto')) radice.classList.add('pronto')
+    if (disegnata && !scenePrecaricate) { scenePrecaricate = true; caricatore.precarica(regia.scene.map((s) => s.nome)) }
     ultimaChiave = chiave
   }
 
