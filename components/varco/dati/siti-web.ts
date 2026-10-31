@@ -65,12 +65,12 @@ export const SITI_WEB: DatiPagina = {
   gioco: {
     h2: 'Il sito giusto, per ogni mestiere.',
     scelte: [
-      { id: 'bnb', nome: 'B&B e agriturismo', foto: F('siti-bnb'), testo: 'Foto che fanno venire voglia di dormire da te, camere e servizi chiari, richiesta di disponibilità con un tocco. Gli ospiti stranieri trovano tutto in inglese e ti scrivono già con le date.' },
-      { id: 'ristorante', nome: 'Ristorante e bar', foto: F('siti-ristorante'), testo: 'Il menu si legge senza ingrandire, orari e mappa sono subito in vista, e prenotare un tavolo costa un tocco. Chi cerca dove mangiare ti trova; chi ti trova, prenota.' },
-      { id: 'negozio', nome: 'Negozio', foto: F('siti-negozio'), testo: 'Cosa vendi, dove sei, quando sei aperto: tutto in vista, anche a serranda abbassata. Chi cerca un prodotto lo trova e passa a ritirarlo; se vuoi, il catalogo diventa un negozio online.' },
-      { id: 'artigiano', nome: 'Artigiano e impresa', foto: F('siti-artigiano'), testo: 'Le foto dei lavori fatti ti presentano meglio di qualsiasi parola. Chi ti cerca vede cosa sai fare e dove lavori, e chiede un sopralluogo o un preventivo senza girare il sito.' },
-      { id: 'studio', nome: 'Studi e professionisti', foto: F('siti-studio'), testo: 'Servizi spiegati con chiarezza, richiesta di appuntamento semplice, informazioni di legge al loro posto. Un sito sobrio che ispira fiducia, senza promesse di risultato né testimonianze.' },
-      { id: 'eventi', nome: 'Associazioni ed eventi', foto: F('siti-eventi'), testo: 'Date, luogo e come partecipare in cima alla pagina, iscrizione dal telefono in pochi secondi. Chi arriva sa cosa fare, e le iscrizioni ti arrivano in ordine.' },
+      { id: 'bnb', scena: 'bnb', nome: 'B&B e agriturismo', foto: F('siti-bnb'), testo: 'Foto che fanno venire voglia di dormire da te, camere e servizi chiari, richiesta di disponibilità con un tocco. Gli ospiti stranieri trovano tutto in inglese e ti scrivono già con le date.' },
+      { id: 'ristorante', scena: 'ristorante', nome: 'Ristorante e bar', foto: F('siti-ristorante'), testo: 'Il menu si legge senza ingrandire, orari e mappa sono subito in vista, e prenotare un tavolo costa un tocco. Chi cerca dove mangiare ti trova; chi ti trova, prenota.' },
+      { id: 'negozio', scena: 'negozio', nome: 'Negozio', foto: F('siti-negozio'), testo: 'Cosa vendi, dove sei, quando sei aperto: tutto in vista, anche a serranda abbassata. Chi cerca un prodotto lo trova e passa a ritirarlo; se vuoi, il catalogo diventa un negozio online.' },
+      { id: 'artigiano', scena: 'artigiano', nome: 'Artigiano e impresa', foto: F('siti-artigiano'), testo: 'Le foto dei lavori fatti ti presentano meglio di qualsiasi parola. Chi ti cerca vede cosa sai fare e dove lavori, e chiede un sopralluogo o un preventivo senza girare il sito.' },
+      { id: 'studio', scena: 'studio', nome: 'Studi e professionisti', foto: F('siti-studio'), testo: 'Servizi spiegati con chiarezza, richiesta di appuntamento semplice, informazioni di legge al loro posto. Un sito sobrio che ispira fiducia, senza promesse di risultato né testimonianze.' },
+      { id: 'eventi', scena: 'eventi', nome: 'Associazioni ed eventi', foto: F('siti-eventi'), testo: 'Date, luogo e come partecipare in cima alla pagina, iscrizione dal telefono in pochi secondi. Chi arriva sa cosa fare, e le iscrizioni ti arrivano in ordine.' },
     ],
   },
   tappe: {

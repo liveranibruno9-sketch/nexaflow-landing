@@ -397,3 +397,21 @@ html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignett
 @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
   html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta { top: 15vh; bottom: auto; height: 32vh; margin: 0; }
 }
+
+
+/* ===================================== Siti web · «per mestiere»: Janus e il telefono di vetro ===================================== */
+/* --p anima la scena dalla scelta: registrata come numero, così CSS la anima davvero; senza animazione vale 1 (stato finale) */
+@property --p { syntax: '<number>'; inherits: true; initial-value: 1; }
+@keyframes gioca { from { --p: 0; } to { --p: 1; } }
+html.varco .film-radice .gioco-palco.con-scena { display: flex; flex-direction: column; height: 52svh; margin: -24px 0 4px; gap: 8px; }
+.film-radice .gioco-palco.con-scena .gioco-janus { flex: 1 1 0; min-height: 0; }
+.film-radice .gioco-scena { flex: none; width: 100%; aspect-ratio: 360 / 150; max-height: 46%; pointer-events: none; }
+.film-radice .gioco-scena-corpo { width: 100%; height: 100%; animation: gioca 3s linear both; }
+.film-radice .gioco:not([data-visto]) .gioco-scena-corpo { animation-play-state: paused; }
+.film-radice .gioco-scena .vignetta { height: 100%; }
+@media (prefers-reduced-motion: reduce) { .film-radice .gioco-scena-corpo { animation: none; } }
+html.fermo .film-radice .gioco-scena-corpo { animation: none; }
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .gioco-palco.con-scena { height: 66svh; margin: 0; }
+  .film-radice .gioco-scena { max-height: 52%; }
+}

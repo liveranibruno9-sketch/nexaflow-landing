@@ -55,11 +55,13 @@ export const REGIE_SITI: RegiePagina = {
   film: { 'siti-web-a': apertura, 'siti-web-f': elenco },
   // il gioco: alla scelta la lastra si gira verso di te e dentro compare un luogo di quel mestiere (la foto sta nel palco HTML, sfumata)
   gioco: ({ scelta, t }, k) => {
-    const L = lastraDi(k)
-    k.lastra('lastra', { a: L.a, larghezza: L.larghezza, altezza: L.altezza, colore: 'vetro' }, { ruota: 0, apri: 0, alfa: 0.7, calore: 0.25 + 0.25 * lis(0, 1, t) })
-    k.onda('cambio', { a: L.a, raggio: 0.5, colore: 'vetro' }, t)
-    k.luce('janus', { a: k.soggetto.centro, raggio: 0.42, colore: 'vetro' }, 0.22)
-    k.getto('schegge', { da: k.soggetto.centro, verso: L.a, colore: 'vetro', n: 14, ampiezza: 0.3 }, t * (1 + 0 * scelta))
+    const c = k.soggetto.centro
+    k.onda('cambio', { a: c, raggio: 0.5, colore: 'vetro' }, t)
+    k.luce('janus', { a: c, raggio: 0.42, colore: 'vetro' }, 0.22)
+    // la luce del mestiere: calda per B&B, ristorante ed eventi (la festa più forte), fredda per gli altri
+    const caldo = [0.3, 0.34, 0, 0, 0, 0.46][scelta % 6]
+    if (caldo > 0) k.luce('mestiere', { a: [c[0], c[1] + 0.25], raggio: 0.5, colore: 'luce' }, caldo * lis(0, 0.7, t))
+    k.getto('schegge', { da: c, verso: [c[0], c[1] + 0.6], colore: 'vetro', n: 14, ampiezza: 0.3 }, t)
   },
   // l'invito: una piccola lastra-porta si apre attorno al pulsante, che sta nel varco
   invito: (t, k) => {

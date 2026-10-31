@@ -6,15 +6,27 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import type { Scheda } from '../dati/pagine.ts'
+import ScenaMestiere from './ScenaMestiere'
 
 export default function Gioco({ h2, scelte, ancoraScala = 0.9 }: { h2: string; scelte: Scheda[]; ancoraScala?: number }) {
   const [sel, setSel] = useState(0)
   const [attivo, setAttivo] = useState(false)
   const base = useId()
   const bottoni = useRef<(HTMLButtonElement | null)[]>([])
+  const sezione = useRef<HTMLElement>(null)
+  const conScena = scelte.some((s) => s.scena)
+  const [visto, setVisto] = useState(false)
 
   // dopo l'idratazione le schede diventano schede vere; prima (e senza JavaScript) sono tutte in elenco
   useEffect(() => setAttivo(true), [])
+  // la scena si anima quando la sezione entra nello schermo (non prima: sarebbe già finita)
+  useEffect(() => {
+    const el = sezione.current
+    if (!conScena || !el || typeof IntersectionObserver === 'undefined') { setVisto(true); return }
+    const o = new IntersectionObserver((v) => { if (v.some((x) => x.isIntersecting)) { setVisto(true); o.disconnect() } }, { threshold: 0.25 })
+    o.observe(el)
+    return () => o.disconnect()
+  }, [conScena])
 
   const scegli = (i: number, daTastiera = false) => {
     setSel(i)
@@ -30,10 +42,20 @@ export default function Gioco({ h2, scelte, ancoraScala = 0.9 }: { h2: string; s
   }
 
   return (
-    <section className="sezione gioco" data-modo="gioco" aria-labelledby={`${base}-t`}>
-      <div className="gioco-palco" data-ancora="gioco" data-scena="gioco" data-scala={ancoraScala} aria-hidden="true">
-        {scelte[sel]?.foto ? <figure className="gioco-foto" key={scelte[sel].id}><img src={scelte[sel].foto} alt="" width={433} height={650} loading="lazy" decoding="async" /></figure> : null}
-      </div>
+    <section ref={sezione} className="sezione gioco" data-modo="gioco" data-visto={visto ? 'true' : undefined} aria-labelledby={`${base}-t`}>
+      {conScena ? (
+        // Janus sopra, sotto il telefono di vetro con la scena del mestiere scelto
+        <div className="gioco-palco con-scena" aria-hidden="true">
+          <div className="gioco-janus" data-ancora="gioco" data-scena="gioco" data-scala={ancoraScala} />
+          <div className="gioco-scena" key={scelte[sel].id}>
+            <div className="gioco-scena-corpo"><ScenaMestiere id={scelte[sel].scena ?? scelte[sel].id} foto={scelte[sel].foto} /></div>
+          </div>
+        </div>
+      ) : (
+        <div className="gioco-palco" data-ancora="gioco" data-scena="gioco" data-scala={ancoraScala} aria-hidden="true">
+          {scelte[sel]?.foto ? <figure className="gioco-foto" key={scelte[sel].id}><img src={scelte[sel].foto} alt="" width={433} height={650} loading="lazy" decoding="async" /></figure> : null}
+        </div>
+      )}
       <div className="gioco-testo">
         <h2 id={`${base}-t`} className="sezione-titolo cresce">{h2}</h2>
         <div className="gioco-scelte cresce" role="tablist" aria-label="Il tuo mestiere">

@@ -163,6 +163,14 @@ test('Automazioni v3: ogni voce ha la sua vignetta disegnata (stessa finestra), 
   assert.ok(/onboarding/.test(titoli), 'c\'è l\'onboarding cliente')
 })
 
+test('Siti web «per mestiere»: sei schede, ognuna con scena e foto; ogni scena ha il suo disegno', () => {
+  const ids = ['bnb', 'ristorante', 'negozio', 'artigiano', 'studio', 'eventi']
+  assert.deepEqual(SITI_WEB.gioco.scelte.map((s) => s.id), ids)
+  SITI_WEB.gioco.scelte.forEach((s) => assert.ok(s.scena === s.id && s.foto, s.id))
+  const disegni = readFileSync(new URL('./sezioni/ScenaMestiere.tsx', import.meta.url), 'utf8')
+  for (const id of ids) assert.ok(new RegExp(`\\b${id}: [A-Z]`).test(disegni), `scena ${id} registrata`)
+})
+
 test('Siti web v2: il film elenca i tipi di sito dal più leggero al più complesso, ognuno con vignetta, «Come funziona» e preventivo; il paragrafo dice premium e accessibile', () => {
   const f = SITI_WEB.percorso.blocchi.find((b) => b.id.endsWith('-f'))!
   const voci = f.battute.filter((x) => x.tipo === 'blocco')

@@ -109,7 +109,8 @@ function VoceBlocco({ bl }: { bl: Blocco }) {
 /** una scelta del gioco per ogni mascotte: il gesto che la mascotte fa quando il titolare sceglie il suo mestiere */
 const GESTO_SCELTA: Record<string, (i: number) => GestoPagina> = {
   atlas: (i) => ({ nome: 'prendi', lato: i % 2 ? 'destro' : 'sinistro' }),
-  janus: (i) => ({ nome: i % 2 ? 'presenta' : 'modella', lato: 'sinistro' }),
+  // un gesto per mestiere (siti-web: B&B, ristorante, negozio, artigiano, studi, eventi)
+  janus: (i) => [{ nome: 'presenta', lato: 'sinistro' }, { nome: 'modella' }, { nome: 'lancia', lato: 'destro' }, { nome: 'modella' }, { nome: 'presenta', lato: 'destro' }, { nome: 'salta' }][i % 6] as GestoPagina,
   prometheus: () => ({ nome: 'lancia', lato: 'destro' }),
   hermes: () => ({ nome: 'salta' }),
 }

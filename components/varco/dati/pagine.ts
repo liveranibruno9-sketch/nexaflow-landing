@@ -8,7 +8,7 @@ import type { Azione, Battuta, Blocco, GestoPagina, Materia, Percorso } from '..
 export type Frase = [string, string?]
 export type IdPagina = 'automazioni' | 'siti-web' | 'contenuti' | 'campagne' | 'chi-siamo'
 
-export type Scheda = { id: string; nome: string; testo: string; link?: { testo: string; href: string }; /** una foto vera del mestiere (Pexels), mostrata nel palco del gioco */ foto?: string }
+export type Scheda = { id: string; nome: string; testo: string; link?: { testo: string; href: string }; /** la scena disegnata sulla foto (Janus: sezioni/ScenaMestiere.tsx) */ scena?: string; /** una foto vera del mestiere (Pexels), mostrata nel palco del gioco */ foto?: string }
 export type Passo = { tappa: 0 | 1 | 2; titolo: string; testo: string }
 
 /** quello che serve al film di ogni pagina (servizi e Chi siamo): le mascotte (una, o tutte e quattro), la materia, il percorso, il poster */

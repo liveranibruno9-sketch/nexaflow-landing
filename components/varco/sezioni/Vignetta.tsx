@@ -4,32 +4,32 @@
 // Fuori dal film (pagina normale, movimento ridotto) `--p` non c'è e vale 1: si vede lo stato finale, fermo.
 import type { CSSProperties, ReactNode } from 'react'
 
-const CREMA = '#f4f1ff'
-const BLU = '#5b8cff'
-const BLU_CHIARO = '#a9c2ff'
-const CALDO = '#f2c27a'
-const VELO = 'rgba(244, 241, 255, 0.1)'
+export const CREMA = '#f4f1ff'
+export const BLU = '#5b8cff'
+export const BLU_CHIARO = '#a9c2ff'
+export const CALDO = '#f2c27a'
+export const VELO = 'rgba(244, 241, 255, 0.1)'
 
 /** k = quanto della finestra [a, b] dell'avanzamento è trascorso (0..1); e = lo stesso, addolcito agli estremi */
-const T = (a: number, b: number): CSSProperties =>
+export const T = (a: number, b: number): CSSProperties =>
   ({ '--k': `clamp(0, calc((var(--p, 1) - ${a}) / ${(b - a).toFixed(3)}), 1)`, '--e': 'calc(var(--k) * var(--k) * (3 - 2 * var(--k)))' }) as CSSProperties
 
 /** compare in [a, b] arrivando da (dx, dy) e crescendo da `s` a 1 */
-const Entra = (a: number, b: number, dx = 0, dy = 0, s = 1): CSSProperties => ({
+export const Entra = (a: number, b: number, dx = 0, dy = 0, s = 1): CSSProperties => ({
   ...T(a, b), opacity: 'var(--e)', transformBox: 'fill-box', transformOrigin: 'center',
   transform: `translate(calc((1 - var(--e)) * ${dx}px), calc((1 - var(--e)) * ${dy}px)) scale(calc(${s} + ${1 - s} * var(--e)))`,
 })
 /** una linea che si disegna in [a, b] (len = lunghezza del tratto) */
-const Disegna = (a: number, b: number, len: number): CSSProperties => ({ ...T(a, b), strokeDasharray: len, strokeDashoffset: `calc(${len}px * (1 - var(--e)))` })
+export const Disegna = (a: number, b: number, len: number): CSSProperties => ({ ...T(a, b), strokeDasharray: len, strokeDashoffset: `calc(${len}px * (1 - var(--e)))` })
 /** sparisce in [a, b] */
-const Esce = (a: number, b: number): CSSProperties => ({ ...T(a, b), opacity: 'calc(1 - var(--e))' })
+export const Esce = (a: number, b: number): CSSProperties => ({ ...T(a, b), opacity: 'calc(1 - var(--e))' })
 
-const tratto = { fill: 'none', stroke: CREMA, strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
+export const tratto = { fill: 'none', stroke: CREMA, strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
 
-function Riga({ x, y, w, o = 0.75 }: { x: number; y: number; w: number; o?: number }) {
+export function Riga({ x, y, w, o = 0.75 }: { x: number; y: number; w: number; o?: number }) {
   return <rect x={x} y={y} width={w} height={4} rx={2} fill={CREMA} opacity={o} />
 }
-function Spunta({ d = 'M0 0l5 5 9-10', stile, colore = '#fff' }: { d?: string; stile?: CSSProperties; colore?: string }) {
+export function Spunta({ d = 'M0 0l5 5 9-10', stile, colore = '#fff' }: { d?: string; stile?: CSSProperties; colore?: string }) {
   return <path d={d} fill="none" stroke={colore} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" style={stile} />
 }
 
@@ -354,7 +354,7 @@ function Ricettive() {
         {Array.from({ length: 14 }, (_, i) => <rect key={i} x={198 + (i % 7) * 20} y={30 + Math.floor(i / 7) * 22 + 6} width={14} height={14} rx={4} fill={CREMA} opacity={0.25} />)}
       </g>
       {[9, 10, 11].map((c, i) => (
-        <rect key={c} x={198 + (c % 7) * 20 - (c > 6 ? 140 : 0)} y={30 + (c > 6 ? 22 : 0) + 6} width={14} height={14} rx={4} fill={BLU} style={{ ...T(0.38 + 0.08 * i, 0.46 + 0.08 * i), opacity: 'var(--e)' }} />
+        <rect key={c} x={198 + (c % 7) * 20} y={30 + (c > 6 ? 22 : 0) + 6} width={14} height={14} rx={4} fill={BLU} style={{ ...T(0.38 + 0.08 * i, 0.46 + 0.08 * i), opacity: 'var(--e)' }} />
       ))}
       <g style={Entra(0.66, 0.84, 0, 22)}>
         <rect x={186} y={110} width={158} height={30} rx={15} fill={BLU} />
