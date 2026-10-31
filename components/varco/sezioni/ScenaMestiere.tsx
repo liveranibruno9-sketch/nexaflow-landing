@@ -3,7 +3,7 @@
 // Tutto dipende da `--p` (0..1), animato da CSS dalla scelta (vedi `gioca` in pagine.css); senza animazione vale 1 = stato finale fermo.
 // In SVG la proprietà CSS `transform` annulla l'attributo `transform` dello stesso elemento: posizione e animazione stanno su due livelli.
 import type { ReactNode } from 'react'
-import { BLU, BLU_CHIARO, CALDO, CREMA, Disegna, Entra, Esce, Riga, Spunta, T, VELO, tratto } from './Vignetta'
+import { Anelli, BLU, BLU_CHIARO, Bollino, CALDO, CREMA, CROMO, Disegna, Entra, Esce, Goccia, Persona, Pin, Riga, Spunta, T, VELO, tratto } from './Vignetta'
 
 const SCURO = '#0b1030'
 
@@ -334,7 +334,142 @@ function CEventi() {
   )
 }
 
-const SCENE: Record<string, () => ReactNode> = { bnb: Camera, ristorante: Tavolo, negozio: Ritiro, artigiano: PrimaDopo, studio: Agenda, eventi: Festa, 'c-bnb': CBnb, 'c-ristorante': CRistorante, 'c-negozio': CNegozio, 'c-artigiano': CArtigiano, 'c-studio': CStudio, 'c-eventi': CEventi }
+
+/* ===================== Campagne · «per mestiere»: Hermes porta la goccia alla persona giusta, l'azione arriva ===================== */
+function HPersone({ da, pos, x, y }: { da: number; pos: [number, number][]; x: number; y: number }) {
+  return (
+    <>
+      {pos.map(([px, py], i) => <Persona key={i} x={px} y={py} a={da + 0.1 * i + 0.14} b={da + 0.1 * i + 0.26} s={1.1} />)}
+      {pos.map(([px, py], i) => <Goccia key={i} x={x} y={y} dx={px - x} dy={py - y} a={da + 0.1 * i} b={da + 0.1 * i + 0.2} />)}
+    </>
+  )
+}
+
+/* B&B · la richiesta arriva da lontano: una goccia dalla persona fuori regione fino al pin della tenuta, le date si accendono */
+function HBnb() {
+  return (
+    <>
+      <Persona x={30} y={40} a={0.0} b={0.12} s={1.2} />
+      <path d="M44 40Q120 6 196 58" fill="none" stroke={CROMO} strokeOpacity={0.85} strokeWidth={1.5} strokeDasharray="3 5" strokeLinecap="round" style={Disegna(0.1, 0.4, 220)} />
+      <Goccia x={44} y={40} dx={152} dy={18} a={0.12} b={0.44} />
+      <Pin x={206} y={62} a={0.04} b={0.2} />
+      <Anelli x={206} y={62} a={0.4} b={0.6} r={34} />
+      <g style={Entra(0.42, 0.58, 24)}>
+        <rect x={250} y={14} width={96} height={64} rx={10} fill="#0b1030" fillOpacity={0.8} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+        {Array.from({ length: 8 }, (_, i) => <rect key={i} x={258 + (i % 4) * 21} y={24 + Math.floor(i / 4) * 24} width={17} height={18} rx={4} fill={CREMA} opacity={0.22} />)}
+      </g>
+      {[1, 2, 3].map((c, i) => <rect key={c} x={258 + c * 21} y={24} width={17} height={18} rx={4} fill={BLU} style={{ ...T(0.54 + 0.07 * i, 0.62 + 0.07 * i), opacity: 'var(--e)' }} />)}
+      <Pillola x={105} y={110} a={0.68} b={0.86} />
+    </>
+  )
+}
+
+/* Ristorante · il raggio attorno alla porta, le persone entrano nel cerchio, i giorni vuoti si riempiono */
+function HRistorante() {
+  return (
+    <>
+      <Anelli x={150} y={56} a={0.04} b={0.26} r={52} />
+      <Pin x={150} y={56} a={0.0} b={0.14} />
+      <HPersone da={0.26} x={150} y={56} pos={[[70, 40], [224, 40], [190, 92]]} />
+      <g style={Entra(0.5, 0.64, 24)}>
+        <rect x={256} y={14} width={90} height={40} rx={10} fill="#0b1030" fillOpacity={0.8} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+        {Array.from({ length: 7 }, (_, i) => <rect key={i} x={262 + i * 11.5} y={24} width={9} height={20} rx={3} fill="none" stroke={CREMA} strokeOpacity={0.45} strokeWidth={1} />)}
+      </g>
+      {[1, 3, 4, 6].map((c, i) => <rect key={c} x={262 + c * 11.5} y={24} width={9} height={20} rx={3} fill={CALDO} style={{ ...T(0.56 + 0.06 * i, 0.64 + 0.06 * i), opacity: 'var(--e)' }} />)}
+      <Pillola x={105} y={110} a={0.7} b={0.88} />
+    </>
+  )
+}
+
+/* Negozio · l'annuncio «novità», le persone vicine entrano nel raggio, il pin si accende e si passa a ritirare */
+function HNegozio() {
+  return (
+    <>
+      <g style={Entra(0.0, 0.18, -22)}>
+        <rect x={22} y={16} width={70} height={74} rx={10} fill="#0b1030" fillOpacity={0.82} stroke={CROMO} strokeWidth={1.8} />
+        <rect x={30} y={24} width={54} height={34} rx={5} fill={BLU} opacity={0.5} /><circle cx={50} cy={40} r={9} fill={CALDO} />
+        <Riga x={30} y={66} w={40} /><path d="M70 78l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill={CALDO} transform="translate(-6 -6) scale(0.8)" />
+      </g>
+      <Anelli x={206} y={54} a={0.2} b={0.42} r={46} />
+      <Pin x={206} y={54} a={0.18} b={0.32} />
+      <HPersone da={0.38} x={64} y={54} pos={[[170, 80], [250, 84], [236, 24]]} />
+      <g transform="translate(300 54)"><g style={Entra(0.62, 0.76, 20)}><rect x={-14} y={-4} width={28} height={24} rx={4} fill={BLU} /><path d="M-6-4v-4a6 6 0 0112 0v4" fill="none" stroke={BLU} strokeWidth={2.4} /></g></g>
+      <Pillola x={105} y={110} a={0.72} b={0.88} />
+    </>
+  )
+}
+
+/* una ricerca: la barra che si scrive, il primo risultato che si accende */
+function Ricerca({ tag, caldo }: { tag?: boolean; caldo?: boolean }) {
+  return (
+    <>
+      <g style={Entra(0.0, 0.14, 0, 12)}>
+        <rect x={40} y={10} width={236} height={28} rx={14} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.3} />
+        <circle cx={58} cy={24} r={5.4} {...tratto} /><path d="M62 28l5 5" {...tratto} />
+        <rect x={78} y={21} width={120} height={6} rx={3} fill={BLU_CHIARO} style={{ ...T(0.06, 0.32), transformBox: 'fill-box', transformOrigin: 'left', transform: 'scaleX(var(--e))' }} />
+      </g>
+      <g style={Entra(0.3, 0.44, 0, 14)}>
+        <rect x={40} y={48} width={236} height={26} rx={8} fill="#0b1030" fillOpacity={0.85} stroke={CROMO} strokeWidth={caldo ? 1.4 : 2} />
+        {tag ? <rect x={50} y={57} width={16} height={8} rx={4} fill={CROMO} /> : <circle cx={58} cy={61} r={5} fill={CREMA} opacity={0.4} />}
+        <Riga x={76} y={55} w={110} /><Riga x={76} y={64} w={70} o={0.4} />
+      </g>
+      <rect x={40} y={48} width={236} height={26} rx={8} fill={CROMO} style={{ ...T(0.46, 0.6), opacity: 'calc(0.2 * var(--e))' }} />
+    </>
+  )
+}
+
+/* Artigiano · chi cerca te su Google ti trova: il risultato si accende e il telefono squilla */
+function HArtigiano() {
+  return (
+    <>
+      <Ricerca tag />
+      <g transform="translate(316 58)">
+        <g style={Entra(0.58, 0.74, 0, 0, 0.4)}><rect x={-17} y={-26} width={34} height={52} rx={8} fill="#0b1030" stroke={CREMA} strokeOpacity={0.9} strokeWidth={1.3} /><circle r={9} fill={BLU} /><path d="M-3-2q3 5 6 0" {...tratto} stroke="#fff" /></g>
+        {[0, 1].map((i) => <path key={i} d={`M${-22 - i * 8} ${-10 - i * 3}q${-5 - i * 2} 10 0 ${20 + i * 6}`} fill="none" stroke={BLU_CHIARO} strokeWidth={2} strokeLinecap="round" style={{ ...T(0.7 + 0.06 * i, 0.8 + 0.06 * i), opacity: 'var(--e)' }} />)}
+      </g>
+      <Pillola x={105} y={110} a={0.74} b={0.9} />
+    </>
+  )
+}
+
+/* Studi e professionisti · sobrio: la ricerca, il risultato informativo, uno slot di appuntamento; nessun effetto */
+function HStudio() {
+  return (
+    <>
+      <Ricerca caldo />
+      <g style={Entra(0.5, 0.66, 20)}>
+        <rect x={290} y={14} width={56} height={60} rx={9} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+        {[0, 1, 2].map((i) => <rect key={i} x={298} y={22 + i * 17} width={40} height={12} rx={4} fill={i === 1 ? CALDO : CREMA} opacity={i === 1 ? 0.95 : 0.22} />)}
+      </g>
+      <Bollino x={344} y={14} a={0.72} b={0.86} />
+      <Pillola x={105} y={110} a={0.72} b={0.88} />
+    </>
+  )
+}
+
+/* Eventi · l'annuncio con la data raggiunge chi abita in zona, l'anello degli iscritti si riempie */
+function HEventi() {
+  return (
+    <>
+      <g style={Entra(0.0, 0.2, -24)}>
+        <rect x={22} y={10} width={86} height={86} rx={12} fill="#0b1030" fillOpacity={0.82} stroke={CROMO} strokeWidth={1.8} />
+        <rect x={34} y={22} width={50} height={32} rx={5} fill={CALDO} opacity={0.9} /><rect x={34} y={22} width={50} height={9} rx={4} fill="#c0482a" />
+        <Riga x={34} y={64} w={46} /><Riga x={34} y={74} w={30} o={0.45} />
+      </g>
+      <Goccia x={110} y={52} dx={118} dy={4} a={0.2} b={0.5} />
+      <g transform="translate(270 54)">
+        <g style={Entra(0.12, 0.3, 0, 0, 0.5)}><circle r={34} fill="#0b1030" fillOpacity={0.62} stroke={CREMA} strokeOpacity={0.3} strokeWidth={5} /><rect x={-14} y={-9} width={28} height={18} rx={3} fill={VELO} stroke={CREMA} strokeOpacity={0.9} strokeWidth={1.3} /></g>
+        {Array.from({ length: 16 }, (_, i) => {
+          const a = -Math.PI / 2 + (2 * Math.PI * i) / 16
+          return <circle key={i} cx={Math.cos(a) * 34} cy={Math.sin(a) * 34} r={3.4} fill={i % 5 === 0 ? CALDO : BLU_CHIARO} style={{ ...T(0.48 + 0.025 * i, 0.56 + 0.025 * i), opacity: 'var(--e)' }} />
+        })}
+      </g>
+      <Pillola x={105} y={110} a={0.74} b={0.9} />
+    </>
+  )
+}
+
+const SCENE: Record<string, () => ReactNode> = { bnb: Camera, ristorante: Tavolo, negozio: Ritiro, artigiano: PrimaDopo, studio: Agenda, eventi: Festa, 'c-bnb': CBnb, 'c-ristorante': CRistorante, 'c-negozio': CNegozio, 'c-artigiano': CArtigiano, 'c-studio': CStudio, 'c-eventi': CEventi, 'h-bnb': HBnb, 'h-ristorante': HRistorante, 'h-negozio': HNegozio, 'h-artigiano': HArtigiano, 'h-studio': HStudio, 'h-eventi': HEventi }
 
 /** foto del mestiere nel vetro, sotto la scena; `foto` può mancare (la scena regge anche senza) */
 export default function ScenaMestiere({ id, foto }: { id: string; foto?: string }) {

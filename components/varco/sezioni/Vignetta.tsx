@@ -621,7 +621,178 @@ function Gestione() {
   )
 }
 
-const SCENE: Record<string, () => ReactNode> = { messaggi: Messaggi, segreteria: Segreteria, preventivi: Preventivi, onboarding: Onboarding, fatture: Fatture, collegati: Collegati, 'su-misura': SuMisura, landing: Landing, vetrina: Vetrina, ricettive: Ricettive, agenzie: Agenzie, store: Store, 'tre-d': TreD, app: App, post: Post, carosello: Carosello, video: VideoBreve, piano: Piano, gestione: Gestione }
+
+/* ===================================== Campagne: le sette voci del film (Hermes: la goccia che sceglie la persona giusta) ===================================== */
+export const CROMO = '#dfe5f2'
+const GOCCIA = 'M0-9C5-2 7 1 7 5a7 7 0 01-14 0c0-3 2-7 7-14z'
+const PIN = 'M0 12C-9 0-12-4-12-11a12 12 0 0124 0c0 7-3 11-12 23z'
+
+/** una persona (testa e spalle); `lit` la accende col colore caldo nella finestra [a, b] */
+export function Persona({ x, y, a, b, s = 1 }: { x: number; y: number; a?: number; b?: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <circle cy={-6} r={4.8} fill={CREMA} opacity={0.35} /><path d="M-8.5 8a8.5 8.5 0 0117 0z" fill={CREMA} opacity={0.35} />
+      {a !== undefined && b !== undefined ? <g style={{ ...T(a, b), opacity: 'var(--e)' }}><circle cy={-6} r={4.8} fill={CALDO} /><path d="M-8.5 8a8.5 8.5 0 0117 0z" fill={CALDO} /></g> : null}
+    </g>
+  )
+}
+/** una goccia che viaggia di (dx, dy) nella finestra [a, b], poi sparisce */
+export function Goccia({ x, y, dx, dy, a, b }: { x: number; y: number; dx: number; dy: number; a: number; b: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <g style={{ ...T(a, b), transform: `translate(calc(var(--e) * ${dx}px), calc(var(--e) * ${dy}px))`, opacity: 'calc(min(1, var(--e) * 8, (1 - var(--e)) * 5))' }}><path d={GOCCIA} fill={CROMO} /></g>
+    </g>
+  )
+}
+/** il raggio: cerchi concentrici attorno a un pin, che si allargano nella finestra [a, b] */
+export function Anelli({ x, y, a, b, r = 50 }: { x: number; y: number; a: number; b: number; r?: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      {[0.36, 0.68, 1].map((k, i) => (
+        <circle key={i} r={r * k} fill="none" stroke={CROMO} strokeOpacity={0.75} strokeWidth={1.3} strokeDasharray={i === 2 ? '4 5' : undefined} style={{ ...T(a + 0.06 * i, b + 0.06 * i), opacity: 'calc(0.85 * var(--e))', transformBox: 'fill-box', transformOrigin: 'center', transform: 'scale(calc(0.4 + 0.6 * var(--e)))' }} />
+      ))}
+    </g>
+  )
+}
+export function Pin({ x, y, a, b }: { x: number; y: number; a: number; b: number }) {
+  return <g transform={`translate(${x} ${y})`}><g style={Entra(a, b, 0, -12)}><path d={PIN} fill={CALDO} /><circle cy={-11} r={4.4} fill="#0b1030" /></g></g>
+}
+export function Bollino({ x, y, a, b }: { x: number; y: number; a: number; b: number }) {
+  return <g transform={`translate(${x} ${y})`}><g style={Entra(a, b, 0, 0, 0.2)}><circle r={11} fill={BLU} /><g transform="translate(-5.5 1)"><Spunta d="M0 0l3 3 8-9" /></g></g></g>
+}
+
+/* ---------- Campagna di lancio o promozione: un annuncio parte, le gocce raggiungono tre persone attorno al pin ---------- */
+function Lancio() {
+  const persone: [number, number][] = [[250, 30], [292, 76], [250, 122]]
+  return (
+    <>
+      <g transform="translate(42 78)"><g style={Entra(0.0, 0.16, -20)}><path d="M-12-7L6-16V16L-12 7z" fill={CREMA} opacity={0.9} /><rect x={-20} y={-7} width={8} height={14} rx={2} fill={CREMA} opacity={0.6} /><path d="M10-8q8 8 0 16" {...tratto} /></g></g>
+      <Anelli x={118} y={78} a={0.12} b={0.34} />
+      <Pin x={118} y={78} a={0.06} b={0.2} />
+      {persone.map(([x, y], i) => <Persona key={i} x={x} y={y} a={0.34 + 0.1 * i + 0.18} b={0.34 + 0.1 * i + 0.3} s={1.15} />)}
+      {persone.map(([x, y], i) => <Goccia key={i} x={118} y={78} dx={x - 118} dy={y - 78} a={0.3 + 0.1 * i} b={0.5 + 0.1 * i} />)}
+      <Bollino x={334} y={22} a={0.88} b={0.97} />
+    </>
+  )
+}
+
+/* ---------- Pubblicità su Instagram e Facebook: un annuncio nel feed si accende, un tocco, arriva un messaggio ---------- */
+function Feed() {
+  return (
+    <>
+      <g style={{ ...T(0.05, 0.5), transform: 'translate(0, calc(var(--e) * -34px))' }}>
+        {[0, 1, 2, 3].map((i) => (
+          <g key={i} transform={`translate(70 ${14 + i * 44})`}>
+            <rect width={170} height={38} rx={9} fill="#0b1030" stroke={i === 2 ? CROMO : CREMA} strokeOpacity={i === 2 ? 1 : 0.6} strokeWidth={i === 2 ? 2 : 1.2} />
+            <rect x={6} y={6} width={26} height={26} rx={5} fill={i === 2 ? CALDO : BLU} opacity={0.55} />
+            <Riga x={40} y={11} w={80} /><Riga x={40} y={21} w={52} o={0.45} />
+            {i === 2 ? <rect x={138} y={6} width={26} height={9} rx={4} fill={CROMO} /> : null}
+          </g>
+        ))}
+        <rect x={70} y={102} width={170} height={38} rx={9} fill={CROMO} style={{ ...T(0.4, 0.58), opacity: 'calc(0.2 * var(--e))' }} />
+      </g>
+      <g transform="translate(206 92)"><g style={Entra(0.52, 0.66, 28, 24)}><path d="M0 0l2 18 6-6 5 11 4-2-5-11 8-1z" fill={CREMA} stroke="#0b1030" strokeWidth={1} /></g></g>
+      <g style={Entra(0.68, 0.84, -26)}>
+        <rect x={262} y={36} width={84} height={40} rx={12} fill={BLU} />
+        <Riga x={274} y={48} w={46} o={0.95} /><Riga x={274} y={57} w={30} o={0.6} />
+        <g transform="translate(322 50)"><Spunta d="M0 0l3.5 3.5 7-8" stile={Disegna(0.78, 0.9, 20)} /></g>
+      </g>
+    </>
+  )
+}
+
+/* ---------- Pubblicità su Google: la ricerca si scrive, il primo risultato è il tuo, il telefono squilla ---------- */
+function Google() {
+  return (
+    <>
+      <g style={Entra(0.0, 0.14, 0, 14)}>
+        <rect x={40} y={12} width={240} height={30} rx={15} fill="#0b1030" stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.3} />
+        <circle cx={60} cy={26} r={6} {...tratto} /><path d="M65 31l5 5" {...tratto} />
+        <rect x={80} y={23} width={130} height={6} rx={3} fill={BLU_CHIARO} style={{ ...T(0.06, 0.34), transformBox: 'fill-box', transformOrigin: 'left', transform: 'scaleX(var(--e))' }} />
+      </g>
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(40 ${54 + i * 30})`}>
+          <g style={Entra(0.28 + 0.07 * i, 0.4 + 0.07 * i, 0, 14)}>
+            <rect width={240} height={24} rx={7} fill="#0b1030" stroke={i === 0 ? CROMO : CREMA} strokeOpacity={i === 0 ? 1 : 0.5} strokeWidth={i === 0 ? 2 : 1.1} />
+            <rect x={10} y={8} width={14} height={8} rx={4} fill={i === 0 ? CROMO : CREMA} opacity={i === 0 ? 1 : 0.3} /><Riga x={32} y={7} w={110} /><Riga x={32} y={15} w={70} o={0.4} />
+          </g>
+        </g>
+      ))}
+      <rect x={40} y={54} width={240} height={24} rx={7} fill={CROMO} style={{ ...T(0.44, 0.6), opacity: 'calc(0.2 * var(--e))' }} />
+      <g transform="translate(318 66)">
+        <g style={Entra(0.6, 0.76, 0, 0, 0.4)}><rect x={-17} y={-26} width={34} height={52} rx={8} fill="#0b1030" stroke={CREMA} strokeOpacity={0.9} strokeWidth={1.3} /><circle r={9} fill={BLU} /><path d="M-3-2q3 5 6 0" {...tratto} stroke="#fff" /></g>
+        {[0, 1].map((i) => <path key={i} d={`M${24 + i * 8} ${-10 - i * 3}q${5 + i * 2} 10 0 ${20 + i * 6}`} fill="none" stroke={BLU_CHIARO} strokeWidth={2} strokeLinecap="round" style={{ ...T(0.72 + 0.06 * i, 0.82 + 0.06 * i), opacity: 'var(--e)' }} />)}
+      </g>
+      <Bollino x={334} y={112} a={0.88} b={0.97} />
+    </>
+  )
+}
+
+/* ---------- Campagne per ricevere contatti: molti puntini nell'imbuto, ne escono messaggi, telefonate e moduli ---------- */
+function Contatti() {
+  return (
+    <>
+      <g style={Entra(0.0, 0.16, 0, -12)}><path d="M100 12H260L208 74V108H152V74Z" fill={VELO} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.4} strokeLinejoin="round" /></g>
+      {Array.from({ length: 9 }, (_, i) => {
+        const x = 118 + (i % 5) * 31 + (i > 4 ? 14 : 0)
+        return (
+          <g key={i} transform={`translate(${x} 2)`}>
+            <g style={{ ...T(0.1 + 0.06 * i, 0.3 + 0.06 * i), transform: `translate(calc(var(--e) * ${180 - x}px), calc(var(--e) * 72px))`, opacity: 'calc(min(1, var(--e) * 8, (1 - var(--e)) * 4))' }}><circle r={4.4} fill={CROMO} /></g>
+          </g>
+        )
+      })}
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(${126 + i * 54} 130)`}>
+          <g style={Entra(0.56 + 0.1 * i, 0.7 + 0.1 * i, 0, -26, 0.4)}>
+            <circle r={15} fill={i === 1 ? CALDO : BLU} />
+            {i === 0 ? <path d="M-7-5h14v9h-9l-5 4z" fill="#fff" /> : i === 1 ? <path d="M-5-7q-3 7 3 12 6 5 11 2l-3-5-4 1-4-4 1-4z" fill="#0b1030" /> : <g><rect x={-6} y={-7} width={12} height={14} rx={2} fill="#fff" /><path d="M-3-2h6M-3 2h4" stroke={BLU} strokeWidth={1.4} /></g>}
+          </g>
+        </g>
+      ))}
+      <Bollino x={308} y={30} a={0.86} b={0.97} />
+    </>
+  )
+}
+
+/* ---------- Raggiungere chi ti ha già visitato: il visitatore esce, una goccia lo segue e lo riporta alla porta ---------- */
+function Visitato() {
+  return (
+    <>
+      <g style={Entra(0.0, 0.14, -16)}><Finestra x={24} y={22} w={112} h={104}><rect x={12} y={26} width={88} height={34} rx={5} fill={BLU} opacity={0.3} /><Riga x={14} y={70} w={60} /><rect x={36} y={84} width={40} height={12} rx={6} fill={BLU} /></Finestra></g>
+      <g transform="translate(64 108)"><g style={{ ...T(0.1, 0.4), transform: 'translate(calc(var(--e) * 150px), calc(var(--e) * -64px))', opacity: 'calc(1 - 0.9 * var(--e))' }}><circle cy={-6} r={4.8} fill={CREMA} /><path d="M-8.5 8a8.5 8.5 0 0117 0z" fill={CREMA} /></g></g>
+      <path d="M224 40Q250 100 150 110" fill="none" stroke={BLU_CHIARO} strokeWidth={1.4} strokeDasharray="3 5" strokeLinecap="round" style={Disegna(0.42, 0.72, 200)} />
+      <Goccia x={224} y={40} dx={-72} dy={64} a={0.42} b={0.76} />
+      <Persona x={110} y={110} a={0.74} b={0.88} s={1.2} />
+      <Bollino x={320} y={22} a={0.88} b={0.97} />
+    </>
+  )
+}
+
+/* ---------- Gestione continua e resoconto: i controlli settimanali si spuntano, il costo per contatto scende ---------- */
+function Costo() {
+  return (
+    <>
+      {[0, 1, 2, 3].map((i) => (
+        <g key={i} transform={`translate(22 ${20 + i * 30})`}>
+          <g style={Entra(0.02 + 0.14 * i, 0.14 + 0.14 * i, -26)}>
+            <rect width={118} height={24} rx={8} fill={VELO} stroke={CREMA} strokeOpacity={0.7} strokeWidth={1.1} />
+            <rect x={8} y={5} width={14} height={14} rx={4} fill="none" stroke={CREMA} strokeOpacity={0.7} strokeWidth={1.3} />
+            <g transform="translate(10 12)"><Spunta d="M0 0l3 3 7-8" stile={Disegna(0.1 + 0.14 * i, 0.2 + 0.14 * i, 18)} colore={CALDO} /></g>
+            <Riga x={32} y={10} w={72} />
+          </g>
+        </g>
+      ))}
+      <g style={Entra(0.3, 0.46, 24)}>
+        <rect x={166} y={12} width={178} height={126} rx={12} fill="#0b1030" stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+        <path d="M180 124H332M180 28V124" stroke={CREMA} strokeOpacity={0.3} strokeWidth={1.1} />
+      </g>
+      <path d="M186 44L214 58 242 68 270 92 298 100 326 110" fill="none" stroke={CROMO} strokeWidth={2.6} strokeLinecap="round" strokeLinejoin="round" style={Disegna(0.4, 0.86, 200)} />
+      <g transform="translate(326 110)"><g style={Entra(0.84, 0.95, 0, 0, 0.2)}><circle r={9} fill={CALDO} /><circle r={5} fill="none" stroke="#9c7433" strokeWidth={1.4} /></g></g>
+    </>
+  )
+}
+
+const SCENE: Record<string, () => ReactNode> = { messaggi: Messaggi, segreteria: Segreteria, preventivi: Preventivi, onboarding: Onboarding, fatture: Fatture, collegati: Collegati, 'su-misura': SuMisura, landing: Landing, vetrina: Vetrina, ricettive: Ricettive, agenzie: Agenzie, store: Store, 'tre-d': TreD, app: App, post: Post, carosello: Carosello, video: VideoBreve, piano: Piano, gestione: Gestione, lancio: Lancio, feed: Feed, google: Google, contatti: Contatti, visitato: Visitato, costo: Costo }
 
 export default function Vignetta({ id }: { id: string }) {
   const Scena = SCENE[id]

@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import { AUTOMAZIONI, VOCI_AUTOMAZIONI } from './dati/automazioni.ts'
 import { SITI_WEB, TIPI_SITO_TUTTI } from './dati/siti-web.ts'
 import { CONTENUTI, TIPI_CONTENUTO_TUTTI } from './dati/contenuti.ts'
-import { CAMPAGNE } from './dati/campagne.ts'
+import { CAMPAGNE, TIPI_CAMPAGNA_TUTTI } from './dati/campagne.ts'
 import { CHI_SIAMO } from './dati/chi-siamo.ts'
 import { REGIE_PAGINE } from './regie/pagine/indice.ts'
 import { controllaR18 } from './regie/indice.ts'
@@ -60,14 +60,14 @@ test('R7: «Lavori» non compare da nessuna parte (bacheca vuota)', () => {
 
 test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco; Chi siamo: due, 0 → 3,8); ogni battuta sta dentro il suo blocco', () => {
   for (const d of SERVIZI) {
-    const elenco = d.id === 'automazioni' || d.id === 'siti-web' || d.id === 'contenuti'
+    const elenco = d.id === 'automazioni' || d.id === 'siti-web' || d.id === 'contenuti' || d.id === 'campagne'
     if (!elenco) assert.equal(d.percorso.lunghezza, 6)
     assert.deepEqual(d.percorso.blocchi.map((b) => b.id.slice(b.id.lastIndexOf('-') + 1)), elenco ? ['a', 'f'] : ['a', 'p', 'f'])
     d.percorso.blocchi.forEach((b, i) => { if (i > 0) assert.equal(b.da, d.percorso.blocchi[i - 1].a); for (const x of b.battute) assert.ok(x.da >= b.da - 1e-9 && x.a <= b.a + 1e-9 && x.a > x.da, `${d.id}/${b.id}/${x.ruolo}`) })
     const ruoli = (i: number) => d.percorso.blocchi[i].battute.map((x) => x.ruolo)
     for (let i = 0; i < d.percorso.blocchi.length; i++) assert.equal(new Set(ruoli(i)).size, ruoli(i).length, `${d.id}: ruoli doppi`)
     const f = d.percorso.blocchi[d.percorso.blocchi.length - 1]
-    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, d.id === 'automazioni' ? VOCI_AUTOMAZIONI.length + 1 : d.id === 'siti-web' ? TIPI_SITO_TUTTI.length : d.id === 'contenuti' ? TIPI_CONTENUTO_TUTTI.length : 6)
+    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, d.id === 'automazioni' ? VOCI_AUTOMAZIONI.length + 1 : d.id === 'siti-web' ? TIPI_SITO_TUTTI.length : d.id === 'contenuti' ? TIPI_CONTENUTO_TUTTI.length : d.id === 'campagne' ? TIPI_CAMPAGNA_TUTTI.length : 6)
   }
   assert.equal(CHI_SIAMO.percorso.lunghezza, 3.8)
 })
@@ -209,4 +209,23 @@ test('Contenuti v2: il film elenca cosa creiamo (senza immagini e video creati a
   for (const s of CONTENUTI.gioco.scelte) assert.ok(disegni.includes(`'${s.scena}':`), `scena ${s.scena} registrata`)
   assert.ok(!/dentist/i.test(CONTENUTI.gioco.scelte.map((s) => s.id + s.nome).join()), 'i dentisti hanno la loro pagina')
   assert.ok(/grande marchio/i.test(CONTENUTI.h1))
+})
+
+test('Campagne v2: il film elenca cosa facciamo con i due link, mestieri allineati, nessuna promessa di risultato, nessun prezzo', () => {
+  const f = CAMPAGNE.percorso.blocchi.find((b) => b.id.endsWith('-f'))!
+  const voci = f.battute.filter((x) => x.tipo === 'blocco')
+  assert.equal(voci.length, TIPI_CAMPAGNA_TUTTI.length)
+  TIPI_CAMPAGNA_TUTTI.forEach((t, i) => {
+    assert.equal(voci[i].testo, t.titolo[0])
+    assert.ok(voci[i].azioni?.some((x) => x.href === '#preventivo'), t.slug)
+  })
+  assert.deepEqual(CAMPAGNE.gioco.scelte.map((s) => s.id), SITI_WEB.gioco.scelte.map((s) => s.id), 'stessi mestieri di Siti web')
+  CAMPAGNE.gioco.scelte.forEach((s) => assert.ok(s.scena === `h-${s.id}` && s.foto, s.id))
+  const disegni = readFileSync(new URL('./sezioni/ScenaMestiere.tsx', import.meta.url), 'utf8')
+  for (const s of CAMPAGNE.gioco.scelte) assert.ok(disegni.includes(`'${s.scena}':`), `scena ${s.scena} registrata`)
+  assert.ok(/grandi marchi/i.test(CAMPAGNE.h1))
+  const tutto = stringhe(CAMPAGNE).join(' ')
+  assert.ok(!/garantiamo (un|dei) \d|ti garantiamo (clienti|risultati)/i.test(tutto.replace('Noi ti garantiamo di sapere', '')), 'nessuna promessa di risultato')
+  const studio = CAMPAGNE.gioco.scelte.find((s) => s.id === 'studio')!.testo
+  assert.ok(/informativ/i.test(studio) && /promesse/i.test(studio), 'studi: solo informativo')
 })

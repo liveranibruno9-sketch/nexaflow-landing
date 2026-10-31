@@ -1,7 +1,38 @@
-// /campagne · Hermes. Testi da pagine/copy-campagne.md, accorciati dove lo spazio non bastava (§16); ogni cambio è in
-// pagine/registro-costruzione.md. Mai «intelligenza artificiale». Nessun prezzo (R4), nessun risultato promesso, nessun «Lavori» (R7). Modulo puro.
+// /campagne · Hermes. v2 (31/10, scelte di Bruno: titolo A, elenco di cosa facciamo, mestieri allineati a Siti web e Contenuti). Il film è l'elenco, una voce
+// per schermata (titolo + «Come funziona» + «Chiedi un preventivo»), con una scena in codice per voce (la goccia che sceglie la persona giusta; niente mappa a punti).
+// Testi in vault: pagine/campagne-proposta.md. Mai «intelligenza artificiale». Nessun prezzo (R4), nessun risultato promesso, nessun «Lavori» (R7). Modulo puro.
 import { percorsoServizio } from './pagine.ts'
-import type { DatiPagina } from './pagine.ts'
+import type { DatiPagina, Frase } from './pagine.ts'
+import type { GestoPagina } from '../tipi.ts'
+
+const F = (nome: string) => `/film/pagine/siti-web/${nome}.webp`
+
+/** cosa facciamo, dal più leggero al più completo: slug della pagina dedicata (provvisoria, da compilare), titolo, gesto di Hermes, scena disegnata */
+export type TipoCampagna = { slug: string; titolo: Frase; gesto: GestoPagina; vignetta: string; riga: string }
+export const TIPI_CAMPAGNA: TipoCampagna[] = [
+  { slug: 'lancio-e-promozioni', titolo: ['Campagna di lancio o promozione', 'promozione'], gesto: { nome: 'salta' }, vignetta: 'lancio',
+    riga: 'Un evento, un\'apertura, una promozione: un annuncio a tempo che raggiunge le persone giuste attorno a te.' },
+  { slug: 'instagram-e-facebook', titolo: ['Pubblicità su Instagram e Facebook', 'Facebook'], gesto: { nome: 'lancia', lato: 'destro' }, vignetta: 'feed',
+    riga: 'Annunci nel feed di chi abita in zona o ha gli interessi giusti, con le tue foto e le tue parole.' },
+  { slug: 'google', titolo: ['Pubblicità su Google', 'Google'], gesto: { nome: 'presenta', lato: 'sinistro' }, vignetta: 'google',
+    riga: 'Compari tra i primi risultati nel momento in cui qualcuno cerca quello che fai.' },
+  { slug: 'contatti', titolo: ['Campagne per ricevere contatti', 'contatti'], gesto: { nome: 'lancia', lato: 'sinistro' }, vignetta: 'contatti',
+    riga: 'L\'obiettivo sono le richieste: messaggi, telefonate e moduli, contati uno per uno.' },
+  { slug: 'chi-ti-ha-visitato', titolo: ['Raggiungere chi ti ha già visitato', 'visitato'], gesto: { nome: 'salta' }, vignetta: 'visitato',
+    riga: 'Chi ha guardato il tuo sito e non ha scritto vede un promemoria gentile, e torna.' },
+  { slug: 'gestione-e-resoconto', titolo: ['Gestione continua e resoconto', 'resoconto'], gesto: { nome: 'presenta', lato: 'destro' }, vignetta: 'costo',
+    riga: 'Ogni settimana si corregge il tiro, ogni mese ricevi un resoconto semplice con il costo di ogni contatto.' },
+]
+const SU_MISURA = { titolo: ['Su misura', 'misura'] as Frase, gesto: { nome: 'modella' } as GestoPagina, vignetta: 'su-misura',
+  riga: 'Raccontaci la tua attività e l\'obiettivo: costruiamo la campagna per te.' }
+export const TIPI_CAMPAGNA_TUTTI: TipoCampagna[] = [...TIPI_CAMPAGNA, { slug: 'su-misura', ...SU_MISURA }]
+const preventivo = (richiesta: string) => ({ testo: 'Chiedi un preventivo', href: '#preventivo', richiesta })
+const ELENCO = [
+  ...TIPI_CAMPAGNA.map((t) => ({ titolo: t.titolo, gesto: t.gesto, vignetta: t.vignetta, azioni: [{ testo: 'Come funziona', href: `/campagne/${t.slug}` }, preventivo(`Mi interessa: ${t.titolo[0]}.`)] })),
+  { titolo: SU_MISURA.titolo, gesto: SU_MISURA.gesto, vignetta: SU_MISURA.vignetta, riga: SU_MISURA.riga, azioni: [{ testo: 'Raccontaci cosa ti serve', href: '#preventivo', richiesta: 'Vorrei una campagna su misura per: ' }] },
+]
+
+const H1 = 'La pubblicità dei grandi marchi, con un budget a misura di piccola impresa.'
 
 export const CAMPAGNE: DatiPagina = {
   id: 'campagne',
@@ -9,53 +40,39 @@ export const CAMPAGNE: DatiPagina = {
   materia: 'cromo',
   seo: {
     titolo: 'Campagne pubblicitarie a Faenza e Romagna | Agenti Studio',
-    descrizione: 'Pubblicità su Instagram, Facebook e Google per portare clienti nuovi alla tua attività, con budget sotto controllo. Sai quanto costa ogni contatto. Faenza.',
+    descrizione: 'Pubblicità su Instagram, Facebook e Google per le PMI di Faenza e della Romagna, con budget a tua misura. Sai quanto costa ogni contatto.',
   },
-  h1: 'Pubblicità che porta clienti nuovi, e ti dice quanto costa ognuno.',
-  poster: { src720: '/film/scene/hermes-2-720.webp', src1080: '/film/scene/hermes-2-1080.webp', alt: 'Hermes, la mascotte di cromo delle campagne pubblicitarie, con le ali ai piedi' },
+  h1: H1,
+  poster: { src720: '/film/scene/hermes-2-720.webp', src1080: '/film/scene/hermes-2-1080.webp', alt: 'Hermes, la mascotte di cromo delle campagne, con le ali' },
   percorso: percorsoServizio({
     id: 'campagne',
     indice: '04 · Campagne',
     materia: 'cromo',
     servizio: 'Campagne pubblicitarie',
-    h1: 'Pubblicità che porta clienti nuovi, e ti dice quanto costa ognuno.',
-    sotto: 'Annunci su Instagram, Facebook e Google rivolti alle persone giuste, con budget e risultati sotto controllo. Sai dove vanno i tuoi soldi.',
+    h1: H1,
+    sotto: 'Annunci su Instagram, Facebook e Google rivolti alle persone giuste, con la cura dei grandi marchi. Il budget lo scegli e lo paghi tu, dal tuo account. Ogni settimana si corregge il tiro e ogni mese ricevi un resoconto semplice: sai quanto costa ogni contatto.',
     nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.',
     cartoline: [
       { nome: 'campagne-1', alt: 'Una pubblicità su Facebook vista dal telefono' },
       { nome: 'campagne-2', alt: 'I grafici dei risultati sul portatile' },
     ],
-    problema: {
-      h2: 'Hai speso. Sono arrivati i like. I clienti, no.',
-      righe: [
-        ['Si preme «metti in evidenza», si spende qualcosa, qualcuno mette un cuore. Poi nessuno sa se è arrivato un cliente.', 'nessuno sa'],
-        ['Senza un obiettivo e senza numeri, la pubblicità è una scommessa. E la scommessa la perde chi non guarda i conti.', 'scommessa'],
-        ['La stessa cifra, con un obiettivo chiaro e un controllo ogni settimana, ha una direzione.', 'direzione'],
-      ],
-    },
     capacita: {
-      h2: 'Pubblicità con il conto in chiaro.',
-      blocchi: [
-        { titolo: ['Un obiettivo prima di spendere', 'obiettivo'], riga: 'Tavoli pieni, camere occupate, nuove richieste di preventivo. Scegliamo quello e misuriamo quello.', gesto: { nome: 'salta' } },
-        { titolo: ['Le persone giuste', 'giuste'], riga: 'Chi abita vicino a te o chi viene da lontano: zona, interessi, periodo. Non paghi per farti vedere da chi non comprerà mai.', gesto: { nome: 'salta' } },
-        { titolo: ['Testi e immagini fatti per te', 'per te'], riga: 'Annunci con le tue foto e le tue parole. Li vedi e li approvi prima che partano.', gesto: { nome: 'presenta', lato: 'destro' } },
-        { titolo: ['Il budget è tuo', 'tuo'], riga: 'Lo paghi direttamente a Meta e a Google, dal tuo account. Noi non ci mettiamo in mezzo.', gesto: { nome: 'presenta', lato: 'sinistro' } },
-        { titolo: ['Ogni settimana, si corregge il tiro', 'corregge'], riga: 'Guardiamo cosa funziona e spostiamo lì il budget. Quello che non rende, lo spegniamo.', gesto: { nome: 'salta' } },
-        { titolo: ['Sai quanto costa ogni contatto', 'contatto'], riga: 'Un resoconto semplice, con i numeri veri e senza parole difficili.', gesto: { nome: 'presenta', lato: 'destro' } },
-      ],
+      h2: 'Cosa facciamo per te.',
+      passo: 0.6,
+      blocchi: ELENCO,
       beneficio: [['Nessuno può garantirti quante richieste arriveranno.', 'garantirti'], ['Noi ti garantiamo di sapere cosa è successo, e perché.', 'perché']],
       gestoBeneficio: { nome: 'salta' },
     },
   }),
   gioco: {
-    h2: 'Chi vuoi raggiungere, e dove.',
+    h2: 'Chi raggiungere, per mestiere.',
     scelte: [
-      { id: 'ristorante', nome: 'Ristorante', testo: 'Serata a tema, menu di stagione, giorni da riempire: annunci a chi abita entro un certo raggio dalla tua porta, nei giorni in cui serve.' },
-      { id: 'bnb', nome: 'B&B e agriturismo', testo: 'Camere ancora libere in bassa stagione: annunci a chi cerca un weekend in Romagna, anche da fuori regione e dall\'estero.' },
-      { id: 'negozio', nome: 'Negozio', testo: 'Nuovi arrivi, apertura di una sezione, un evento: annunci a chi abita nei dintorni, con la mappa e un invito a passare.' },
-      { id: 'artigiano', nome: 'Artigiano e impresa', testo: 'Chi cerca «elettricista a Faenza» deve trovare te. Su Google, nel momento in cui lo cerca; su Instagram, con il prima e dopo dei tuoi lavori.' },
-      { id: 'studio', nome: 'Studio professionale', testo: 'Annunci a chi cerca il tuo servizio su Google proprio mentre lo cerca.' },
-      { id: 'sanitario', nome: 'Studio sanitario', testo: 'Annunci solo informativi sul servizio (per esempio «ortodonzia con allineatori a Faenza»), senza domande sulla persona, senza promesse di risultato e senza sconti come leva.' },
+      { id: 'bnb', scena: 'h-bnb', nome: 'B&B e agriturismo', foto: F('siti-bnb'), testo: "Camere libere in bassa stagione: annunci a chi cerca un weekend in Romagna, anche da fuori regione e dall'estero. Chi li vede apre il sito e scrive per le date." },
+      { id: 'ristorante', scena: 'h-ristorante', nome: 'Ristorante e bar', foto: F('siti-ristorante'), testo: "Serata a tema, menu di stagione, giorni da riempire: annunci a chi abita entro un certo raggio dalla tua porta, proprio nei giorni in cui serve. Il tavolo si prenota." },
+      { id: 'negozio', scena: 'h-negozio', nome: 'Negozio', foto: F('siti-negozio'), testo: "Nuovi arrivi, una sezione nuova, un evento: annunci a chi abita nei dintorni, con la mappa e un invito a passare. Chi lo vede viene a ritirare." },
+      { id: 'artigiano', scena: 'h-artigiano', nome: 'Artigiano e impresa', foto: F('siti-artigiano'), testo: "Chi cerca «elettricista a Faenza» deve trovare te: su Google, nel momento in cui lo cerca. Il telefono squilla e chi chiama chiede un sopralluogo." },
+      { id: 'studio', scena: 'h-studio', nome: 'Studi e professionisti', foto: F('siti-studio'), testo: "Annunci solo informativi sul servizio, a chi lo cerca su Google proprio mentre lo cerca. Senza domande sulla persona, senza promesse di risultato, senza sconti come leva." },
+      { id: 'eventi', scena: 'h-eventi', nome: 'Associazioni ed eventi', foto: '/film/pagine/contenuti/cont-eventi.webp', testo: "Data, luogo e come partecipare in un annuncio per chi abita in zona o segue temi simili. Si arriva alla pagina e ci si iscrive entro la data." },
     ],
   },
   tappe: {
