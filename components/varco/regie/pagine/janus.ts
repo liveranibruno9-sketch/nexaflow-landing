@@ -27,51 +27,32 @@ const apertura: Regia = (t, f, k) => {
   k.luce('caldo', { a: vicino(k, -0.2, -0.4), raggio: 0.14, colore: 'luce' }, 0.08 + 0.14 * t.pulsante)
 }
 
-const problema: Regia = (t, f, k) => {
-  const L = lastraDi(k)
-  // la lastra è appannata: poco alfa, nessun calore; con l'ultima riga si pulisce
-  k.lastra('lastra', { a: L.a, larghezza: L.larghezza, altezza: L.altezza, colore: 'vetro' }, { ruota: 0, apri: 0, alfa: (0.14 + 0.08 * t.h2) + 0.4 * t.r3, calore: 0 })
-  // 1: scie di luce (chi cerca) arrivano alla lastra e tornano indietro
-  k.raggi('scie', { da: [-0.1, 0.5], verso: L.a, apertura: 0.5, n: 10, colore: 'vetro' }, t.r1)
-  // 2: vanno verso altre luci lontane (social, elenchi: casa d'altri)
-  k.getto('lontane', { da: L.a, verso: [1.2, 0.1], colore: 'vetro', n: 22 * t.r2, ampiezza: 0.5 }, t.r2)
-  k.getto('lontane-b', { da: L.a, verso: [1.1, 0.95], colore: 'vetro', n: 22 * t.r2, ampiezza: 0.5 }, t.r2)
-  // 3: la lastra si pulisce, Janus soffia sul vetro
-  k.onda('soffio', { a: L.a, raggio: 0.5, colore: 'vetro' }, t.r3)
-  k.luce('janus', { a: k.soggetto.centro, raggio: 0.4, colore: 'vetro' }, 0.16)
-  fuoco(k, t.r1, L.a); fuoco(k, t.r2, [0.8, 0.4]); fuoco(k, t.r3, L.a)
-}
-
-const capacita: Regia = (t, f, k) => {
-  const L = lastraDi(k)
+/** l'elenco dei tipi di sito (v2): una vignetta per voce; qui l'anello di schegge di vetro, il gesto, una luce e un'onda per voce */
+const STELLE = 42
+const elenco: Regia = (t, f, k) => {
   const c = k.soggetto.centro
-  // 1: la lastra ruota da orizzontale a verticale (pensato prima per il telefono)
-  const ruota = -1.25 * (1 - lis(0, 1, t.b1))
-  const limpida = 0.55 + 0.25 * t.b3
-  const calore = 0.12 * t.b3 + 0.25 * t.b6 + 0.55 * t.ben1
-  k.lastra('lastra', { a: L.a, larghezza: L.larghezza, altezza: L.altezza, colore: 'vetro' }, { ruota: ruota * (1 - 0.0 * t.h2), apri: lis(0, 1, t.ben1), alfa: 0.5 * t.h2 + 0.3 * limpida, calore })
-  k.luce('janus', { a: c, raggio: 0.42, colore: 'vetro' }, 0.2 + 0.1 * t.b6)
-  // 2: le scie lontane piegano verso la lastra (si fa trovare su Google)
-  k.raggi('scie', { da: [1.15, 0.12], verso: L.a, apertura: 0.7 * (1 - 0.6 * t.b2), n: 14, colore: 'vetro' }, t.b2)
-  // 3: un anello di tocco si propaga sul vetro (chi arriva capisce)
-  k.onda('tocco', { a: L.a, raggio: 0.4, colore: 'vetro' }, t.b3)
-  // 4: piccole luci entrano nella lastra una alla volta, in fila
-  k.getto('richieste', { da: [1.15, L.a[1]], verso: L.a, colore: 'vetro', n: 12 * t.b4, ampiezza: 0.15 }, t.b4)
-  // 5: il riflesso di Janus nel vetro guarda dall'altra parte: due volti
-  k.luce('riflesso', { a: [L.a[0] + 0.05, L.a[1] - 0.05], raggio: 0.14, colore: 'vetro' }, 0.35 * lis(0, 0.5, t.b5) * (1 - 0.4 * lis(0.6, 1, t.b5)))
-  k.pulsa('volti', { a: [L.a[0] + 0.05, L.a[1] - 0.05], raggio: 0.1, colore: 'vetro' }, t.b5)
-  // 6: Janus spinge la lastra verso di te e il bordo prende la luce calda
-  k.luce('bordo-caldo', { a: L.a, raggio: 0.3, colore: 'luce' }, 0.4 * lis(0, 0.7, t.b6))
-  // beneficio: la lastra si apre come una porta e la luce calda dilaga
-  k.luce('dilaga', { a: [L.a[0] - 0.1, L.a[1]], raggio: 0.75, colore: 'luce' }, 0.7 * lis(0.1, 0.9, t.ben1))
-  k.raggi('luce-porta', { da: [L.a[0] - L.larghezza / 2, L.a[1]], verso: [1.2, L.a[1]], apertura: 1.1, n: 14, colore: 'luce' }, t.ben1)
-  k.onda('prego', { a: c, raggio: 0.6, colore: 'luce' }, t.ben2)
-  fuoco(k, t.b1, L.a); fuoco(k, t.b2, L.a); fuoco(k, t.b3, L.a); fuoco(k, t.b4, L.a); fuoco(k, t.b5, L.a); fuoco(k, t.b6, L.a)
-  fuoco(k, t.ben1, L.a); fuoco(k, t.ben2, [0.7, 0.5])
+  const h = k.soggetto.altezza
+  const v = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7'].map((r) => t[r] ?? 0)
+  const fatte = v.reduce((x, y) => x + y, 0)
+  k.orbita('schegge', { centro: vicino(k, 0, 0.0), raggio: [largo(k, 0.46), 0.1 * h], n: STELLE, colore: 'vetro' },
+    { accese: 6 * fatte, ordine: 0.4 + 0.08 * fatte + 0.04 * t.ben1, velocita: 0.4 + 0.9 * t.ben1, alfa: 0.4 + 0.25 * t.h2 + 0.3 * t.ben1 })
+  k.luce('janus', { a: c, raggio: 0.42, colore: 'vetro' }, 0.22 + 0.04 * fatte)
+  v.forEach((x, i) => {
+    if (x <= 0 || x >= 1) return
+    const mano = vicino(k, i % 2 ? 0.24 : -0.24, -0.05)
+    k.onda('tocco', { a: mano, raggio: 0.3, colore: 'vetro' }, lis(0.05, 0.85, x))
+    k.luce('voce', { a: mano, raggio: 0.14, colore: 'luce' }, 0.4 * lis(0, 0.22, x) * (1 - lis(0.82, 1, x)))
+    fuoco(k, x, mano)
+  })
+  // beneficio: chi arriva capisce (la luce calda dilaga piano), chi capisce prenota (un'onda dal centro)
+  k.luce('dilaga', { a: c, raggio: 0.7, colore: 'luce' }, 0.45 * lis(0.1, 0.9, t.ben1))
+  k.onda('capisce', { a: c, raggio: 0.5, colore: 'vetro' }, t.ben1)
+  k.onda('prenota', { a: c, raggio: 0.7, colore: 'luce' }, t.ben2)
+  fuoco(k, t.ben1, vicino(k, 0, -0.05)); fuoco(k, t.ben2, vicino(k, 0, -0.05))
 }
 
 export const REGIE_SITI: RegiePagina = {
-  film: { 'siti-web-a': apertura, 'siti-web-p': problema, 'siti-web-f': capacita },
+  film: { 'siti-web-a': apertura, 'siti-web-f': elenco },
   // il gioco: alla scelta la lastra si gira verso di te e dentro compare un luogo di quel mestiere (la foto sta nel palco HTML, sfumata)
   gioco: ({ scelta, t }, k) => {
     const L = lastraDi(k)

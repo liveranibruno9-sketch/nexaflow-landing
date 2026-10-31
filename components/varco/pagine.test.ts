@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { AUTOMAZIONI, VOCI_AUTOMAZIONI } from './dati/automazioni.ts'
-import { SITI_WEB } from './dati/siti-web.ts'
+import { SITI_WEB, TIPI_SITO_TUTTI } from './dati/siti-web.ts'
 import { CONTENUTI } from './dati/contenuti.ts'
 import { CAMPAGNE } from './dati/campagne.ts'
 import { CHI_SIAMO } from './dati/chi-siamo.ts'
@@ -60,14 +60,14 @@ test('R7: «Lavori» non compare da nessuna parte (bacheca vuota)', () => {
 
 test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco; Chi siamo: due, 0 → 3,8); ogni battuta sta dentro il suo blocco', () => {
   for (const d of SERVIZI) {
-    const elenco = d.id === 'automazioni'
+    const elenco = d.id === 'automazioni' || d.id === 'siti-web'
     if (!elenco) assert.equal(d.percorso.lunghezza, 6)
     assert.deepEqual(d.percorso.blocchi.map((b) => b.id.slice(b.id.lastIndexOf('-') + 1)), elenco ? ['a', 'f'] : ['a', 'p', 'f'])
     d.percorso.blocchi.forEach((b, i) => { if (i > 0) assert.equal(b.da, d.percorso.blocchi[i - 1].a); for (const x of b.battute) assert.ok(x.da >= b.da - 1e-9 && x.a <= b.a + 1e-9 && x.a > x.da, `${d.id}/${b.id}/${x.ruolo}`) })
     const ruoli = (i: number) => d.percorso.blocchi[i].battute.map((x) => x.ruolo)
     for (let i = 0; i < d.percorso.blocchi.length; i++) assert.equal(new Set(ruoli(i)).size, ruoli(i).length, `${d.id}: ruoli doppi`)
     const f = d.percorso.blocchi[d.percorso.blocchi.length - 1]
-    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, elenco ? VOCI_AUTOMAZIONI.length + 1 : 6)
+    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, d.id === 'automazioni' ? VOCI_AUTOMAZIONI.length + 1 : d.id === 'siti-web' ? TIPI_SITO_TUTTI.length : 6)
   }
   assert.equal(CHI_SIAMO.percorso.lunghezza, 3.8)
 })
@@ -161,4 +161,24 @@ test('Automazioni v3: ogni voce ha la sua vignetta disegnata (stessa finestra), 
   const titoli = voci.map((b) => b.testo.toLowerCase()).join('|')
   assert.ok(!/promemoria|recensioni|tornano/.test(titoli), 'tolte: conferme e promemoria, recensioni su Google, clienti che tornano')
   assert.ok(/onboarding/.test(titoli), 'c\'è l\'onboarding cliente')
+})
+
+test('Siti web v2: il film elenca i tipi di sito dal più leggero al più complesso, ognuno con vignetta, «Come funziona» e preventivo; il paragrafo dice premium e accessibile', () => {
+  const f = SITI_WEB.percorso.blocchi.find((b) => b.id.endsWith('-f'))!
+  const voci = f.battute.filter((x) => x.tipo === 'blocco')
+  assert.equal(voci.length, TIPI_SITO_TUTTI.length)
+  assert.ok(voci.length >= 6)
+  assert.equal(new Set(TIPI_SITO_TUTTI.map((t) => t.slug)).size, TIPI_SITO_TUTTI.length, 'slug unici')
+  TIPI_SITO_TUTTI.forEach((t, i) => {
+    assert.equal(voci[i].testo, t.titolo[0])
+    assert.deepEqual(voci[i].azioni?.map((x) => x.href), [`/siti-web/${t.slug}`, '#preventivo'], t.slug)
+    assert.ok(voci[i].azioni?.[1].richiesta?.includes(t.titolo[0]), t.slug)
+  })
+  const vignette = f.battute.filter((x) => x.tipo === 'vignetta')
+  assert.equal(vignette.length, voci.length)
+  assert.equal(new Set(vignette.map((x) => x.vignetta)).size, vignette.length, 'ognuna diversa')
+  assert.equal(TIPI_SITO_TUTTI[0].titolo[0], 'Landing page', 'si parte dal più leggero')
+  assert.ok(/app/i.test(TIPI_SITO_TUTTI[TIPI_SITO_TUTTI.length - 1].titolo[0]), 'si finisce dal più complesso')
+  const sotto = SITI_WEB.percorso.blocchi[0].battute.find((x) => x.ruolo === 'sotto')!.testo
+  assert.ok(/grandi marchi/i.test(sotto) && /piccole e medie imprese/i.test(sotto) && !/econom|low cost|a basso costo/i.test(sotto + SITI_WEB.h1))
 })

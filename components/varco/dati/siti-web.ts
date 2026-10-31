@@ -1,8 +1,35 @@
 // /siti-web · Janus. Testi da pagine/copy-siti-web.md, accorciati dove lo spazio non bastava (§16 della spec delle pagine); ogni cambio è
 // in pagine/registro-costruzione.md. Mai «intelligenza artificiale». Nessun prezzo (R4), nessun «Lavori» (R7). Modulo puro.
 import { percorsoServizio } from './pagine.ts'
-import type { DatiPagina } from './pagine.ts'
+import type { DatiPagina, Frase } from './pagine.ts'
+import type { GestoPagina } from '../tipi.ts'
 
+/** i tipi di sito che offriamo, dal più leggero al più complesso: slug della pagina dedicata (provvisoria, da compilare), titolo, gesto di Janus, scena disegnata */
+export type TipoSito = { slug: string; titolo: Frase; gesto: GestoPagina; vignetta: string; riga: string }
+export const TIPI_SITO: TipoSito[] = [
+  { slug: 'landing-page', titolo: ['Landing page', 'Landing'], gesto: { nome: 'presenta', lato: 'destro' }, vignetta: 'landing',
+    riga: 'Una pagina sola, un obiettivo solo: farti chiamare, scrivere o prenotare.' },
+  { slug: 'sito-vetrina', titolo: ['Sito vetrina', 'vetrina'], gesto: { nome: 'modella' }, vignetta: 'vetrina',
+    riga: 'Poche pagine curate: chi sei, cosa fai, dove sei e come contattarti.' },
+  { slug: 'strutture-ricettive', titolo: ['Sito per strutture ricettive', 'ricettive'], gesto: { nome: 'presenta', lato: 'sinistro' }, vignetta: 'ricettive',
+    riga: 'Foto che fanno venire voglia, camere chiare, richiesta di disponibilità e ospiti stranieri in inglese.' },
+  { slug: 'agenzie-e-studi', titolo: ['Sito per agenzie e studi', 'studi'], gesto: { nome: 'modella' }, vignetta: 'agenzie',
+    riga: 'Servizi spiegati con chiarezza, moduli di richiesta e le richieste raccolte in ordine.' },
+  { slug: 'e-commerce-store', titolo: ['E-commerce store', 'store'], gesto: { nome: 'lancia', lato: 'destro' }, vignetta: 'store',
+    riga: 'Un catalogo curato, schede che fanno scegliere, carrello e pagamento sicuri.' },
+  { slug: 'sito-3d-immersivo', titolo: ['Sito 3D immersivo', 'immersivo'], gesto: { nome: 'modella' }, vignetta: 'tre-d',
+    riga: 'Scene in movimento e profondità: un sito che si ricorda, per chi vuole distinguersi.' },
+]
+const APP = { slug: 'app-e-portali', titolo: ['App e portali su misura', 'portali'] as Frase, gesto: { nome: 'presenta', lato: 'sinistro' } as GestoPagina, vignetta: 'app',
+  riga: 'Aree riservate, gestionali leggeri e app per clienti e collaboratori, costruiti sul tuo modo di lavorare.' }
+export const TIPI_SITO_TUTTI: TipoSito[] = [...TIPI_SITO, APP]
+const preventivo = (richiesta: string) => ({ testo: 'Chiedi un preventivo', href: '#preventivo', richiesta })
+const ELENCO = TIPI_SITO_TUTTI.map((t) => ({
+  titolo: t.titolo, gesto: t.gesto, vignetta: t.vignetta,
+  azioni: [{ testo: 'Come funziona', href: `/siti-web/${t.slug}` }, preventivo(`Mi interessa: ${t.titolo[0]}.`)],
+}))
+
+const H1 = 'Siti da grande marchio, alla portata della tua attività.'
 const F = (nome: string) => `/film/pagine/siti-web/${nome}.webp`
 
 export const SITI_WEB: DatiPagina = {
@@ -10,50 +37,31 @@ export const SITI_WEB: DatiPagina = {
   mascotte: 'janus',
   materia: 'vetro',
   seo: {
-    titolo: 'Realizzazione siti web a Faenza e Romagna | Agenti Studio',
-    descrizione: 'Siti web e app pensati prima per il telefono, fatti per farti trovare su Google, con richieste e prenotazioni in ordine. Per attività di Faenza e Romagna.',
+    titolo: 'Siti web per PMI a Faenza e Romagna | Agenti Studio',
+    descrizione: 'Siti web di qualità premium per le PMI di Faenza e della Romagna, a costi accessibili: landing page, siti vetrina, e-commerce, siti 3D e app. Chiedi un preventivo.',
   },
-  h1: 'Un sito dove chi arriva capisce subito cosa fai, e ti scrive o prenota.',
+  h1: H1,
   poster: { src720: '/film/scene/janus-2-720.webp', src1080: '/film/scene/janus-2-1080.webp', alt: 'Janus, la mascotte di vetro dei siti web' },
   percorso: percorsoServizio({
     id: 'siti-web',
     indice: '02 · Siti web',
     materia: 'vetro',
     servizio: 'Sviluppo siti web e app',
-    h1: 'Un sito dove chi arriva capisce subito cosa fai, e ti scrive o prenota.',
-    sotto: 'Siti web e app pensati prima per il telefono e per farti trovare su Google. Richieste e prenotazioni ti arrivano già in ordine. Il sito è tuo.',
+    h1: H1,
+    sotto: 'Un sito curato come quelli dei grandi marchi, con costi pensati per le piccole e medie imprese. Veloce da telefono, facile da trovare su Google: chi arriva capisce subito cosa fai e ti scrive o prenota. Dalla pagina singola al negozio online, scegli il livello che ti serve.',
     nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.',
     cartoline: [
       { nome: 'siti-1', alt: 'Un sito aperto sul portatile' },
       { nome: 'siti-2', alt: "Un'app sul telefono, fra le mani" },
     ],
-    problema: {
-      h2: 'Chi arriva sul tuo sito decide in pochi secondi.',
-      righe: [
-        ['Una persona ti cerca su Google e apre il sito dal telefono. Se il testo è minuscolo o il menu non si apre, torna indietro.', 'torna indietro'],
-        ["Se un sito non ce l'hai, ti trovano solo dove ha deciso qualcun altro: nei social, negli elenchi.", 'qualcun altro'],
-        ['Un sito fatto bene lavora anche quando sei in laboratorio, in cucina, in cantiere.', 'lavora'],
-      ],
-    },
     capacita: {
-      h2: 'Un sito che lavora per te.',
-      blocchi: [
-        { titolo: ['Pensato prima per il telefono', 'telefono'], riga: 'Chi ti cerca lo fa spesso di fretta, col telefono in mano. Il sito parte da lì e poi si allarga sul computer.', gesto: { nome: 'modella' } },
-        { titolo: ['Si fa trovare su Google', 'Google'], riga: 'Titoli e testi con le parole che i clienti cercano davvero, con Faenza e la Romagna al posto giusto.', gesto: { nome: 'presenta', lato: 'destro' } },
-        { titolo: ['Chi arriva capisce', 'capisce'], riga: 'In pochi secondi si capisce cosa fai, dove sei e come contattarti. Un tocco per chiamare, scrivere su WhatsApp o aprire la mappa.', gesto: { nome: 'modella' } },
-        { titolo: ['Richieste in ordine', 'ordine'], riga: 'Chi compila il modulo o prenota ti arriva già riassunto, per email o sul telefono. Niente messaggi persi.', gesto: { nome: 'presenta', lato: 'sinistro' } },
-        { titolo: ['In italiano e, se serve, in inglese', 'inglese'], riga: 'Per chi ha ospiti stranieri: agriturismi, B&B, ristoranti, aziende che vendono fuori.', gesto: { nome: 'modella' } },
-        { titolo: ['È tuo', 'tuo'], riga: 'Sito, dominio e account intestati a te. Se un giorno vuoi cambiare chi lo cura, te lo porti via.', gesto: { nome: 'presenta', lato: 'destro' } },
-      ],
+      h2: 'Che sito fa per te.',
+      passo: 0.6,
+      blocchi: ELENCO,
       beneficio: [['Chi arriva capisce.', 'capisce'], ['Chi capisce prenota.', 'prenota']],
       gestoBeneficio: { nome: 'presenta', lato: 'destro' },
     },
   }),
-  extra: {
-    dopo: 'film',
-    h2: "Dal sito all'app, solo se serve.",
-    testo: "Alcune attività hanno bisogno di più di una vetrina: un'area per prenotare, un catalogo con gli ordini, un negozio online, un'app per i clienti. Ne parliamo nella prima chiamata e ti diciamo con sincerità se serve o se basta un sito fatto bene.",
-  },
   gioco: {
     h2: 'Cosa deve mostrare il sito, per mestiere.',
     scelte: [

@@ -276,7 +276,219 @@ function SuMisura() {
   )
 }
 
-const SCENE: Record<string, () => ReactNode> = { messaggi: Messaggi, segreteria: Segreteria, preventivi: Preventivi, onboarding: Onboarding, fatture: Fatture, collegati: Collegati, 'su-misura': SuMisura }
+
+/* ===================================================== Siti web: i tipi di sito ===================================================== */
+/** una finestra di browser (cornice + tre puntini); il contenuto lo mette chi la usa. Posizione e animazione su due livelli (vedi sopra) */
+function Finestra({ x, y, w, h, children }: { x: number; y: number; w: number; h: number; children?: ReactNode }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect width={w} height={h} rx={9} fill="#0b1030" stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+      <path d={`M0 14H${w}`} stroke={CREMA} strokeOpacity={0.35} strokeWidth={1} />
+      {[0, 1, 2].map((i) => <circle key={i} cx={9 + i * 8} cy={7} r={2} fill={CREMA} opacity={0.6} />)}
+      {children}
+    </g>
+  )
+}
+
+/* ---------- 8 · Landing page: una pagina sola, un pulsante, un tocco, la richiesta arriva ---------- */
+function Landing() {
+  return (
+    <>
+      <g style={Entra(0.02, 0.2, 0, 24)}>
+        <Finestra x={120} y={8} w={120} h={134}>
+          <rect x={10} y={24} width={100} height={42} rx={6} fill={BLU} opacity={0.35} />
+          <Riga x={20} y={34} w={64} o={0.95} /><Riga x={20} y={44} w={44} o={0.6} />
+          {[0, 1, 2].map((i) => <rect key={i} x={10 + i * 35} y={76} width={30} height={22} rx={5} fill={VELO} stroke={CREMA} strokeOpacity={0.5} />)}
+          <rect x={30} y={108} width={60} height={18} rx={9} fill={BLU} style={{ ...T(0.5, 0.64), transformBox: 'fill-box', transformOrigin: 'center', transform: 'scale(calc(1 + 0.12 * var(--e)))' }} />
+        </Finestra>
+      </g>
+      <g style={Entra(0.3, 0.5, 70, 40)}><path d="M0 0l2 22 6-6 5 11 4-2-5-11 8-1z" fill={CREMA} stroke="#0b1030" strokeWidth={1} transform="translate(166 122)" /></g>
+      <g transform="translate(180 126)">
+        <circle r={18} fill="none" stroke={BLU_CHIARO} strokeWidth={2} style={{ ...T(0.56, 0.8), opacity: 'calc(0.9 * (1 - var(--e)))', transformBox: 'fill-box', transformOrigin: 'center', transform: 'scale(calc(0.5 + 1.4 * var(--e)))' }} />
+      </g>
+      <path d="M244 126C270 126 280 100 296 80" fill="none" stroke={BLU_CHIARO} strokeWidth={1.4} strokeDasharray="3 5" strokeLinecap="round" style={Disegna(0.56, 0.74, 90)} />
+      <g style={Entra(0.7, 0.88, 40)}>
+        <rect x={262} y={36} width={84} height={40} rx={12} fill={BLU} />
+        <Riga x={274} y={48} w={48} o={0.95} /><Riga x={274} y={57} w={32} o={0.6} />
+        <g transform="translate(322 50)"><Spunta d="M0 0l3.5 3.5 7-8" stile={Disegna(0.78, 0.9, 20)} /></g>
+      </g>
+    </>
+  )
+}
+
+/* ---------- 9 · Sito vetrina: tre pagine nate dal menu ---------- */
+function Vetrina() {
+  const pagine = [
+    { x: 14, corpo: <><rect x={8} y={22} width={78} height={34} rx={5} fill={BLU} opacity={0.35} /><Riga x={14} y={64} w={58} /><Riga x={14} y={74} w={42} o={0.5} /></> },
+    { x: 124, corpo: <>{[0, 1, 2].map((i) => <rect key={i} x={8 + i * 28} y={26} width={24} height={30} rx={4} fill={VELO} stroke={CREMA} strokeOpacity={0.5} />)}<Riga x={14} y={66} w={60} /><Riga x={14} y={76} w={40} o={0.5} /></> },
+    { x: 234, corpo: <><rect x={8} y={22} width={78} height={40} rx={5} fill={VELO} stroke={CREMA} strokeOpacity={0.5} /><path d="M47 26a8 8 0 018 8c0 8-8 16-8 16s-8-8-8-16a8 8 0 018-8z" fill={CALDO} /><circle cx={47} cy={34} r={3} fill="#0b1030" /><Riga x={14} y={72} w={56} /></> },
+  ]
+  return (
+    <>
+      <path d="M26 12H336" stroke={BLU_CHIARO} strokeWidth={1.4} strokeLinecap="round" fill="none" style={Disegna(0.04, 0.3, 310)} />
+      {pagine.map((pg, i) => (
+        <g key={i} transform={`translate(${pg.x} 22)`}>
+          <g style={Entra(0.12 + 0.2 * i, 0.3 + 0.2 * i, 0, 36)}>
+            <Finestra x={0} y={0} w={94} h={104}>{pg.corpo}</Finestra>
+          </g>
+        </g>
+      ))}
+      {[0, 1, 2].map((i) => <circle key={i} cx={61 + i * 110} cy={12} r={4.5} fill={BLU} style={{ ...T(0.1 + 0.2 * i, 0.22 + 0.2 * i), opacity: 'var(--e)' }} />)}
+      <g transform="translate(180 138)"><g style={Entra(0.8, 0.94, 0, 0, 0.3)}><rect x={-28} y={-6} width={56} height={12} rx={6} fill={BLU} /></g></g>
+    </>
+  )
+}
+
+/* ---------- 10 · Sito per strutture ricettive: la foto che fa venire voglia, le date, la richiesta ---------- */
+function Ricettive() {
+  return (
+    <>
+      <g style={Entra(0.02, 0.22, -30)}>
+        <rect x={16} y={16} width={150} height={118} rx={12} fill={VELO} stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+        <circle cx={128} cy={44} r={11} fill={CALDO} />
+        <path d="M16 118l36-40 26 26 24-30 64 44z" fill={BLU} opacity={0.5} />
+        <path d="M16 134H166V118L142 92 118 74 90 104 70 84z" fill={BLU} opacity={0.75} />
+      </g>
+      <g style={Entra(0.2, 0.36, 30)}>
+        <rect x={186} y={16} width={158} height={86} rx={12} fill={VELO} stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+        {Array.from({ length: 14 }, (_, i) => <rect key={i} x={198 + (i % 7) * 20} y={30 + Math.floor(i / 7) * 22 + 6} width={14} height={14} rx={4} fill={CREMA} opacity={0.25} />)}
+      </g>
+      {[9, 10, 11].map((c, i) => (
+        <rect key={c} x={198 + (c % 7) * 20 - (c > 6 ? 140 : 0)} y={30 + (c > 6 ? 22 : 0) + 6} width={14} height={14} rx={4} fill={BLU} style={{ ...T(0.38 + 0.08 * i, 0.46 + 0.08 * i), opacity: 'var(--e)' }} />
+      ))}
+      <g style={Entra(0.66, 0.84, 0, 22)}>
+        <rect x={186} y={110} width={158} height={30} rx={15} fill={BLU} />
+        <Riga x={202} y={122} w={64} o={0.95} />
+        <g transform="translate(318 120)"><Spunta d="M0 0l3.5 3.5 7-8" stile={Disegna(0.72, 0.86, 20)} /></g>
+      </g>
+    </>
+  )
+}
+
+/* ---------- 11 · Sito per agenzie e studi: servizi chiari, un modulo, le richieste in ordine ---------- */
+function Agenzie() {
+  return (
+    <>
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(0 ${16 + 44 * i})`}>
+          <g style={Entra(0.02 + 0.12 * i, 0.16 + 0.12 * i, -30)}>
+            <rect x={14} width={104} height={36} rx={10} fill={VELO} stroke={CREMA} strokeOpacity={0.7} strokeWidth={1.2} />
+            <circle cx={32} cy={18} r={9} fill={BLU} opacity={0.5} /><Riga x={48} y={12} w={56} /><Riga x={48} y={21} w={36} o={0.45} />
+          </g>
+        </g>
+      ))}
+      <g style={Entra(0.34, 0.5, 0, 20)}>
+        <rect x={138} y={16} width={104} height={118} rx={12} fill="#0b1030" stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+        {[0, 1, 2].map((i) => (
+          <g key={i}>
+            <rect x={150} y={30 + i * 26} width={80} height={16} rx={5} fill="none" stroke={CREMA} strokeOpacity={0.5} />
+            <rect x={154} y={35 + i * 26} width={64} height={6} rx={3} fill={BLU_CHIARO} style={{ ...T(0.46 + 0.1 * i, 0.58 + 0.1 * i), transformBox: 'fill-box', transformOrigin: 'left', transform: 'scaleX(var(--e))' }} />
+          </g>
+        ))}
+        <rect x={156} y={110} width={68} height={16} rx={8} fill={BLU} />
+      </g>
+      <path d="M246 76H266" stroke={BLU_CHIARO} strokeWidth={1.4} strokeLinecap="round" fill="none" style={Disegna(0.7, 0.78, 24)} />
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(0 ${22 + 38 * i})`}>
+          <g style={Entra(0.74 + 0.07 * i, 0.86 + 0.07 * i, 30)}>
+            <rect x={270} width={76} height={30} rx={9} fill={VELO} stroke={CREMA} strokeOpacity={0.7} strokeWidth={1.2} />
+            <Riga x={280} y={9} w={44} /><Riga x={280} y={18} w={28} o={0.45} />
+            <circle cx={334} cy={15} r={5} fill={i === 0 ? CALDO : BLU} />
+          </g>
+        </g>
+      ))}
+    </>
+  )
+}
+
+/* ---------- 12 · E-commerce store: il catalogo, un prodotto nel carrello, il pagamento ---------- */
+function Store() {
+  return (
+    <>
+      {[0, 1, 2, 3].map((i) => (
+        <g key={i} transform={`translate(${14 + (i % 2) * 74} ${14 + Math.floor(i / 2) * 64})`}>
+          <g style={Entra(0.02 + 0.08 * i, 0.16 + 0.08 * i, 0, 22)}>
+            <rect width={66} height={56} rx={9} fill={VELO} stroke={CREMA} strokeOpacity={0.7} strokeWidth={1.2} />
+            <rect x={6} y={6} width={54} height={30} rx={5} fill={i % 2 ? BLU : BLU_CHIARO} opacity={0.5} />
+            <Riga x={8} y={42} w={32} /><rect x={44} y={41} width={14} height={6} rx={3} fill={CALDO} />
+          </g>
+        </g>
+      ))}
+      <path d="M92 52C140 30 184 36 216 58" fill="none" stroke={BLU_CHIARO} strokeWidth={1.4} strokeDasharray="3 5" strokeLinecap="round" style={{ ...Disegna(0.34, 0.54, 160), opacity: 'calc(1 - 0.7 * var(--e))' }} />
+      <g transform="translate(92 52)">
+        <g style={{ ...T(0.34, 0.56), transform: 'translate(calc(var(--e) * 126px), calc(var(--e) * 8px)) scale(calc(1 - 0.5 * var(--e)))', opacity: 'calc(min(1, var(--e) * 8, (1 - var(--e)) * 5))', transformBox: 'fill-box', transformOrigin: 'center' }}>
+          <rect x={-14} y={-12} width={28} height={24} rx={5} fill={BLU} />
+        </g>
+      </g>
+      <g transform="translate(240 70)">
+        <g style={Entra(0.22, 0.36, 0, 0, 0.6)}>
+          <path {...tratto} strokeWidth={2.2} d="M-26-24h8l8 34h34l6-24H-16" />
+          <circle cx={-6} cy={20} r={4} fill={CREMA} /><circle cx={24} cy={20} r={4} fill={CREMA} />
+        </g>
+        <g transform="translate(26 -26)"><g style={Entra(0.56, 0.68, 0, 0, 0.2)}><circle r={9} fill={BLU} /><g transform="translate(-4 0.5)"><Spunta d="M0 0l2.5 2.5 5.5-6" /></g></g></g>
+      </g>
+      <g transform="translate(316 70)">
+        <g style={Entra(0.66, 0.82, 22)}>
+          <rect x={-30} y={-20} width={60} height={40} rx={7} fill={VELO} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.3} />
+          <rect x={-30} y={-9} width={60} height={9} fill={CREMA} opacity={0.35} />
+          <rect x={-22} y={7} width={22} height={5} rx={2.5} fill={CALDO} />
+        </g>
+        <g transform="translate(26 22)"><g style={Entra(0.8, 0.94, 0, 0, 0.2)}><circle r={10} fill={BLU} /><g transform="translate(-5 1)"><Spunta d="M0 0l3 3 6.5-7" /></g></g></g>
+      </g>
+    </>
+  )
+}
+
+/* ---------- 13 · Sito 3D immersivo: strati che si muovono in profondità e una scintilla ---------- */
+function TreD() {
+  const strato = (i: number, x: number, y: number, w: number, h: number, colore: string, op: number, dx: number) => (
+    <g key={i} transform={`translate(${x} ${y})`}>
+      <g style={{ ...T(0.02 + 0.1 * i, 0.2 + 0.1 * i), opacity: 'var(--e)', transform: `translate(calc((1 - var(--e)) * ${-dx}px + var(--p, 1) * ${dx * 0.8}px), 0)` }}>
+        <rect width={w} height={h} rx={14} fill={colore} opacity={op} stroke={CREMA} strokeOpacity={0.5} strokeWidth={1.2} />
+      </g>
+    </g>
+  )
+  return (
+    <>
+      {strato(0, 70, 14, 220, 122, '#16206b', 0.9, 24)}
+      {strato(1, 100, 30, 170, 92, BLU, 0.55, -10)}
+      {strato(2, 134, 46, 112, 60, BLU_CHIARO, 0.85, -36)}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <circle key={i} cx={52 + i * 52} cy={i % 2 ? 128 : 22} r={2.6} fill={CREMA} style={{ ...T(0.2 + 0.08 * i, 0.4 + 0.08 * i), opacity: 'calc(0.9 * var(--e))', transform: `translate(calc(var(--p, 1) * ${i % 2 ? -26 : 30}px), 0)` }} />
+      ))}
+      <g transform="translate(180 76)"><g style={Entra(0.66, 0.86, 0, 0, 0.2)}><path d="M0-17L4.4-4.4 17 0 4.4 4.4 0 17-4.4 4.4-17 0-4.4-4.4z" fill={CALDO} /></g></g>
+    </>
+  )
+}
+
+/* ---------- 14 · App e portali: una schermata con i dati, il telefono che si aggiorna, l'area riservata ---------- */
+function App() {
+  const barre = [26, 44, 34, 58, 48, 70]
+  return (
+    <>
+      <g style={Entra(0.02, 0.2, -20)}>
+        <Finestra x={20} y={12} w={216} h={126}>
+          <rect x={0} y={14} width={44} height={112} fill={CREMA} opacity={0.07} />
+          {[0, 1, 2, 3].map((i) => <rect key={i} x={10} y={28 + i * 18} width={26} height={5} rx={2.5} fill={CREMA} opacity={i === 0 ? 0.9 : 0.4} />)}
+          {barre.map((h, i) => <rect key={i} x={62 + i * 24} y={116 - h} width={16} height={h} rx={4} fill={i === 5 ? CALDO : BLU} style={{ ...T(0.18 + 0.07 * i, 0.34 + 0.07 * i), transformBox: 'fill-box', transformOrigin: 'bottom', transform: 'scaleY(var(--e))' }} />)}
+          <path d="M62 80L86 70 110 74 134 54 158 58 182 36" fill="none" stroke={CREMA} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" style={Disegna(0.5, 0.74, 140)} />
+        </Finestra>
+      </g>
+      <g transform="translate(128 12)"><g style={Entra(0.5, 0.64, 0, 0, 0.2)}>
+        <circle cx={96} cy={0} r={0} /><circle cx={102} cy={4} r={11} fill={BLU} />
+        <g transform="translate(97 4)"><rect x={0} y={1} width={10} height={8} rx={2} fill="#fff" /><path d="M2 1V-1a3 3 0 016 0V1" fill="none" stroke="#fff" strokeWidth={1.4} /></g>
+      </g></g>
+      <path d="M240 78H268" stroke={BLU_CHIARO} strokeWidth={1.4} strokeDasharray="3 5" strokeLinecap="round" fill="none" style={Disegna(0.62, 0.74, 30)} />
+      <g style={Entra(0.66, 0.84, 30)}>
+        <rect x={272} y={22} width={64} height={110} rx={12} fill="#0b1030" stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.3} />
+        {[0, 1, 2, 3].map((i) => <rect key={i} x={282 + i * 12} y={116 - [22, 38, 30, 52][i]} width={8} height={[22, 38, 30, 52][i]} rx={3} fill={i === 3 ? CALDO : BLU} />)}
+        <rect x={282} y={34} width={44} height={5} rx={2.5} fill={CREMA} opacity={0.7} />
+      </g>
+    </>
+  )
+}
+
+const SCENE: Record<string, () => ReactNode> = { messaggi: Messaggi, segreteria: Segreteria, preventivi: Preventivi, onboarding: Onboarding, fatture: Fatture, collegati: Collegati, 'su-misura': SuMisura, landing: Landing, vetrina: Vetrina, ricettive: Ricettive, agenzie: Agenzie, store: Store, 'tre-d': TreD, app: App }
 
 export default function Vignetta({ id }: { id: string }) {
   const Scena = SCENE[id]
