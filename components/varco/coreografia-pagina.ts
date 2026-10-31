@@ -101,7 +101,7 @@ export function posaChiSiamo(i: number, c: ContestoChi): Posa {
   const a = c.ancora
   const x = a ? mix(mix(da[0], fine[0], e), a.x, w) : mix(da[0], fine[0], e)
   const y = (a ? mix(mix(da[1], fine[1], e), a.y, w) : mix(da[1], fine[1], e)) - 0.5 * esce * esce * (1 - w)
-  const h0 = s.ritratto ? 0.15 : 0.22
+  const h0 = s.ritratto ? 0.13 : 0.22
   const saluta = i === 3 ? liscia(c.ingresso + 0.7, c.ingresso + 0.9, c.u) * (1 - liscia(c.ingresso + 1.5, c.ingresso + 1.7, c.u)) : 0
   return {
     x, y, altezza: a ? mix(h0, a.altezza, w) : h0, z: 0, giro: (0.5 - x) * 0.9, inclina: 0,
