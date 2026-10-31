@@ -47,14 +47,22 @@ export default function PaginaDedicata({ servizio, slug }: { servizio: keyof typ
 
       {v.esempi?.length ? (
         <section className="sezione dedicata-sezione" aria-labelledby="dedicata-esempi">
-          <h2 id="dedicata-esempi" className="sezione-titolo">Un esempio vero.</h2>
+          <h2 id="dedicata-esempi" className="sezione-titolo">Un esempio da provare.</h2>
           <div className="dedicata-esempi">
             {v.esempi.map((e) => (
-              <a key={e.nome} className="dedicata-esempio" href={e.href} target="_blank" rel="noopener">
-                <img src={e.immagine} alt={e.alt} width={960} height={600} loading="lazy" decoding="async" />
+              <article key={e.nome} className="dedicata-esempio">
+                {e.video ? (
+                  <video className="dedicata-esempio-video" controls playsInline preload="none" poster={e.immagine} aria-label={e.alt}>
+                    <source src={e.video.mp4} type="video/mp4" />
+                  </video>
+                ) : (
+                  <img src={e.immagine} alt={e.alt} width={960} height={600} loading="lazy" decoding="async" />
+                )}
                 <span className="dedicata-esempio-nome">{e.nome}</span>
                 <span className="dedicata-esempio-testo">{e.testo}</span>
-              </a>
+                <span className="dedicata-esempio-nota">Modello dimostrativo · attività di fantasia: {e.fantasia}</span>
+                <a className="dedicata-esempio-link" href={e.href} target="_blank" rel="noopener">Apri la demo</a>
+              </article>
             ))}
           </div>
         </section>

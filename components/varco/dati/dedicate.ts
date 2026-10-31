@@ -12,7 +12,9 @@ export type Mestiere = 'bnb' | 'ristorante' | 'negozio' | 'artigiano' | 'studio'
 export const NOMI_MESTIERE: Record<Mestiere, string> = {
   bnb: 'B&B e agriturismo', ristorante: 'Ristorante e bar', negozio: 'Negozio', artigiano: 'Artigiano e impresa', studio: 'Studi e professionisti', eventi: 'Associazioni ed eventi',
 }
-export type Esempio = { nome: string; testo: string; href: string; immagine: string; alt: string }
+/** un esempio nella bacheca di una pagina dedicata: un modello dimostrativo con un'attività di fantasia (mai il lavoro di un cliente vero).
+ *  href = la demo online; immagine = lo screenshot; video = lo schermo registrato (30-45 s, verticale e/o orizzontale), facoltativo; `fantasia` = il nome dell'attività inventata */
+export type Esempio = { nome: string; fantasia: string; testo: string; href: string; immagine: string; alt: string; video?: { mp4: string; mp4Orizzontale?: string } }
 export type ContenutoDedicato = { cosa: string; perChi: Mestiere[]; passi: [string, string, string]; faq: { d: string; r: string }[]; esempi?: Esempio[] }
 export type VoceDedicata = ContenutoDedicato & { servizio: ServizioDedicato; slug: string; titolo: string; riga: string; vignetta: string }
 

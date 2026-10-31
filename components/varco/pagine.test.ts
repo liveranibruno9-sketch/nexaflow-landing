@@ -260,7 +260,7 @@ test('Pagine dedicate: ogni voce con «Come funziona» ha la sua pagina (le voci
     const testo = [p.cosa, ...p.passi, ...p.faq.flatMap((f) => [f.d, f.r])].join(' ')
     assert.ok(!/€|\beuro\b|intelligenza artificiale/i.test(testo) && !/\bA\.?I\.?\b/.test(testo), `${dove}: niente prezzi né «intelligenza artificiale»`)
     assert.ok(!/bacheca|portfolio/i.test(testo), `${dove}: R7`)
-    ;(p.esempi ?? []).forEach((e) => assert.ok(e.href.startsWith('https://') && e.immagine && e.alt, `${dove}: esempio ${e.nome}`))
+    ;(p.esempi ?? []).forEach((e) => assert.ok(e.href.startsWith('https://') && e.immagine && e.alt && e.fantasia && (!e.video || e.video.mp4.endsWith('.mp4')), `${dove}: esempio ${e.nome} (demo con attività di fantasia)`))
   }
   assert.ok(PAGINE_DEDICATE.every((p) => !p.esempi?.length || p.esempi.every((e) => !/oltre frontiera/i.test(e.nome))), 'Lavoro Oltre Frontiera non è tra gli esempi (decisione di Bruno 31/10)')
 })
