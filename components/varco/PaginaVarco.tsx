@@ -13,6 +13,7 @@ import type { Battuta, Blocco, GestoPagina } from './tipi.ts'
 import type { DatiFilm } from './dati/pagine.ts'
 import type { ModoPagina, MondoPagina, StatoPagina } from './mondo/pagina'
 import type { Ancora } from './coreografia-pagina.ts'
+import Vignetta from './sezioni/Vignetta'
 
 /**
  * Il film di una pagina servizio (DESIGN_SPEC-pagine §8.1): apertura, problema e capacità per circa sei schermate, poi lo scroll
@@ -75,6 +76,8 @@ function Voce({ b }: { b: Battuta }) {
           ) : null}
         </div>
       )
+    case 'vignetta':
+      return <div className={classe} {...dati} data-vignetta={b.vignetta}><Vignetta id={b.vignetta ?? ''} /></div>
     case 'nome':
       // il nome di Bruno scritto nella luce (la foto vera si monterà dopo: D25)
       return <p className={`${classe} battuta-nome-luce`} {...dati}>{b.testo}</p>
@@ -167,6 +170,11 @@ export default function PaginaVarco({ dati, children }: Props) {
           q.el.style.visibility = o > 0 ? 'visible' : 'hidden'
           q.el.dataset.attivo = o > 0.5 ? 'true' : 'false'
           q.o = o
+        }
+        // la vignetta racconta la sua automazione in tre mosse: --p = quanto della voce è trascorso (0..1), letto dal disegno
+        if (q.el.dataset.vignetta && o > 0) {
+          const p = Math.round(clamp((u - q.da) / (q.a - q.da), 0, 1) * 200) / 200
+          if (String(p) !== q.el.dataset.p) { q.el.dataset.p = String(p); q.el.style.setProperty('--p', String(p)) }
         }
         const y = Math.round(s.y * 10) / 10 + 0
         const t = o > 0 && y !== 0 ? `translate3d(0, ${y}px, 0)` : ''

@@ -372,3 +372,26 @@ html:not(.varco) .film-radice .servizio-posto { display: none; }
   .film-radice .servizio-nome { font-size: 22px; }
   .film-radice .dove-lista { margin-top: 0; font-size: 15px; }
 }
+
+
+/* ===================================== Automazioni v3: le vignette accanto ad Atlas ===================================== */
+.film-radice .vignetta { display: block; width: 100%; height: 100%; overflow: visible; }
+.film-radice .vignetta .barra { transform-box: fill-box; transform-origin: center; animation: barra 0.9s ease-in-out infinite alternate; }
+.film-radice .vignetta .scossa { transform-box: fill-box; transform-origin: 50% 0; animation: scossa 0.34s ease-in-out infinite alternate; }
+@keyframes barra { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+@keyframes scossa { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+@media (prefers-reduced-motion: reduce) { .film-radice .vignetta .barra, .film-radice .vignetta .scossa { animation: none; } }
+/* pagina normale: la vignetta sta sotto il titolo della voce, ferma sul risultato */
+.film-radice .battuta-vignetta { width: 100%; max-width: 440px; aspect-ratio: 360 / 150; margin: 12px 0; pointer-events: none; }
+/* telefono: sopra il testo (fascia 61-86%), sotto il nome di Atlas (che in questo film si fa più piccolo e sale) */
+html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta {
+  position: absolute; left: 0; right: 0; bottom: 100%; top: auto; height: 17.5vh; max-width: none; margin: 0 0 6px; aspect-ratio: auto; align-self: auto;
+}
+/* computer: sotto il titolo, nella colonna del testo */
+@media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta { top: 25vh; bottom: auto; height: 28vh; margin: 0; }
+}
+/* telefono in orizzontale */
+@media (min-aspect-ratio: 1/1) and (max-height: 520px) {
+  html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta { top: 15vh; bottom: auto; height: 32vh; margin: 0; }
+}

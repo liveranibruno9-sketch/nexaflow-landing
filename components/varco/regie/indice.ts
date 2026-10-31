@@ -47,6 +47,7 @@ export function controllaR18(p: Percorso, regie: Partial<Record<string, Regia>>)
       return chiamate
     }
     ordinate.forEach((x, i) => {
+      if (x.tipo === 'vignetta') return // disegno HTML a parte: non è un evento del Kit
       const dove = `${bl.id} · ${x.ruolo} «${x.testo}»`
       if (JSON.stringify(esegui(tempiCon(ordinate, i, 0))) === JSON.stringify(esegui(tempiCon(ordinate, i, 1)))) {
         errori.add(`${dove}: frase senza àncora (nulla cambia nella scena fra t = 0 e t = 1)`)

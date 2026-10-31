@@ -150,3 +150,15 @@ test('Automazioni v2: il film elenca almeno 5 automazioni più «Su misura»; og
   assert.ok(!/assistente/i.test(sotto) && !/assistente/i.test(AUTOMAZIONI.h1), 'il paragrafo generale non parla solo dell\'assistente')
   assert.ok(AUTOMAZIONI.percorso.blocchi[0].battute.some((x) => x.tipo === 'pulsante' && x.href === '#preventivo'), 'il paragrafo ha il suo link al preventivo')
 })
+
+test('Automazioni v3: ogni voce ha la sua vignetta disegnata (stessa finestra), nessuna è di quelle tolte', () => {
+  const f = AUTOMAZIONI.percorso.blocchi.find((b) => b.id.endsWith('-f'))!
+  const voci = f.battute.filter((x) => x.tipo === 'blocco')
+  const vignette = f.battute.filter((x) => x.tipo === 'vignetta')
+  assert.equal(vignette.length, voci.length)
+  voci.forEach((b, i) => assert.ok(vignette[i].da === b.da && vignette[i].a === b.a && vignette[i].vignetta, `voce ${b.testo}`))
+  assert.equal(new Set(vignette.map((x) => x.vignetta)).size, vignette.length, 'ognuna diversa')
+  const titoli = voci.map((b) => b.testo.toLowerCase()).join('|')
+  assert.ok(!/promemoria|recensioni|tornano/.test(titoli), 'tolte: conferme e promemoria, recensioni su Google, clienti che tornano')
+  assert.ok(/onboarding/.test(titoli), 'c\'è l\'onboarding cliente')
+})

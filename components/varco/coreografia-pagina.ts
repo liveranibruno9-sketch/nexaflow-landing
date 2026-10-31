@@ -21,6 +21,8 @@ export type ContestoPosa = {
   dopo: number
   /** 0..1, quanto la mascotte è «ospitata» da un'àncora (con la molla del mondo) */
   pesoAncora: number
+  /** film senza problema (Automazioni v3): u in cui comincia l'elenco; sul telefono la mascotte si fa più piccola e sale per lasciare spazio alla vignetta */
+  elenco?: number
 }
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x)
@@ -53,8 +55,9 @@ export function posaPagina(c: ContestoPosa): Posa {
   const filmX = mix(x0, s.ritratto ? 0.7 : 0.8, dentro)
   // sul telefono il testo sta nella fascia bassa (60-90%): la mascotte sale un poco e si fa più piccola, il nome sotto i piedi sta sopra il testo
   const ry = r.y - (s.ritratto ? 0.045 : 0)
-  const filmY = ry + (s.ritratto ? -0.02 : 0.025) * dentro
-  const filmH = (s.ritratto ? r.altezza * 0.92 : r.altezza) * (1 - 0.3 * dentro)
+  const compatta = c.elenco !== undefined && s.ritratto ? liscia(c.elenco - 0.1, c.elenco + 0.3, c.u) : 0
+  const filmY = ry + (s.ritratto ? -0.02 : 0.025) * dentro - 0.07 * compatta
+  const filmH = (s.ritratto ? r.altezza * 0.92 : r.altezza) * (1 - 0.3 * dentro) * (1 - 0.2 * compatta)
   const esce = liscia(0.06, 0.7, c.dopo)
   const nasce = rimbalzo(clamp01(c.secondi / NASCITA))
   const filmPresenza = nasce * (1 - liscia(0.55, 1, esce))

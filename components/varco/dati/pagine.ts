@@ -55,7 +55,7 @@ export type DefFilm = {
   capacita: {
     h2: string
     /** riga facoltativa (l'elenco di Automazioni ha solo il titolo e i link); azioni = i link sotto la voce */
-    blocchi: { titolo: Frase; riga?: string; gesto: GestoPagina; azioni?: Azione[] }[]
+    blocchi: { titolo: Frase; riga?: string; gesto: GestoPagina; azioni?: Azione[]; /** una scena disegnata accanto alla mascotte (sezioni/Vignetta.tsx) */ vignetta?: string }[]
     /** schermate per voce (0,42 di base; l'elenco di Automazioni 0,6, una voce per schermata) */
     passo?: number
     beneficio: Frase[]
@@ -99,6 +99,7 @@ export function percorsoServizio(d: DefFilm): Percorso {
     f(`b${i + 1}`, 'blocco', b.titolo[0], c0 + passo * i, c0 + passo * (i + 1), {
       ...(b.riga ? { nota: b.riga } : {}), gesto: b.gesto, ...(b.titolo[1] ? { accento: b.titolo[1] } : {}), ...(b.azioni ? { azioni: b.azioni } : {}),
     }))
+  const vignette = d.capacita.blocchi.flatMap((b, i) => (b.vignetta ? [f(`v${i + 1}`, 'vignetta', b.titolo[0], c0 + passo * i, c0 + passo * (i + 1), { vignetta: b.vignetta })] : []))
   const nB = d.capacita.beneficio.length
   const ben = d.capacita.beneficio.map((fr, i) => f(`ben${i + 1}`, 'frase', fr[0], i ? cB + 0.34 : cB, i < nB - 1 ? cB + 0.4 : L, {
     ...(fr[1] ? { accento: fr[1] } : {}), ...(i === 0 && d.capacita.gestoBeneficio ? { gesto: d.capacita.gestoBeneficio } : {}),
@@ -107,7 +108,7 @@ export function percorsoServizio(d: DefFilm): Percorso {
   const foto = ft ? [f('foto-1', 'foto', ft.alt, c0 + passo * (ft.blocco - 1), c0 + passo * (ft.blocco + 1.2), { src: ft.src })] : []
   const capacita: Blocco = {
     id: `${d.id}-f`, tipo: 'pagina', da: P, a: L, etichetta: d.indice, materia: d.materia,
-    battute: [f('h2', 'titolo', d.capacita.h2, P, P + 0.45), ...blocchi, ...ben, ...foto],
+    battute: [f('h2', 'titolo', d.capacita.h2, P, P + 0.45), ...blocchi, ...vignette, ...ben, ...foto],
   }
   return { lunghezza: L, blocchi: problema ? [apertura, problema, capacita] : [apertura, capacita] }
 }

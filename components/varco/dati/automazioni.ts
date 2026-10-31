@@ -7,32 +7,32 @@ import type { DatiPagina, Frase } from './pagine.ts'
 import type { GestoPagina } from '../tipi.ts'
 
 /** le automazioni dell'elenco: slug della pagina di approfondimento (provvisoria, da strutturare), titolo, parola d'accento, gesto di Atlas */
-export type VoceAutomazione = { slug: string; titolo: Frase; gesto: GestoPagina; /** una riga per la pagina provvisoria di approfondimento */ riga: string }
+export type VoceAutomazione = { slug: string; titolo: Frase; gesto: GestoPagina; /** la scena disegnata (sezioni/Vignetta.tsx) */ vignetta: string; /** una riga per la pagina provvisoria di approfondimento */ riga: string }
 
 export const VOCI_AUTOMAZIONI: VoceAutomazione[] = [
-  { slug: 'assistente-messaggi', titolo: ['Assistente ai messaggi', 'messaggi'], gesto: { nome: 'prendi', lato: 'sinistro' },
+  { slug: 'assistente-messaggi', titolo: ['Assistente ai messaggi', 'messaggi'], gesto: { nome: 'prendi', lato: 'sinistro' }, vignetta: 'messaggi',
     riga: 'Risponde su WhatsApp, Instagram ed email, a ogni ora, e ti lascia le richieste in ordine.' },
-  { slug: 'segreteria-telefonica', titolo: ['Segreteria telefonica virtuale', 'telefonica'], gesto: { nome: 'presenta', lato: 'destro' },
+  { slug: 'segreteria-telefonica', titolo: ['Segreteria telefonica virtuale', 'telefonica'], gesto: { nome: 'presenta', lato: 'destro' }, vignetta: 'segreteria',
     riga: 'Risponde alle chiamate che non riesci a prendere e ti manda un riassunto di ognuna.' },
-  { slug: 'promemoria-appuntamenti', titolo: ['Conferme e promemoria', 'promemoria'], gesto: { nome: 'presenta', lato: 'sinistro' },
-    riga: 'Conferma gli appuntamenti e li ricorda ai clienti al momento giusto: meno disdette e buchi in agenda.' },
-  { slug: 'ricontatto-preventivi', titolo: ['Ricontatto dei preventivi', 'preventivi'], gesto: { nome: 'lancia', lato: 'destro' },
+  { slug: 'ricontatto-preventivi', titolo: ['Ricontatto dei preventivi', 'preventivi'], gesto: { nome: 'lancia', lato: 'destro' }, vignetta: 'preventivi',
     riga: 'Chi ha chiesto un prezzo e poi è sparito riceve un messaggio gentile, nel momento giusto.' },
-  { slug: 'clienti-che-tornano', titolo: ['Clienti che tornano', 'tornano'], gesto: { nome: 'prendi', lato: 'destro' },
-    riga: 'Ricorda ai clienti di sempre quando è il momento di tornare, con un messaggio che sembra scritto da te.' },
-  { slug: 'recensioni-google', titolo: ['Recensioni su Google', 'Google'], gesto: { nome: 'solleva' },
-    riga: "Dopo la visita o l'acquisto invita ogni cliente a lasciare una recensione, non solo i più contenti." },
+  { slug: 'onboarding-cliente', titolo: ['Onboarding cliente', 'cliente'], gesto: { nome: 'presenta', lato: 'sinistro' }, vignetta: 'onboarding',
+    riga: 'Contratto, moduli, accessi e benvenuto partono da soli appena un cliente dice sì.' },
+  { slug: 'fatture-solleciti', titolo: ['Fatture e solleciti', 'solleciti'], gesto: { nome: 'prendi', lato: 'destro' }, vignetta: 'fatture',
+    riga: 'La fattura parte da sola e chi tarda a pagare riceve un promemoria gentile, finché l\'incasso non arriva.' },
+  { slug: 'programmi-collegati', titolo: ['Programmi collegati', 'collegati'], gesto: { nome: 'prendi', lato: 'sinistro' }, vignetta: 'collegati',
+    riga: 'Ordini, magazzino e gestionale si parlano tra loro: un dato inserito una volta compare dove serve.' },
 ]
 
 const preventivo = (richiesta: string) => ({ testo: 'Chiedi un preventivo', href: '#preventivo', richiesta })
 
 const ELENCO = [
   ...VOCI_AUTOMAZIONI.map((v) => ({
-    titolo: v.titolo, gesto: v.gesto,
+    titolo: v.titolo, gesto: v.gesto, vignetta: v.vignetta,
     azioni: [{ testo: 'Come funziona', href: `/automazioni/${v.slug}` }, preventivo(`Mi interessa: ${v.titolo[0]}.`)],
   })),
   {
-    titolo: ['Su misura', 'misura'] as Frase, riga: 'Raccontaci di cosa hai bisogno: la progettiamo per la tua attività.', gesto: { nome: 'modella' } as GestoPagina,
+    titolo: ['Su misura', 'misura'] as Frase, vignetta: 'su-misura', riga: 'Raccontaci di cosa hai bisogno: la progettiamo per la tua attività.', gesto: { nome: 'modella' } as GestoPagina,
     azioni: [{ testo: 'Raccontaci cosa ti serve', href: '#preventivo', richiesta: "Vorrei un'automazione su misura per: " }],
   },
 ]
@@ -45,7 +45,7 @@ export const AUTOMAZIONI: DatiPagina = {
   materia: 'polvere',
   seo: {
     titolo: 'Automazioni aziendali a Faenza e Romagna | Agenti Studio',
-    descrizione: 'Risposte a messaggi e chiamate, promemoria, preventivi ricontattati, recensioni Google: automazioni per attività e PMI di Faenza e della Romagna.',
+    descrizione: 'Risposte a messaggi e chiamate, preventivi ricontattati, accoglienza dei nuovi clienti, fatture e solleciti: automazioni per attività e PMI di Faenza e della Romagna.',
   },
   h1: H1,
   poster: {
@@ -59,7 +59,7 @@ export const AUTOMAZIONI: DatiPagina = {
     materia: 'polvere',
     servizio: 'Automazioni aziendali',
     h1: H1,
-    sotto: 'Ogni giorno la tua attività ripete gli stessi gesti: rispondere, confermare, ricordare, ricontattare. Le automazioni se ne occupano al posto tuo, a ogni ora e sempre con la stessa cura. Tu recuperi tempo per il tuo mestiere, i clienti ricevono sempre una risposta e nessuna occasione resta indietro.',
+    sotto: 'Ogni giorno la tua attività ripete gli stessi gesti: rispondere, ricontattare, accogliere, incassare. Le automazioni se ne occupano al posto tuo, a ogni ora e sempre con la stessa cura. Tu recuperi tempo per il tuo mestiere, i clienti ricevono sempre una risposta e nessuna occasione resta indietro.',
     nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.',
     cartoline: [
       { nome: 'automazioni-1', alt: "Una conversazione con l'assistente virtuale sul telefono" },
@@ -89,14 +89,14 @@ export const AUTOMAZIONI: DatiPagina = {
     scelte: [
       {
         id: 'dentisti', nome: 'Studio dentistico',
-        testo: 'Chi scrive alle 22 per un appuntamento trova risposta, i pazienti ricevono il promemoria e i preventivi in sospeso vengono ripresi con un messaggio educato. Senza toccare il gestionale.',
+        testo: 'Chi scrive alle 22 per un appuntamento trova risposta, le chiamate perse vengono richiamate e i preventivi in sospeso ripresi con un messaggio educato. Senza toccare il gestionale.',
         link: { testo: 'Per gli studi abbiamo un percorso dedicato', href: '/studi-dentistici' },
       },
       { id: 'bnb', nome: 'B&B e agriturismo', testo: "Gli ospiti chiedono date, come arrivare, se accettate animali. L'assistente risponde alle domande più comuni e ti lascia le richieste di prenotazione già riassunte." },
       { id: 'negozio', nome: 'Negozio', testo: 'Orari, disponibilità, ritiro degli ordini: le domande che si ripetono trovano risposta da sole. Chi chiede un prodotto e poi sparisce viene ricontattato.' },
-      { id: 'ristorante', nome: 'Ristorante', testo: 'Le prenotazioni vengono confermate e ricordate, le domande su orari e weekend trovano risposta mentre sei in cucina. Per allergie e casi particolari il messaggio arriva a te.' },
+      { id: 'ristorante', nome: 'Ristorante', testo: 'Le domande su orari e weekend trovano risposta mentre sei in cucina e le richieste di prenotazione arrivano già riassunte. Per allergie e casi particolari il messaggio arriva a te.' },
       { id: 'artigiano', nome: 'Artigiano e impresa', testo: 'Sei in cantiere e non puoi rispondere: la segreteria raccoglie indirizzo, tipo di lavoro e urgenza, e ti manda un riassunto. I preventivi aperti vengono ripresi.' },
-      { id: 'studio', nome: 'Studio professionale', testo: 'Le richieste di appuntamento arrivano con i dati utili, i clienti ricevono il promemoria e la lista dei documenti da portare.' },
+      { id: 'studio', nome: 'Studio professionale', testo: 'Le richieste di appuntamento arrivano con i dati utili, i nuovi clienti ricevono subito moduli e documenti da portare, e le fatture partono da sole.' },
     ],
   },
   tappe: {
@@ -104,7 +104,7 @@ export const AUTOMAZIONI: DatiPagina = {
     nomi: ['Chiamata', 'Proposta', 'Avvio'],
     passi: [
       { tappa: 0, titolo: 'Ci racconti la tua attività', testo: 'Una chiamata gratuita, senza impegno: cosa fai, da dove arrivano i clienti, quali domande ti fanno più spesso, dove perdi tempo.' },
-      { tappa: 0, titolo: 'Scegliamo da quali automazioni partire', testo: 'Messaggi, chiamate, promemoria, preventivi, recensioni: partiamo da ciò che ti fa perdere più tempo, non da tutto insieme.' },
+      { tappa: 0, titolo: 'Scegliamo da quali automazioni partire', testo: 'Messaggi, chiamate, preventivi, nuovi clienti, fatture: partiamo da ciò che ti fa perdere più tempo, non da tutto insieme.' },
       { tappa: 1, titolo: 'Ricevi la proposta scritta', testo: 'Cosa facciamo, in quanto tempo e quanto costa, per iscritto. Nessuna sorpresa dopo.' },
       { tappa: 2, titolo: 'Scriviamo i messaggi con te', testo: 'Con le tue parole, i tuoi orari, le tue regole. Li leggi e li approvi tu prima che parta qualsiasi cosa.' },
       { tappa: 2, titolo: 'Proviamo, poi si parte', testo: 'Facciamo le prove con messaggi finti, mai con i tuoi clienti. Quando tutto torna, le automazioni cominciano a lavorare.' },

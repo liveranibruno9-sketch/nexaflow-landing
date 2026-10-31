@@ -283,7 +283,7 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     const ingresso = percorso.blocchi.find((b) => b.id.endsWith('-f'))?.battute.find((b) => b.ruolo === 'f3')?.da ?? 2
     const pose = tutte
       ? posaChiSiamo(0, { u, secondi, lunghezza: L, ingresso, schermo, ancora: null, dopo: s.dopo, pesoAncora: 0 })
-      : posaPagina({ u, secondi, lunghezza: L, problema: problema?.da ?? dopoApertura, terzaRiga: r3?.da ?? (problema ? 2 : -1), schermo, ancora: anc, dopo: s.dopo, pesoAncora })
+      : posaPagina({ u, secondi, lunghezza: L, problema: problema?.da ?? dopoApertura, terzaRiga: r3?.da ?? (problema ? 2 : -1), elenco: problema ? undefined : dopoApertura, schermo, ancora: anc, dopo: s.dopo, pesoAncora })
 
     // dove va la scena: nel film al suo posto; poi, nel gioco e nell'invito, sull'àncora della sezione; altrimenti dietro, in quiete
     const conScena = !film && (s.modo === 'gioco' || s.modo === 'invito') && s.ancoraScena !== null
