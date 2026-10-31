@@ -115,7 +115,7 @@ html.varco .film-radice .pagina-fascia .pulsante-sotto { font-size: 11.5px; max-
   html.varco .film-radice .pagina-fascia .battuta-paragrafo { font-size: clamp(18px, 1.3vw, 19px); max-width: 44ch; }
   html.varco .film-radice .pagina-fascia .battuta-titolo { font-size: clamp(48px, 4.2vw, 76px); max-width: 14ch; }
   html.varco .film-radice .battuta-riga { font-size: clamp(24px, 2.1vw, 34px); max-width: 24ch; }
-  html.varco .film-radice .blocco-titolo { font-size: clamp(40px, 3.4vw, 60px); }
+  html.varco .film-radice .blocco-titolo { font-size: clamp(38px, 3vw, 56px); }
   html.varco .film-radice .blocco-riga { font-size: clamp(17px, 1.3vw, 20px); max-width: 38ch; }
   html.varco .film-radice .pagina-fascia .battuta-frase { font-size: clamp(56px, 5.4vw, 98px); max-width: 12ch; }
   html.varco .film-radice .pagina-fascia .pulsante-sotto { font-size: 12.5px; }
@@ -389,7 +389,9 @@ html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignett
 }
 /* computer: sotto il titolo, nella colonna del testo */
 @media (min-width: 901px) and (min-aspect-ratio: 1/1) {
-  html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta { top: 25vh; bottom: auto; height: 28vh; margin: 0; }
+  /* ancorata al fondo della colonna: non dipende da quante righe occupa il titolo, e a sinistra sotto il testo */
+  html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta { top: auto; bottom: 0; height: 26vh; margin: 0; display: flex; align-items: flex-end; justify-content: flex-start; }
+  html.varco .film-radice .pagina-fascia .blocco[data-fase='f'] > .battuta-vignetta .vignetta { width: 100%; height: auto; max-height: 100%; }
 }
 /* telefono in orizzontale */
 @media (min-aspect-ratio: 1/1) and (max-height: 520px) {
