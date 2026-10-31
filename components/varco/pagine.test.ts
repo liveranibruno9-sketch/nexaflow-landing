@@ -262,5 +262,5 @@ test('Pagine dedicate: ogni voce con «Come funziona» ha la sua pagina (le voci
     assert.ok(!/bacheca|portfolio/i.test(testo), `${dove}: R7`)
     ;(p.esempi ?? []).forEach((e) => assert.ok(e.href.startsWith('https://') && e.immagine && e.alt, `${dove}: esempio ${e.nome}`))
   }
-  assert.equal(PAGINE_DEDICATE.find((p) => p.slug === 'agenzie-e-studi')?.esempi?.length, 1, 'un solo esempio vero, per ora')
+  assert.ok(PAGINE_DEDICATE.every((p) => !p.esempi?.length || p.esempi.every((e) => !/oltre frontiera/i.test(e.nome))), 'Lavoro Oltre Frontiera non è tra gli esempi (decisione di Bruno 31/10)')
 })

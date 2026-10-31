@@ -30,7 +30,6 @@ const CHIAMATA_SU_MISURA: ContenutoDedicato = {
   faq: [{ d: 'E se non so cosa chiedere?', r: 'Nessun problema: basta raccontarci cosa ti fa perdere tempo o clienti. La richiesta la formuliamo noi, insieme a te, nella prima chiamata.' }, { d: 'Quanto costa?', r: 'Dipende da cosa serve. Dopo la chiamata ricevi un preventivo scritto, con i costi chiari e senza sorprese.' }],
 }
 
-const LOF: Esempio = { nome: 'Lavoro Oltre Frontiera', testo: "Il sito di un'agenzia di Faenza: i servizi spiegati con chiarezza, chiamata, WhatsApp ed email sempre a portata di tocco, pensato per chi cerca aiuto dal telefono.", href: 'https://www.lavorooltrefrontiera.it', immagine: '/film/pagine/esempi/lof.webp', alt: 'La pagina iniziale del sito di Lavoro Oltre Frontiera' }
 
 /** il resto delle pagine, per «servizio/slug» */
 const CONTENUTO: Record<string, ContenutoDedicato> = {
@@ -95,7 +94,6 @@ const CONTENUTO: Record<string, ContenutoDedicato> = {
     perChi: ['studio', 'artigiano', 'eventi'],
     passi: ['Ci racconti i servizi, a chi sono rivolti e come vuoi essere contattato.', 'Ricevi la proposta con la struttura delle pagine, i moduli e i tempi.', 'Anteprima dal telefono, correzioni, poi online. Le richieste arrivano per email o sul telefono.'],
     faq: [{ d: 'Posso avere un modulo per le richieste?', r: "Sì: chi compila il modulo ti arriva già riassunto, per email o sul telefono. Niente messaggi persi." }, { d: 'Per uno studio sanitario cambia qualcosa?', r: 'Sì, ci sono regole sui contenuti: solo informazioni, niente promesse di risultato né testimonianze. Le seguiamo noi.' }],
-    esempi: [LOF],
   },
   'siti-web/e-commerce-store': {
     cosa: 'Un catalogo curato, schede che fanno scegliere, carrello e pagamento sicuri. Un negozio online costruito attorno ai tuoi prodotti, pensato per il telefono e facile da aggiornare.',
