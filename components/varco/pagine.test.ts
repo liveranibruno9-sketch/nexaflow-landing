@@ -3,7 +3,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { AUTOMAZIONI } from './dati/automazioni.ts'
+import { AUTOMAZIONI, VOCI_AUTOMAZIONI } from './dati/automazioni.ts'
 import { SITI_WEB } from './dati/siti-web.ts'
 import { CONTENUTI } from './dati/contenuti.ts'
 import { CAMPAGNE } from './dati/campagne.ts'
@@ -58,14 +58,16 @@ test('R7: «Lavori» non compare da nessuna parte (bacheca vuota)', () => {
   }
 })
 
-test('il film: tre blocchi contigui da 0 a 6 (Chi siamo: due, 0 → 3,8); ogni battuta sta dentro il suo blocco', () => {
+test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco; Chi siamo: due, 0 → 3,8); ogni battuta sta dentro il suo blocco', () => {
   for (const d of SERVIZI) {
-    assert.equal(d.percorso.lunghezza, 6)
-    assert.deepEqual(d.percorso.blocchi.map((b) => b.id.slice(b.id.lastIndexOf('-') + 1)), ['a', 'p', 'f'])
+    const elenco = d.id === 'automazioni'
+    if (!elenco) assert.equal(d.percorso.lunghezza, 6)
+    assert.deepEqual(d.percorso.blocchi.map((b) => b.id.slice(b.id.lastIndexOf('-') + 1)), elenco ? ['a', 'f'] : ['a', 'p', 'f'])
     d.percorso.blocchi.forEach((b, i) => { if (i > 0) assert.equal(b.da, d.percorso.blocchi[i - 1].a); for (const x of b.battute) assert.ok(x.da >= b.da - 1e-9 && x.a <= b.a + 1e-9 && x.a > x.da, `${d.id}/${b.id}/${x.ruolo}`) })
     const ruoli = (i: number) => d.percorso.blocchi[i].battute.map((x) => x.ruolo)
-    for (let i = 0; i < 3; i++) assert.equal(new Set(ruoli(i)).size, ruoli(i).length, `${d.id}: ruoli doppi`)
-    assert.equal(d.percorso.blocchi[2].battute.filter((x) => x.tipo === 'blocco').length, 6)
+    for (let i = 0; i < d.percorso.blocchi.length; i++) assert.equal(new Set(ruoli(i)).size, ruoli(i).length, `${d.id}: ruoli doppi`)
+    const f = d.percorso.blocchi[d.percorso.blocchi.length - 1]
+    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, elenco ? VOCI_AUTOMAZIONI.length + 1 : 6)
   }
   assert.equal(CHI_SIAMO.percorso.lunghezza, 3.8)
 })
@@ -76,12 +78,14 @@ test('le parole d\'accento stanno nella loro frase come parola intera', () => {
 
 test('lunghezze degli slot (§8.7): H1 75, sottotitolo 160, H2 48, righe del problema 130, blocchi 36 + 150, beneficio 56, schede 230, passi 40 + 210, domande 70 + 280, invito 44, coda 210', () => {
   for (const d of SERVIZI) {
-    const [a, p, f] = d.percorso.blocchi
+    const fase = (x: string) => d.percorso.blocchi.find((b) => b.id.endsWith(`-${x}`))
+    const a = fase('a')!, p = fase('p'), f = fase('f')!
     const t = (b: typeof a, r: string) => b.battute.find((x) => x.ruolo === r)!
     assert.ok(d.h1.length <= 75, `${d.id} H1 ${d.h1.length}`)
-    assert.ok(t(a, 'sotto').testo.length <= 160, `${d.id} sottotitolo`)
-    assert.ok(t(p, 'h2').testo.length <= 48 && t(f, 'h2').testo.length <= 48, `${d.id} H2`)
-    for (const r of ['r1', 'r2', 'r3']) assert.ok(t(p, r).testo.length <= 130, `${d.id} ${r} ${t(p, r).testo.length}`)
+    // senza problema (Automazioni v2) il sottotitolo è il paragrafo generale di 4-5 righe
+    assert.ok(t(a, 'sotto').testo.length <= (p ? 160 : 320), `${d.id} sottotitolo`)
+    assert.ok((!p || t(p, 'h2').testo.length <= 48) && t(f, 'h2').testo.length <= 48, `${d.id} H2`)
+    if (p) for (const r of ['r1', 'r2', 'r3']) assert.ok(t(p, r).testo.length <= 130, `${d.id} ${r} ${t(p, r).testo.length}`)
     f.battute.filter((x) => x.tipo === 'blocco').forEach((x) => assert.ok(x.testo.length <= 36 && (x.nota ?? '').length <= 150, `${d.id} ${x.ruolo}`))
     f.battute.filter((x) => x.ruolo.startsWith('ben')).forEach((x) => assert.ok(x.testo.length <= 56, `${d.id} ${x.ruolo}`))
     assert.ok(d.gioco.h2.length <= 48 && d.tappe.h2.length <= 48 && d.domande.h2.length <= 48 && (d.extra?.h2.length ?? 0) <= 48, `${d.id} H2 sezioni`)
@@ -125,4 +129,24 @@ test('Chi siamo: le quattro entrano nella luce dopo «Con me lavorano»', () => 
     assert.equal(posaChiSiamo(i, c).presenza, 0)
     assert.ok(posaChiSiamo(i, { ...c, u: 3.5 }).presenza > 0.99)
   }
+})
+
+test('Automazioni v2: il film elenca almeno 5 automazioni più «Su misura»; ognuna ha «Come funziona» e il preventivo, il paragrafo non è centrato sull\'assistente', () => {
+  const f = AUTOMAZIONI.percorso.blocchi.find((b) => b.id.endsWith('-f'))!
+  const voci = f.battute.filter((x) => x.tipo === 'blocco')
+  assert.ok(VOCI_AUTOMAZIONI.length >= 5)
+  assert.equal(new Set(VOCI_AUTOMAZIONI.map((v) => v.slug)).size, VOCI_AUTOMAZIONI.length, 'slug unici')
+  VOCI_AUTOMAZIONI.forEach((v, i) => {
+    const b = voci[i]
+    assert.equal(b.testo, v.titolo[0])
+    assert.equal(b.nota, undefined, `${v.slug}: solo il titolo`)
+    assert.deepEqual(b.azioni?.map((x) => x.href), [`/automazioni/${v.slug}`, '#preventivo'], v.slug)
+    assert.ok(b.azioni?.[1].richiesta?.includes(v.titolo[0]), `${v.slug}: il modulo sa cosa interessa`)
+  })
+  const ultima = voci[voci.length - 1]
+  assert.equal(ultima.testo, 'Su misura')
+  assert.equal(ultima.azioni?.[0].href, '#preventivo')
+  const sotto = AUTOMAZIONI.percorso.blocchi[0].battute.find((x) => x.ruolo === 'sotto')!.testo
+  assert.ok(!/assistente/i.test(sotto) && !/assistente/i.test(AUTOMAZIONI.h1), 'il paragrafo generale non parla solo dell\'assistente')
+  assert.ok(AUTOMAZIONI.percorso.blocchi[0].battute.some((x) => x.tipo === 'pulsante' && x.href === '#preventivo'), 'il paragrafo ha il suo link al preventivo')
 })

@@ -66,7 +66,13 @@ function Voce({ b }: { b: Battuta }) {
       return (
         <div className={classe} {...dati}>
           <h3 className="blocco-titolo">{conAccento(b.testo, b.accento)}</h3>
-          <p className="blocco-riga">{b.nota}</p>
+          {b.nota ? <p className="blocco-riga">{b.nota}</p> : null}
+          {b.azioni ? (
+            <p className="blocco-azioni">
+              {/* data-richiesta: il modulo preventivo lo scrive già nel messaggio (ModuloPreventivo) */}
+              {b.azioni.map((x) => <a key={x.href + x.testo} href={x.href} data-richiesta={x.richiesta}>{x.testo}</a>)}
+            </p>
+          ) : null}
         </div>
       )
     case 'nome':

@@ -8,7 +8,9 @@ export type TipoBattuta = 'frase' | 'nome' | 'motto' | 'etichetta' | 'link' | 'p
 /** Pagine dei servizi (spec pagine §8.6): il gesto che la mascotte fa quando la battuta compare; `lato` = il braccio che agisce */
 export type GestoPagina = { nome: 'prendi' | 'solleva' | 'modella' | 'presenta' | 'lancia' | 'salta'; lato?: 'destro' | 'sinistro'; tieni?: boolean }
 /** da, a in schermate dall'inizio del percorso; ruolo = chiave unica dentro il blocco, letta dalla regia */
-export type Battuta = { tipo: TipoBattuta; testo: string; ruolo: string; da: number; a: number; accento?: string; href?: string; nota?: string; src?: string; gesto?: GestoPagina }
+/** un link sotto una voce del film (Automazioni: «Come funziona», «Chiedi un preventivo»); richiesta = testo già scritto nel modulo */
+export type Azione = { testo: string; href: string; richiesta?: string }
+export type Battuta = { tipo: TipoBattuta; testo: string; ruolo: string; da: number; a: number; accento?: string; href?: string; nota?: string; src?: string; gesto?: GestoPagina; azioni?: Azione[] }
 /** mascotte = un servizio della home (titolo, mascotte, paragrafo); squadra = le quattro mascotte che si riuniscono; intro = un titolo di sezione */
 export type TipoBlocco = 'apertura' | 'soglia' | 'tratto' | 'finale' | 'servizio' | 'passi' | 'mascotte' | 'squadra' | 'intro' | 'pagina'
 export type Blocco = {

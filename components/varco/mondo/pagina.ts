@@ -275,13 +275,15 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     pesoAncora += ((!film && (anc || (tutte && s.modo === 'servizi')) ? 1 : 0) - pesoAncora) * (1 - Math.exp(-passo * 6))
     const bl = percorso.blocchi[bloccoAl(percorso, uf)]
     const tt = tempi(bl, uf)
+    // senza problema (Automazioni v2: apertura + elenco) la mascotte non arretra: si porta al centro dopo l'apertura e resta protagonista
     const problema = percorso.blocchi.find((b) => b.id.endsWith('-p'))
     const r3 = problema?.battute.find((b) => b.ruolo === 'r3')
+    const dopoApertura = percorso.blocchi[1]?.da ?? 1
     const schermo = { ritratto: imp.ritratto, aspetto: camera.aspect, basso: !imp.ritratto && altezza < 500 }
     const ingresso = percorso.blocchi.find((b) => b.id.endsWith('-f'))?.battute.find((b) => b.ruolo === 'f3')?.da ?? 2
     const pose = tutte
       ? posaChiSiamo(0, { u, secondi, lunghezza: L, ingresso, schermo, ancora: null, dopo: s.dopo, pesoAncora: 0 })
-      : posaPagina({ u, secondi, lunghezza: L, problema: problema?.da ?? 1, terzaRiga: r3?.da ?? 2, schermo, ancora: anc, dopo: s.dopo, pesoAncora })
+      : posaPagina({ u, secondi, lunghezza: L, problema: problema?.da ?? dopoApertura, terzaRiga: r3?.da ?? (problema ? 2 : -1), schermo, ancora: anc, dopo: s.dopo, pesoAncora })
 
     // dove va la scena: nel film al suo posto; poi, nel gioco e nell'invito, sull'àncora della sezione; altrimenti dietro, in quiete
     const conScena = !film && (s.modo === 'gioco' || s.modo === 'invito') && s.ancoraScena !== null

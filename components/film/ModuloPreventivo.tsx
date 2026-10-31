@@ -31,6 +31,23 @@ export default function ModuloPreventivo({ servizio }: { servizio?: Servizio }) 
     if (stato === 'inviato') esito.current?.focus()
   }, [stato])
 
+  // un link «Chiedi un preventivo» con data-richiesta (le voci di Automazioni) scrive già nel messaggio cosa interessa;
+  // non tocca un messaggio scritto a mano, solo uno vuoto o lasciato da un'altra voce
+  const messaggio = useRef<HTMLTextAreaElement>(null)
+  const scrittoDaVoce = useRef('')
+  useEffect(() => {
+    function alClic(e: MouseEvent) {
+      const a = (e.target as Element | null)?.closest?.('a[data-richiesta]')
+      const campo = messaggio.current
+      if (!a || !campo) return
+      if (campo.value !== '' && campo.value !== scrittoDaVoce.current) return
+      campo.value = a.getAttribute('data-richiesta') ?? ''
+      scrittoDaVoce.current = campo.value
+    }
+    document.addEventListener('click', alClic)
+    return () => document.removeEventListener('click', alClic)
+  }, [])
+
   async function invia(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (inCorso.current) return
@@ -141,7 +158,7 @@ export default function ModuloPreventivo({ servizio }: { servizio?: Servizio }) 
 
       <div className="modulo-campo modulo-largo">
         <label className="modulo-etichetta" htmlFor={`${id}-messaggio`}>Vuoi aggiungere qualcosa? (facoltativo)</label>
-        <textarea className="modulo-input modulo-testo" id={`${id}-messaggio`} name="messaggio" rows={3} maxLength={LUNGHEZZA_MESSAGGIO} />
+        <textarea ref={messaggio} className="modulo-input modulo-testo" id={`${id}-messaggio`} name="messaggio" rows={3} maxLength={LUNGHEZZA_MESSAGGIO} />
       </div>
 
       {/* campo trappola anti-spam: fuori vista, fuori dal tab, ignorato dai lettori di schermo */}

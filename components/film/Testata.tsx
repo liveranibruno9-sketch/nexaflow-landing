@@ -8,7 +8,8 @@ import Menu from './Menu'
 
 const MATERIE = ['polvere', 'vetro', 'saette', 'cromo'] as const
 
-export default function Testata({ corrente }: { corrente: PaginaCorrente }) {
+/** indice: il numero e il nome fissi per le pagine senza film (le approfondimento delle automazioni); il film lo aggiorna da sé */
+export default function Testata({ corrente, indice = ['00', 'Apertura'] }: { corrente: PaginaCorrente; indice?: [string, string] }) {
   return (
     <header className="testata" data-corrente={corrente}>
       <div className="avanz" aria-hidden="true">
@@ -18,8 +19,8 @@ export default function Testata({ corrente }: { corrente: PaginaCorrente }) {
       <a className="marchio" href="/">Agenti Studio</a>
       {/* decorativo: il blocco in corso, aggiornato da Varco dall'`etichetta` del blocco */}
       <p className="indice" aria-hidden="true">
-        <span className="indice-num">00</span>
-        <span className="indice-nome">Apertura</span>
+        <span className="indice-num">{indice[0]}</span>
+        <span className="indice-nome">{indice[1]}</span>
       </p>
       <Menu corrente={corrente} />
     </header>
