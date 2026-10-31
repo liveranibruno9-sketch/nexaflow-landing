@@ -469,7 +469,132 @@ function HEventi() {
   )
 }
 
-const SCENE: Record<string, () => ReactNode> = { bnb: Camera, ristorante: Tavolo, negozio: Ritiro, artigiano: PrimaDopo, studio: Agenda, eventi: Festa, 'c-bnb': CBnb, 'c-ristorante': CRistorante, 'c-negozio': CNegozio, 'c-artigiano': CArtigiano, 'c-studio': CStudio, 'c-eventi': CEventi, 'h-bnb': HBnb, 'h-ristorante': HRistorante, 'h-negozio': HNegozio, 'h-artigiano': HArtigiano, 'h-studio': HStudio, 'h-eventi': HEventi }
+
+/* ===================== Automazioni · «per mestiere»: Atlas prende al volo la richiesta, la risposta parte, il lavoro resta in ordine ===================== */
+const Aereo = ({ x, y, dx, dy, a, b }: { x: number; y: number; dx: number; dy: number; a: number; b: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <g style={{ ...T(a, b), transform: `translate(calc(var(--e) * ${dx}px), calc(var(--e) * ${dy}px))`, opacity: 'calc(min(1, var(--e) * 8, (1 - var(--e)) * 5))' }}><path d="M0 0l20 8-20 8 3-8z" fill={CREMA} /></g>
+  </g>
+)
+/** una bolla: `dentro` = messaggio in arrivo (crema) oppure risposta (blu, con la spunta) */
+const Bolla = ({ x, y, a, b, risposta, dx = -26 }: { x: number; y: number; a: number; b: number; risposta?: boolean; dx?: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <g style={Entra(a, b, dx)}>
+      <rect width={96} height={32} rx={12} fill={risposta ? BLU : '#0b1030'} fillOpacity={risposta ? 1 : 0.82} stroke={risposta ? 'none' : CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+      <Riga x={12} y={10} w={risposta ? 52 : 56} o={0.95} /><Riga x={12} y={19} w={risposta ? 34 : 38} o={0.5} />
+      {risposta ? <g transform="translate(74 10)"><Spunta d="M0 0l3.5 3.5 8-9" stile={Disegna(a + 0.06, b + 0.1, 22)} /></g> : null}
+    </g>
+  </g>
+)
+const Riassunto = ({ x, y, a, b }: { x: number; y: number; a: number; b: number }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <g style={Entra(a, b, 0, 14)}>
+      <rect width={76} height={62} rx={10} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+      <rect x={10} y={10} width={26} height={6} rx={3} fill={CALDO} />
+      {[0, 1, 2].map((i) => <Riga key={i} x={10} y={24 + i * 11} w={i === 2 ? 30 : 54} />)}
+    </g>
+  </g>
+)
+
+/* B&B · l'ospite scrive di sera: la risposta parte subito, la richiesta arriva già riassunta */
+function ABnb() {
+  return (
+    <>
+      <g transform="translate(40 82)"><g style={Entra(0.0, 0.14, 0, 0, 0.4)}><path d="M0-12a12 12 0 100 24 9 9 0 010-24z" fill={CALDO} opacity={0.9} /></g></g>
+      <Bolla x={16} y={10} a={0.1} b={0.26} />
+      <Aereo x={118} y={20} dx={14} dy={10} a={0.26} b={0.42} />
+      <Bolla x={136} y={34} a={0.34} b={0.5} risposta dx={20} />
+      <Riassunto x={262} y={14} a={0.52} b={0.68} />
+      <Pillola x={105} y={110} a={0.7} b={0.88} />
+    </>
+  )
+}
+/* Ristorante · la domanda su orari e weekend trova risposta, il tavolo prenotato riceve conferma */
+function ARistorante() {
+  return (
+    <>
+      <Bolla x={34} y={12} a={0.06} b={0.22} />
+      <Bolla x={150} y={12} a={0.2} b={0.36} risposta dx={26} />
+      <g style={Entra(0.4, 0.56, 0, 16)}>
+        <rect x={34} y={58} width={196} height={38} rx={10} fill="#0b1030" fillOpacity={0.82} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+        {Array.from({ length: 7 }, (_, i) => <rect key={i} x={44 + i * 26} y={68} width={20} height={18} rx={4} fill={i === 4 ? CALDO : 'none'} stroke={CREMA} strokeOpacity={0.4} />)}
+      </g>
+      <g transform="translate(250 77)"><g style={Entra(0.62, 0.78, -16)}><circle r={13} fill={BLU} /><g transform="translate(-6 1)"><Spunta d="M0 0l3.5 3.5 8-9" stile={Disegna(0.7, 0.82, 22)} /></g></g></g>
+      <Pillola x={105} y={110} a={0.72} b={0.9} />
+    </>
+  )
+}
+/* Negozio · la domanda su disponibilità trova risposta; chi è sparito riceve un messaggio e torna a ritirare */
+function ANegozio() {
+  return (
+    <>
+      <Bolla x={34} y={12} a={0.06} b={0.22} />
+      <Bolla x={150} y={12} a={0.2} b={0.36} risposta dx={26} />
+      <Persona x={60} y={78} a={0.44} b={0.56} s={1.2} />
+      <Aereo x={78} y={70} dx={90} dy={0} a={0.5} b={0.68} />
+      <g transform="translate(190 66)"><g style={Entra(0.62, 0.78, 20)}><rect x={-14} y={-4} width={28} height={24} rx={4} fill={BLU} /><path d="M-6-4v-4a6 6 0 0112 0v4" fill="none" stroke={BLU} strokeWidth={2.4} /></g></g>
+      <Pillola x={105} y={110} a={0.74} b={0.9} />
+    </>
+  )
+}
+/* Artigiano · in cantiere il telefono squilla: la segreteria raccoglie, il riassunto arriva, il preventivo aperto riparte */
+function AArtigiano() {
+  return (
+    <>
+      <g transform="translate(46 50)">
+        <g style={Entra(0.0, 0.14, 0, 0, 0.4)}><rect x={-17} y={-26} width={34} height={52} rx={8} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.9} strokeWidth={1.3} /><circle r={9} fill={BLU} /><path d="M-3-2q3 5 6 0" {...tratto} stroke="#fff" /></g>
+        {[0, 1].map((i) => <path key={i} d={`M${24 + i * 8} ${-10 - i * 3}q${5 + i * 2} 10 0 ${20 + i * 6}`} fill="none" stroke={BLU_CHIARO} strokeWidth={2} strokeLinecap="round" style={{ ...T(0.1 + 0.06 * i, 0.2 + 0.06 * i), opacity: 'var(--e)' }} />)}
+      </g>
+      <g style={{ ...T(0.24, 0.42), opacity: 'var(--e)' }}>
+        {[14, 30, 44, 26, 38].map((h, i) => <rect key={i} className="barra" x={100 + i * 13} y={50 - h / 2} width={7} height={h} rx={3.5} fill={BLU} style={{ animationDelay: `${-i * 0.11}s` }} />)}
+      </g>
+      <Riassunto x={186} y={20} a={0.46} b={0.62} />
+      <g style={Entra(0.62, 0.74, 20)}><g transform="translate(274 34)"><rect width={52} height={44} rx={8} fill="#0b1030" fillOpacity={0.85} stroke={CALDO} strokeWidth={1.6} /><Riga x={8} y={10} w={30} /><Riga x={8} y={19} w={22} o={0.5} /><rect x={8} y={29} width={36} height={7} rx={3.5} fill={CALDO} /></g></g>
+      <Pillola x={105} y={110} a={0.74} b={0.9} />
+    </>
+  )
+}
+/* Studi e professionisti · la richiesta arriva coi dati utili, parte il modulo, la fattura esce da sola; sobria */
+function AStudio() {
+  return (
+    <>
+      <g style={Entra(0.04, 0.2, -20)}>
+        <rect x={30} y={12} width={96} height={84} rx={11} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+        {[0, 1, 2].map((i) => <g key={i}><rect x={40} y={22 + i * 22} width={76} height={14} rx={4} fill="none" stroke={CREMA} strokeOpacity={0.4} /><rect x={43} y={25 + i * 22} width={56} height={8} rx={3} fill={BLU_CHIARO} style={{ ...T(0.16 + 0.1 * i, 0.28 + 0.1 * i), transformBox: 'fill-box', transformOrigin: 'left', transform: 'scaleX(var(--e))' }} /></g>)}
+      </g>
+      <Aereo x={132} y={46} dx={50} dy={0} a={0.5} b={0.66} />
+      <g style={Entra(0.62, 0.76, 20)}>
+        <rect x={196} y={20} width={60} height={72} rx={9} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.2} />
+        <path d="M206 34h30M206 44h38M206 54h24" stroke={CREMA} strokeOpacity={0.5} strokeWidth={1.4} strokeLinecap="round" /><rect x={206} y={68} width={40} height={10} rx={5} fill={CALDO} />
+      </g>
+      <g transform="translate(290 56)"><g style={Entra(0.78, 0.92, 0, 0, 0.2)}><circle r={12} fill={BLU} /><g transform="translate(-6 1)"><Spunta d="M0 0l3.5 3.5 8-9" /></g></g></g>
+      <Pillola x={105} y={110} a={0.72} b={0.88} />
+    </>
+  )
+}
+/* Eventi · gli iscritti arrivano in ordine, a ognuno parte la conferma */
+function AEventi() {
+  return (
+    <>
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(30 ${12 + i * 32})`}>
+          <g style={Entra(0.06 + 0.16 * i, 0.2 + 0.16 * i, -30)}>
+            <rect width={150} height={26} rx={9} fill="#0b1030" fillOpacity={0.85} stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.1} />
+            <circle cx={16} cy={13} r={8} fill={i === 1 ? CALDO : BLU} opacity={0.9} /><circle cx={16} cy={11} r={2.6} fill="#fff" opacity={0.85} /><path d="M11 18a5 4 0 0110 0" fill="#fff" opacity={0.85} />
+            <Riga x={32} y={8} w={70} /><Riga x={32} y={16} w={44} o={0.45} />
+          </g>
+        </g>
+      ))}
+      {[0, 1, 2].map((i) => <Aereo key={i} x={186} y={20 + i * 32} dx={44} dy={0} a={0.3 + 0.16 * i} b={0.46 + 0.16 * i} />)}
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(262 ${25 + i * 32})`}><g style={Entra(0.4 + 0.16 * i, 0.52 + 0.16 * i, 0, 0, 0.3)}><circle r={10} fill={BLU} /><g transform="translate(-5 1)"><Spunta d="M0 0l3 3 7-8" /></g></g></g>
+      ))}
+      <Pillola x={105} y={110} a={0.74} b={0.9} />
+    </>
+  )
+}
+
+const SCENE: Record<string, () => ReactNode> = { bnb: Camera, ristorante: Tavolo, negozio: Ritiro, artigiano: PrimaDopo, studio: Agenda, eventi: Festa, 'c-bnb': CBnb, 'c-ristorante': CRistorante, 'c-negozio': CNegozio, 'c-artigiano': CArtigiano, 'c-studio': CStudio, 'c-eventi': CEventi, 'h-bnb': HBnb, 'h-ristorante': HRistorante, 'h-negozio': HNegozio, 'h-artigiano': HArtigiano, 'h-studio': HStudio, 'h-eventi': HEventi, 'a-bnb': ABnb, 'a-ristorante': ARistorante, 'a-negozio': ANegozio, 'a-artigiano': AArtigiano, 'a-studio': AStudio, 'a-eventi': AEventi }
 
 /** foto del mestiere nel vetro, sotto la scena; `foto` può mancare (la scena regge anche senza) */
 export default function ScenaMestiere({ id, foto }: { id: string; foto?: string }) {

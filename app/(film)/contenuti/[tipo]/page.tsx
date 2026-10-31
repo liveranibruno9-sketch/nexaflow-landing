@@ -1,42 +1,23 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Testata from '@/components/film/Testata'
-import Coda from '@/components/film/Coda'
-import { TIPI_CONTENUTO_TUTTI } from '@/components/varco/dati/contenuti'
+import PaginaDedicata from '@/components/varco/sezioni/PaginaDedicata'
+import { PAGINE_DEDICATE, SERVIZI_DEDICATI, trovaDedicata } from '@/components/varco/dati/dedicate'
 
-// Le pagine dedicate ai tipi di contenuto (link «Come funziona» del film di /contenuti). PROVVISORIE: titolo, una riga e il modulo;
-// Bruno le struttura in un passo successivo. Fuori da Google finché non sono pronte (noindex).
+// Pagina dedicata a una voce di /contenuti («Come funziona»): modello unico v1, dati in dati/dedicate.ts. Fuori da Google finché Bruno non la approva (noindex).
 
 export const dynamicParams = false
 
 export function generateStaticParams() {
-  return TIPI_CONTENUTO_TUTTI.map((t) => ({ tipo: t.slug }))
+  return PAGINE_DEDICATE.filter((p) => p.servizio === 'contenuti').map((p) => ({ tipo: p.slug }))
 }
-
-const trova = (slug: string) => TIPI_CONTENUTO_TUTTI.find((t) => t.slug === slug)
 
 export function generateMetadata({ params }: { params: { tipo: string } }): Metadata {
-  const t = trova(params.tipo)
-  if (!t) return {}
-  return {
-    title: { absolute: `${t.titolo[0]} | Contenuti | Agenti Studio` },
-    description: t.riga,
-    robots: { index: false, follow: true },
-  }
+  const v = trovaDedicata('contenuti', params.tipo)
+  if (!v) return {}
+  return { title: { absolute: `${v.titolo} | ${SERVIZI_DEDICATI['contenuti'].nome} | Agenti Studio` }, description: v.riga, robots: { index: false, follow: true } }
 }
 
-export default function Approfondimento({ params }: { params: { tipo: string } }) {
-  const t = trova(params.tipo)
-  if (!t) notFound()
-  return (
-    <main id="contenuto" className="approfondimento">
-      <Testata corrente="contenuti" indice={['03', 'Contenuti']} />
-      <section className="approfondimento-testa">
-        <h1>{t.titolo[0]}</h1>
-        <p className="approfondimento-riga">{t.riga}</p>
-        <a className="approfondimento-indietro" href="/contenuti">Tutto quello che creiamo</a>
-      </section>
-      <Coda servizio="contenuti" riga={`Raccontaci la tua attività: ti diciamo come sarebbe «${t.titolo[0]}» per te.`} />
-    </main>
-  )
+export default function Pagina({ params }: { params: { tipo: string } }) {
+  if (!trovaDedicata('contenuti', params.tipo)) notFound()
+  return <PaginaDedicata servizio="contenuti" slug={params.tipo} />
 }

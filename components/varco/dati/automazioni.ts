@@ -6,6 +6,8 @@ import { percorsoServizio } from './pagine.ts'
 import type { DatiPagina, Frase } from './pagine.ts'
 import type { GestoPagina } from '../tipi.ts'
 
+const F = (nome: string) => `/film/pagine/siti-web/${nome}.webp`
+
 /** le automazioni dell'elenco: slug della pagina di approfondimento (provvisoria, da strutturare), titolo, parola d'accento, gesto di Atlas */
 export type VoceAutomazione = { slug: string; titolo: Frase; gesto: GestoPagina; /** la scena disegnata (sezioni/Vignetta.tsx) */ vignetta: string; /** una riga per la pagina provvisoria di approfondimento */ riga: string }
 
@@ -85,18 +87,18 @@ export const AUTOMAZIONI: DatiPagina = {
     ],
   },
   gioco: {
-    h2: 'Le stesse automazioni, sei mestieri diversi.',
+    h2: 'Cosa automatizzare, per mestiere.',
     scelte: [
+      { id: 'bnb', scena: 'a-bnb', nome: 'B&B e agriturismo', foto: F('siti-bnb'), testo: "Gli ospiti scrivono a ogni ora per date, arrivo, animali. L'assistente risponde subito e ti lascia le richieste di prenotazione già riassunte: tu confermi, e l'ospite non scrive a un altro." },
+      { id: 'ristorante', scena: 'a-ristorante', nome: 'Ristorante e bar', foto: F('siti-ristorante'), testo: "Orari, weekend, prenotazioni: le domande che si ripetono trovano risposta mentre sei in cucina, e il tavolo prenotato riceve conferma. Per allergie e casi particolari il messaggio arriva a te." },
+      { id: 'negozio', scena: 'a-negozio', nome: 'Negozio', foto: F('siti-negozio'), testo: "Disponibilità, orari, ritiro: le domande trovano risposta da sole. Chi chiede un prodotto e poi sparisce riceve un messaggio gentile, e torna a ritirare." },
+      { id: 'artigiano', scena: 'a-artigiano', nome: 'Artigiano e impresa', foto: F('siti-artigiano'), testo: "Sei in cantiere e non puoi rispondere: la segreteria raccoglie indirizzo, tipo di lavoro e urgenza e ti manda un riassunto. I preventivi aperti vengono ripresi." },
       {
-        id: 'dentisti', nome: 'Studio dentistico',
-        testo: 'Chi scrive alle 22 per un appuntamento trova risposta, le chiamate perse vengono richiamate e i preventivi in sospeso ripresi con un messaggio educato. Senza toccare il gestionale.',
-        link: { testo: 'Per gli studi abbiamo un percorso dedicato', href: '/studi-dentistici' },
+        id: 'studio', scena: 'a-studio', nome: 'Studi e professionisti', foto: F('siti-studio'),
+        testo: 'Le richieste di appuntamento arrivano con i dati utili, i nuovi clienti ricevono subito moduli e documenti da portare e le fatture partono da sole. Senza toccare il gestionale.',
+        link: { testo: 'Per gli studi dentistici abbiamo un percorso dedicato', href: '/studi-dentistici' },
       },
-      { id: 'bnb', nome: 'B&B e agriturismo', testo: "Gli ospiti chiedono date, come arrivare, se accettate animali. L'assistente risponde alle domande più comuni e ti lascia le richieste di prenotazione già riassunte." },
-      { id: 'negozio', nome: 'Negozio', testo: 'Orari, disponibilità, ritiro degli ordini: le domande che si ripetono trovano risposta da sole. Chi chiede un prodotto e poi sparisce viene ricontattato.' },
-      { id: 'ristorante', nome: 'Ristorante', testo: 'Le domande su orari e weekend trovano risposta mentre sei in cucina e le richieste di prenotazione arrivano già riassunte. Per allergie e casi particolari il messaggio arriva a te.' },
-      { id: 'artigiano', nome: 'Artigiano e impresa', testo: 'Sei in cantiere e non puoi rispondere: la segreteria raccoglie indirizzo, tipo di lavoro e urgenza, e ti manda un riassunto. I preventivi aperti vengono ripresi.' },
-      { id: 'studio', nome: 'Studio professionale', testo: 'Le richieste di appuntamento arrivano con i dati utili, i nuovi clienti ricevono subito moduli e documenti da portare, e le fatture partono da sole.' },
+      { id: 'eventi', scena: 'a-eventi', nome: 'Associazioni ed eventi', foto: '/film/pagine/contenuti/cont-eventi.webp', testo: "Le iscrizioni arrivano in ordine, ogni iscritto riceve subito la conferma con le istruzioni, e tu vedi chi viene senza rincorrere nessuno." },
     ],
   },
   tappe: {

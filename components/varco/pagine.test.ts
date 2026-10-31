@@ -7,6 +7,7 @@ import { AUTOMAZIONI, VOCI_AUTOMAZIONI } from './dati/automazioni.ts'
 import { SITI_WEB, TIPI_SITO_TUTTI } from './dati/siti-web.ts'
 import { CONTENUTI, TIPI_CONTENUTO_TUTTI } from './dati/contenuti.ts'
 import { CAMPAGNE, TIPI_CAMPAGNA_TUTTI } from './dati/campagne.ts'
+import { NOMI_MESTIERE, PAGINE_DEDICATE } from './dati/dedicate.ts'
 import { CHI_SIAMO } from './dati/chi-siamo.ts'
 import { REGIE_PAGINE } from './regie/pagine/indice.ts'
 import { controllaR18 } from './regie/indice.ts'
@@ -228,4 +229,38 @@ test('Campagne v2: il film elenca cosa facciamo con i due link, mestieri allinea
   assert.ok(!/garantiamo (un|dei) \d|ti garantiamo (clienti|risultati)/i.test(tutto.replace('Noi ti garantiamo di sapere', '')), 'nessuna promessa di risultato')
   const studio = CAMPAGNE.gioco.scelte.find((s) => s.id === 'studio')!.testo
   assert.ok(/informativ/i.test(studio) && /promesse/i.test(studio), 'studi: solo informativo')
+})
+
+test('Automazioni: la sezione «per mestiere» ha gli stessi sei mestieri delle altre pagine, ognuno con la sua scena e la sua foto', () => {
+  assert.deepEqual(AUTOMAZIONI.gioco.scelte.map((s) => s.id), SITI_WEB.gioco.scelte.map((s) => s.id))
+  AUTOMAZIONI.gioco.scelte.forEach((s) => assert.ok(s.scena === `a-${s.id}` && s.foto, s.id))
+  const disegni = readFileSync(new URL('./sezioni/ScenaMestiere.tsx', import.meta.url), 'utf8')
+  for (const s of AUTOMAZIONI.gioco.scelte) assert.ok(disegni.includes(`'${s.scena}':`), `scena ${s.scena} registrata`)
+  assert.ok(AUTOMAZIONI.gioco.scelte.some((s) => s.link?.href === '/studi-dentistici'), 'il percorso dedicato agli studi dentistici resta raggiungibile')
+})
+
+test('Pagine dedicate: ogni voce con «Come funziona» ha la sua pagina (le voci «Su misura» di Automazioni e Siti portano al modulo), con scena, tre passi, domande; solo esempi veri', () => {
+  const attese = [
+    ...VOCI_AUTOMAZIONI.map((v) => `automazioni/${v.slug}`),
+    ...TIPI_SITO_TUTTI.map((v) => `siti-web/${v.slug}`),
+    ...TIPI_CONTENUTO_TUTTI.map((v) => `contenuti/${v.slug}`),
+    ...TIPI_CAMPAGNA_TUTTI.map((v) => `campagne/${v.slug}`),
+  ]
+  assert.deepEqual(PAGINE_DEDICATE.map((p) => `${p.servizio}/${p.slug}`).sort(), attese.sort())
+  assert.ok(PAGINE_DEDICATE.length >= 26)
+  const disegni = readFileSync(new URL('./sezioni/Vignetta.tsx', import.meta.url), 'utf8')
+  for (const p of PAGINE_DEDICATE) {
+    const dove = `${p.servizio}/${p.slug}`
+    assert.ok(p.cosa.length >= 80 && p.cosa.length <= 330, `${dove}: cosa ${p.cosa.length}`)
+    assert.equal(p.passi.length, 3)
+    p.passi.forEach((x) => assert.ok(x.length >= 30 && x.length <= 150, `${dove}: passo «${x}»`))
+    assert.ok(p.faq.length >= 2 && p.faq.every((f) => f.d.length <= 70 && f.r.length <= 280), `${dove}: domande`)
+    assert.ok(p.perChi.length >= 2 && p.perChi.every((m) => m in NOMI_MESTIERE), `${dove}: per chi`)
+    assert.ok(new RegExp(`['"]?${p.vignetta.replace('-', '[-]')}['"]?: [A-Z]`).test(disegni), `${dove}: scena ${p.vignetta} registrata`)
+    const testo = [p.cosa, ...p.passi, ...p.faq.flatMap((f) => [f.d, f.r])].join(' ')
+    assert.ok(!/€|\beuro\b|intelligenza artificiale/i.test(testo) && !/\bA\.?I\.?\b/.test(testo), `${dove}: niente prezzi né «intelligenza artificiale»`)
+    assert.ok(!/bacheca|portfolio/i.test(testo), `${dove}: R7`)
+    ;(p.esempi ?? []).forEach((e) => assert.ok(e.href.startsWith('https://') && e.immagine && e.alt, `${dove}: esempio ${e.nome}`))
+  }
+  assert.equal(PAGINE_DEDICATE.find((p) => p.slug === 'agenzie-e-studi')?.esempi?.length, 1, 'un solo esempio vero, per ora')
 })
