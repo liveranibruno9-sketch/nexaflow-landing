@@ -488,7 +488,140 @@ function App() {
   )
 }
 
-const SCENE: Record<string, () => ReactNode> = { messaggi: Messaggi, segreteria: Segreteria, preventivi: Preventivi, onboarding: Onboarding, fatture: Fatture, collegati: Collegati, 'su-misura': SuMisura, landing: Landing, vetrina: Vetrina, ricettive: Ricettive, agenzie: Agenzie, store: Store, 'tre-d': TreD, app: App }
+
+/* ===================================== Contenuti: le sei voci del film (Prometheus: il lampo sviluppa il contenuto) ===================================== */
+const VIOLA = '#c9b0ff'
+const cuore = 'M0 6C-9-2-7-10 0-5 7-10 9-2 0 6z'
+
+/** il lampo: una linea spezzata che si disegna da `da` a `a` (finta saetta in codice, poche punte) */
+function Lampo({ d, da, a }: { d: string; da: number; a: number }) {
+  return <path d={d} fill="none" stroke={VIOLA} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" style={{ ...T(da, a), strokeDasharray: 400, strokeDashoffset: 'calc(400px * (1 - var(--e)))', opacity: 'calc(min(1, (1 - var(--e)) * 4 + 0.35 * var(--e)))' }} />
+}
+
+/* ---------- Post e grafiche: il lampo sviluppa un quadrato (foto, testo, cuore) ---------- */
+function Post() {
+  return (
+    <>
+      <Lampo d="M30 10L66 38 52 46 96 76 84 82 118 98" da={0.02} a={0.22} />
+      <g style={Entra(0.2, 0.42, 0, 0, 0.85)}>
+        <rect x={120} y={14} width={120} height={122} rx={11} fill="#0b1030" stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.3} />
+        <rect x={128} y={22} width={104} height={64} rx={7} fill={BLU} opacity={0.35} />
+        <circle cx={204} cy={42} r={8} fill={CALDO} />
+        <path d="M128 86l30-30 22 20 14-14 38 24z" fill={BLU} opacity={0.75} />
+      </g>
+      {[0, 1].map((i) => <Riga key={i} x={128} y={96 + i * 11} w={i ? 52 : 84} />)}
+      <g transform="translate(213 122)"><g style={Entra(0.5, 0.64, 0, 0, 0.3)}><path d={cuore} fill={CALDO} /></g></g>
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(${268 + i * 22} 112)`}>
+          <g style={{ ...T(0.6 + 0.08 * i, 0.9 + 0.04 * i), transform: 'translate(0, calc(var(--e) * -70px))', opacity: 'calc(min(1, var(--e) * 5, (1 - var(--e)) * 3))' }}><path d={cuore} fill={CALDO} transform="scale(1.3)" /></g>
+        </g>
+      ))}
+    </>
+  )
+}
+
+/* ---------- Caroselli: tre pagine a ventaglio, i puntini scorrono ---------- */
+function Carosello() {
+  const carta = (i: number, ang: number, x: number, colore: string) => (
+    <g key={i} transform={`translate(${x} 128) rotate(${ang})`}>
+      <g style={{ ...T(0.06 + 0.14 * i, 0.26 + 0.14 * i), opacity: 'var(--e)', transform: `translate(0, calc((1 - var(--e)) * 30px))` }}>
+        <rect x={-46} y={-112} width={92} height={112} rx={10} fill="#0b1030" stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.3} />
+        <rect x={-38} y={-104} width={76} height={56} rx={6} fill={colore} opacity={0.55} />
+        <Riga x={-38} y={-38} w={60} /><Riga x={-38} y={-27} w={40} o={0.45} />
+      </g>
+    </g>
+  )
+  return (
+    <>
+      {carta(0, -14, 122, BLU)}{carta(1, 0, 180, CALDO)}{carta(2, 14, 238, BLU_CHIARO)}
+      {[0, 1, 2].map((i) => <circle key={i} cx={162 + i * 18} cy={141} r={3.2} fill={CREMA} opacity={0.3} />)}
+      {[0, 1, 2].map((i) => <circle key={i} cx={162 + i * 18} cy={141} r={3.2} fill={BLU_CHIARO} style={{ ...T(0.4 + 0.18 * i, 0.5 + 0.18 * i), opacity: i === 2 ? 'var(--e)' : 'calc(var(--e) * (1 - var(--e)) * 4)' }} />)}
+      <g transform="translate(296 96)"><g style={{ ...T(0.45, 0.8), transform: 'translate(calc(var(--e) * -44px), 0)', opacity: 'calc(min(1, var(--e) * 6, (1 - var(--e)) * 4))' }}><path d="M0 0l2 18 6-6 5 11 4-2-5-11 8-1z" fill={CREMA} stroke="#0b1030" strokeWidth={1} /></g></g>
+      <g transform="translate(60 40)"><g style={Entra(0.7, 0.88, -20)}><path d="M0 0H30M22-8l8 8-8 8" {...tratto} stroke={VIOLA} strokeWidth={2.4} /></g></g>
+    </>
+  )
+}
+
+/* ---------- Video brevi: un riquadro verticale, il play, la barra del tempo, i fotogrammi ---------- */
+function VideoBreve() {
+  return (
+    <>
+      <Lampo d="M40 14L72 40 60 48 100 70" da={0.02} a={0.18} />
+      <g style={Entra(0.14, 0.36, 0, 18)}>
+        <rect x={140} y={8} width={80} height={134} rx={13} fill="#0b1030" stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.4} />
+        <rect x={148} y={16} width={64} height={98} rx={7} fill={BLU} opacity={0.3} />
+        <path d="M168 50l22 14-22 14z" fill={CREMA} />
+        <rect x={148} y={122} width={64} height={5} rx={2.5} fill={CREMA} opacity={0.25} />
+        <rect x={148} y={122} width={64} height={5} rx={2.5} fill={CALDO} style={{ ...T(0.4, 0.9), transformBox: 'fill-box', transformOrigin: 'left', transform: 'scaleX(var(--e))' }} />
+      </g>
+      {[0, 1, 2].map((i) => (
+        <g key={i} transform={`translate(${246 + (i % 2) * 6} ${22 + i * 40})`}>
+          <g style={Entra(0.5 + 0.1 * i, 0.64 + 0.1 * i, 22)}>
+            <rect width={60} height={34} rx={6} fill={VELO} stroke={CREMA} strokeOpacity={0.6} strokeWidth={1.1} />
+            <rect x={6} y={6} width={22} height={22} rx={4} fill={i === 1 ? CALDO : BLU} opacity={0.6} />
+            <Riga x={34} y={12} w={18} /><Riga x={34} y={20} w={12} o={0.45} />
+          </g>
+        </g>
+      ))}
+    </>
+  )
+}
+
+/* ---------- Piano editoriale: un mese, i contenuti cadono nei giorni uno alla volta ---------- */
+function Piano() {
+  const giorni = Array.from({ length: 28 }, (_, i) => i)
+  const posti = [[1, 0], [3, 1], [5, 1], [2, 2], [4, 3], [0, 3]] as const
+  return (
+    <>
+      <g style={Entra(0.0, 0.16, 0, 14)}>
+        <rect x={34} y={8} width={292} height={134} rx={12} fill="#0b1030" stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+        <rect x={46} y={18} width={54} height={6} rx={3} fill={CALDO} />
+      </g>
+      {giorni.map((i) => <rect key={i} x={46 + (i % 7) * 39.5} y={34 + Math.floor(i / 7) * 26} width={34} height={20} rx={5} fill="none" stroke={CREMA} strokeOpacity={0.3} strokeWidth={1} />)}
+      {posti.map(([c, r], i) => (
+        <g key={i} transform={`translate(${46 + c * 39.5} ${34 + r * 26})`}>
+          <g style={{ ...T(0.12 + 0.12 * i, 0.26 + 0.12 * i), opacity: 'var(--e)', transform: 'translate(0, calc((1 - var(--e)) * -60px))' }}>
+            <rect width={34} height={20} rx={5} fill={i % 3 === 0 ? BLU : i % 3 === 1 ? VIOLA : BLU_CHIARO} opacity={0.85} />
+            {i % 3 === 2 ? <path d="M13 5l9 5-9 5z" fill="#0b1030" /> : <rect x={8} y={7} width={18} height={4} rx={2} fill="#fff" opacity={0.8} />}
+          </g>
+        </g>
+      ))}
+      <g transform="translate(312 22)"><g style={Entra(0.84, 0.96, 0, 0, 0.2)}><circle r={10} fill={BLU} /><g transform="translate(-5 1)"><Spunta d="M0 0l3 3 7-8" /></g></g></g>
+    </>
+  )
+}
+
+/* ---------- Gestione completa dei social: piano → pubblicazione → resoconto, e il grafico sale ---------- */
+function Gestione() {
+  const nodi: [number, number, ReactNode][] = [
+    [70, 40, <g key="p"><rect x={-9} y={-9} width={18} height={18} rx={3} {...tratto} /><path {...tratto} d="M-9-3H9M-3-9v-3M3-9v-3" /></g>],
+    [150, 112, <g key="u"><path {...tratto} d="M-9 3L0-8 9 3M0-8V9" /></g>],
+    [230, 40, <g key="r"><path {...tratto} d="M-9 8V2M-3 8V-2M3 8V-6M9 8V-9" /></g>],
+  ]
+  return (
+    <>
+      <path d="M92 52L132 98" stroke={BLU_CHIARO} strokeWidth={1.5} strokeLinecap="round" fill="none" style={Disegna(0.08, 0.28, 60)} />
+      <path d="M168 100L212 54" stroke={BLU_CHIARO} strokeWidth={1.5} strokeLinecap="round" fill="none" style={Disegna(0.22, 0.42, 66)} />
+      <path d="M208 34Q150 4 94 32" stroke={BLU_CHIARO} strokeWidth={1.5} strokeLinecap="round" fill="none" style={Disegna(0.36, 0.56, 130)} />
+      {nodi.map(([x, y, icona], i) => (
+        <g key={i} transform={`translate(${x} ${y})`}>
+          <g style={Entra(0.0 + 0.08 * i, 0.14 + 0.08 * i, 0, 0, 0.6)}>
+            <circle r={24} fill="#0b1030" stroke={CREMA} strokeOpacity={0.85} strokeWidth={1.5} />
+            {icona}
+          </g>
+        </g>
+      ))}
+      <g transform="translate(150 112)"><circle r={24} fill="none" stroke={VIOLA} strokeWidth={2} style={{ ...T(0.42, 0.62), opacity: 'calc(0.9 * (1 - var(--e)))', transformBox: 'fill-box', transformOrigin: 'center', transform: 'scale(calc(1 + 0.8 * var(--e)))' }} /></g>
+      <g style={Entra(0.5, 0.66, 24)}>
+        <rect x={274} y={22} width={72} height={106} rx={10} fill="#0b1030" stroke={CREMA} strokeOpacity={0.8} strokeWidth={1.3} />
+        {[22, 38, 30, 56, 74].map((h, i) => <rect key={i} x={284 + i * 12} y={114 - h} width={8} height={h} rx={3} fill={i === 4 ? CALDO : BLU} style={{ ...T(0.6 + 0.06 * i, 0.74 + 0.06 * i), transformBox: 'fill-box', transformOrigin: 'bottom', transform: 'scaleY(var(--e))' }} />)}
+      </g>
+      <g transform="translate(340 28)"><g style={Entra(0.86, 0.97, 0, 0, 0.2)}><circle r={11} fill={BLU} /><g transform="translate(-5.5 1)"><Spunta d="M0 0l3 3 8-9" /></g></g></g>
+    </>
+  )
+}
+
+const SCENE: Record<string, () => ReactNode> = { messaggi: Messaggi, segreteria: Segreteria, preventivi: Preventivi, onboarding: Onboarding, fatture: Fatture, collegati: Collegati, 'su-misura': SuMisura, landing: Landing, vetrina: Vetrina, ricettive: Ricettive, agenzie: Agenzie, store: Store, 'tre-d': TreD, app: App, post: Post, carosello: Carosello, video: VideoBreve, piano: Piano, gestione: Gestione }
 
 export default function Vignetta({ id }: { id: string }) {
   const Scena = SCENE[id]

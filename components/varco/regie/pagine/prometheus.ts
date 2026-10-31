@@ -6,12 +6,6 @@ import type { Vec2 } from '../../tipi.ts'
 import { corta, fuoco, lis, vicino } from './comune.ts'
 import type { RegiePagina } from './comune.ts'
 
-/** la griglia 3×3 di cornici: punti relativi alla sua posizione (in larghezze di quadro), a sinistra dello schermo */
-const GRIGLIA: [number, number, number][] = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => [((i % 3) - 1) * 0.2, (Math.floor(i / 3) - 1) * 0.2 * (2.25 / 4) * 1.4, 0.7])
-
-/** dove sta la griglia di cornici: a sinistra di Prometheus sul computer (il quadro non ritaglia), dietro di lui sul telefono */
-const griglia = (k: Kit): Vec2 => (k.soggetto.altezza < 0.45 ? [k.soggetto.centro[0], k.soggetto.centro[1] - 0.03] : [k.soggetto.centro[0] - 0.62, k.soggetto.centro[1] - 0.02])
-
 const apertura: Regia = (t, f, k) => {
   // le due cartoline si posano a destra della mascotte: un piccolo battito della materia per ciascuna
   k.pulsa('cartolina-1', { a: [0.88, 0.2], raggio: 0.07, colore: 'saette' }, t['foto-1'])
@@ -23,50 +17,32 @@ const apertura: Regia = (t, f, k) => {
   k.luce('caldo', { a: vicino(k, -0.2, -0.4), raggio: 0.14, colore: 'luce' }, 0.08 + 0.14 * t.pulsante)
 }
 
-const problema: Regia = (t, f, k) => {
+/** l'elenco dei contenuti (v2): una vignetta per voce; qui l'anello di piccole saette, il gesto, una luce e un lampo per voce */
+const STELLE = 36
+const elenco: Regia = (t, f, k) => {
   const c = k.soggetto.centro
-  const g = griglia(k)
-  // la griglia di nove cornici spente e impolverate (il profilo fermo)
-  k.punti('griglia', { punti: GRIGLIA, colore: 'saette' }, { centro: g, scala: 1, inclina: 0, accese: 3 * Math.sin(Math.PI * Math.min(1, t.r2 * 1.0)) + 1 * t.r2, alfa: 0.6 + 0.1 * t.h2 })
-  // 1: la polvere cade
-  k.getto('polvere', { da: [g[0], -0.05], verso: [g[0], g[1] + 0.2], colore: 'saette', n: 30, ampiezza: 0.5, gravita: 0.8 }, t.r1)
-  // 2: una cornice prova ad accendersi e si spegne
-  k.luce('prova', { a: g, raggio: 0.14, colore: 'saette' }, 0.4 * Math.sin(Math.PI * t.r2) + 0.1 * t.r2)
-  // 3: «il bello c'è già»: una scintilla crepita davanti a Prometheus
-  k.saetta('crepita', { da: vicino(k, -0.15, -0.1), a: corta(vicino(k, -0.15, -0.1), [g[0] + 0.1, g[1]]), rami: 1 }, 0.5 * lis(0, 0.5, t.r3))
-  fuoco(k, t.r1, g); fuoco(k, t.r2, g); fuoco(k, t.r3, g)
-}
-
-const capacita: Regia = (t, f, k) => {
-  const c = k.soggetto.centro
-  const g = griglia(k)
-  const accese = 1 * t.b1 + 3 * t.b2 + 1 * t.b3 + 1 * t.b4 + 1 * t.b5 + 1 * t.b6 + 1 * t.ben1
-  k.punti('griglia', { punti: GRIGLIA, colore: 'saette' }, { centro: g, scala: 1, inclina: 0, accese: 3 * t.b1 + 6 * t.b2 + accese, alfa: 0.5 + 0.4 * t.h2 })
-  k.luce('prometheus', { a: c, raggio: 0.42, colore: 'saette' }, 0.22)
-  // 1: le cornici si ridisegnano in linee di saetta, riga per riga
-  k.saetta('riga', { da: [g[0] - 0.2, g[1] - 0.12], a: [g[0] + 0.2, g[1] - 0.12], rami: 0 }, 0.5 * t.b1)
-  // 2: il primo lampo: scocca dalla mano e sviluppa la prima foto
-  k.saetta('primo', { da: vicino(k, 0.1, -0.1), a: corta(vicino(k, 0.1, -0.1), [g[0], g[1]]), rami: 2 }, 0.9 * lis(0, 0.35, t.b2) * (1 - lis(0.55, 1, t.b2)))
-  k.luce('sviluppo', { a: g, raggio: 0.22, colore: 'saette' }, 0.45 * lis(0.1, 0.6, t.b2) * (1 - 0.5 * lis(0.7, 1, t.b2)))
-  // 3: parole tue: le scintille ondeggiano come una voce
-  k.getto('voce', { da: vicino(k, 0.3, -0.35), verso: vicino(k, 1.4, -0.35), colore: 'saette', n: 24 * t.b3, ampiezza: 0.6 }, t.b3)
-  // 4: una cornice verticale scende verso la frase e pulsa due volte
-  k.pulsa('verticale', { a: [g[0] + 0.3, g[1] + 0.4 * t.b4], raggio: 0.1, colore: 'saette' }, t.b4)
-  // 5: anello di tocco sulla cornice, che si accende tutta
-  k.onda('approvo', { a: g, raggio: 0.3, colore: 'saette' }, t.b5)
-  // 6: tre cornici, tre foto: tre piccoli lampi in fila
-  k.saetta('tre', { da: vicino(k, 0, -0.3), a: corta(vicino(k, 0, -0.3), [g[0] + 0.2, g[1] + 0.2]), rami: 0 }, 0.7 * Math.sin(Math.PI * t.b6))
-  k.luce('tre-luce', { a: [g[0] + 0.2, g[1] + 0.2], raggio: 0.14, colore: 'saette' }, 0.35 * t.b6)
-  // beneficio: la griglia si accende tutta; una scintilla di passaggio si ferma davanti
-  k.luce('griglia-tutta', { a: g, raggio: 0.55, colore: 'saette' }, 0.3 * lis(0, 0.7, t.ben1))
+  const h = k.soggetto.altezza
+  const v = ['b1', 'b2', 'b3', 'b4', 'b5', 'b6'].map((r) => t[r] ?? 0)
+  const fatte = v.reduce((x, y) => x + y, 0)
+  k.orbita('saette', { centro: vicino(k, 0, 0.0), raggio: [0.46 * h * 1.78, 0.1 * h], n: STELLE, colore: 'saette' },
+    { accese: 6 * fatte, ordine: 0.4 + 0.08 * fatte + 0.04 * t.ben1, velocita: 0.4 + 0.9 * t.ben1, alfa: 0.4 + 0.25 * t.h2 + 0.3 * t.ben1 })
+  k.luce('prometheus', { a: c, raggio: 0.42, colore: 'saette' }, 0.22 + 0.04 * fatte)
+  v.forEach((x, i) => {
+    if (x <= 0 || x >= 1) return
+    const mano = vicino(k, i % 2 ? 0.24 : -0.24, -0.05)
+    // un lampo breve dalla mano, mai oltre un quarto dello schermo, che si spegne prima della fine della voce
+    k.saetta('lampo', { da: mano, a: corta(mano, vicino(k, i % 2 ? 0.7 : -0.7, 0.55)), rami: 1 }, 0.8 * lis(0.05, 0.3, x) * (1 - lis(0.45, 0.8, x)))
+    k.luce('voce', { a: mano, raggio: 0.14, colore: 'luce' }, 0.4 * lis(0, 0.22, x) * (1 - lis(0.82, 1, x)))
+    fuoco(k, x, mano)
+  })
+  // beneficio: chi ti segue ti riconosce (una luce fissa), chi non ti conosce si ferma (una scintilla di passaggio si ferma davanti)
+  k.luce('riconosce', { a: c, raggio: 0.55, colore: 'saette' }, 0.3 * lis(0, 0.7, t.ben1))
   k.getto('di-passaggio', { da: [1.2, 0.2], verso: vicino(k, 0.3, -0.1), colore: 'saette', n: 8, ampiezza: 0.2 }, t.ben2)
-  fuoco(k, t.b1, g); fuoco(k, t.b2, g); fuoco(k, t.b3, c); fuoco(k, t.b4, g); fuoco(k, t.b5, g); fuoco(k, t.b6, g)
-  fuoco(k, t.ben1, g); fuoco(k, t.ben2, c)
-  k.pulsa('foto-1', { a: g, raggio: 0.12, colore: 'saette' }, t['foto-1'] ?? 0)
+  fuoco(k, t.ben1, vicino(k, 0, -0.05)); fuoco(k, t.ben2, c)
 }
 
 export const REGIE_CONTENUTI: RegiePagina = {
-  film: { 'contenuti-a': apertura, 'contenuti-p': problema, 'contenuti-f': capacita },
+  film: { 'contenuti-a': apertura, 'contenuti-f': elenco },
   // il gioco: alla scelta un lampo sviluppa una foto di quell'attività (la foto sta nel palco HTML); un tocco nel buio fa un lampo
   gioco: ({ scelta, t }, k) => {
     const c = k.soggetto.centro

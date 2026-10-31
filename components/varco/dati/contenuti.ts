@@ -1,64 +1,76 @@
-// /contenuti · Prometheus. Testi da pagine/copy-contenuti.md, accorciati dove lo spazio non bastava (§16); ogni cambio è in
-// pagine/registro-costruzione.md. Mai «intelligenza artificiale». Nessun prezzo (R4), nessun «Lavori» (R7). Modulo puro.
+// /contenuti · Prometheus. v2 (31/10, scelte di Bruno: titolo B, elenco di cosa creiamo senza «immagini e video creati al computer», mestieri allineati
+// a quelli di Siti web). Il film è l'elenco, una voce per schermata (titolo + «Come funziona» + «Chiedi un preventivo»), con una scena in codice per voce.
+// Testi in vault: pagine/contenuti-v2.md. Mai «intelligenza artificiale». Nessun prezzo (R4), nessun «Lavori» (R7). Modulo puro.
 import { percorsoServizio } from './pagine.ts'
-import type { DatiPagina } from './pagine.ts'
+import type { DatiPagina, Frase } from './pagine.ts'
+import type { GestoPagina } from '../tipi.ts'
 
 const F = (nome: string) => `/film/pagine/contenuti/${nome}.webp`
+
+/** cosa creiamo, dal più leggero al più completo: slug della pagina dedicata (provvisoria, da compilare), titolo, gesto di Prometheus, scena disegnata */
+export type TipoContenuto = { slug: string; titolo: Frase; gesto: GestoPagina; vignetta: string; riga: string }
+export const TIPI_CONTENUTO: TipoContenuto[] = [
+  { slug: 'post-e-grafiche', titolo: ['Post e grafiche', 'grafiche'], gesto: { nome: 'lancia', lato: 'destro' }, vignetta: 'post',
+    riga: 'Singoli post e grafiche per i tuoi social, quando ti servono: una novità, un evento, una promozione.' },
+  { slug: 'caroselli', titolo: ['Caroselli', 'Caroselli'], gesto: { nome: 'lancia', lato: 'sinistro' }, vignetta: 'carosello',
+    riga: 'Più pagine da scorrere per raccontare una storia: un lavoro, un prodotto, una stagione.' },
+  { slug: 'video-brevi', titolo: ['Video brevi', 'brevi'], gesto: { nome: 'presenta', lato: 'destro' }, vignetta: 'video',
+    riga: 'Quindici secondi dal tuo materiale: il passaggio al banco, il piatto, il dietro le quinte.' },
+  { slug: 'piano-editoriale', titolo: ['Piano editoriale', 'editoriale'], gesto: { nome: 'lancia', lato: 'destro' }, vignetta: 'piano',
+    riga: 'Cosa pubblicare, quando e dove, con i contenuti pronti ogni settimana da approvare col telefono.' },
+  { slug: 'gestione-social', titolo: ['Gestione completa dei social', 'completa'], gesto: { nome: 'presenta', lato: 'sinistro' }, vignetta: 'gestione',
+    riga: 'Piano, contenuti, pubblicazione e un resoconto ogni mese: tu approvi, al resto pensiamo noi.' },
+]
+const SU_MISURA = { titolo: ['Su misura', 'misura'] as Frase, gesto: { nome: 'modella' } as GestoPagina, vignetta: 'su-misura',
+  riga: 'Raccontaci di cosa hai bisogno: lo prepariamo per la tua attività.' }
+export const TIPI_CONTENUTO_TUTTI: TipoContenuto[] = [...TIPI_CONTENUTO, { slug: 'su-misura', ...SU_MISURA }]
+const preventivo = (richiesta: string) => ({ testo: 'Chiedi un preventivo', href: '#preventivo', richiesta })
+const ELENCO = [
+  ...TIPI_CONTENUTO.map((t) => ({ titolo: t.titolo, gesto: t.gesto, vignetta: t.vignetta, azioni: [{ testo: 'Come funziona', href: `/contenuti/${t.slug}` }, preventivo(`Mi interessa: ${t.titolo[0]}.`)] })),
+  { titolo: SU_MISURA.titolo, gesto: SU_MISURA.gesto, vignetta: SU_MISURA.vignetta, riga: SU_MISURA.riga, azioni: [{ testo: 'Raccontaci cosa ti serve', href: '#preventivo', richiesta: 'Vorrei dei contenuti su misura per: ' }] },
+]
+
+const H1 = 'Il tuo mestiere, raccontato come lo racconterebbe un grande marchio.'
 
 export const CONTENUTI: DatiPagina = {
   id: 'contenuti',
   mascotte: 'prometheus',
   materia: 'saette',
   seo: {
-    titolo: 'Gestione social e contenuti a Faenza | Agenti Studio',
-    descrizione: 'Post, caroselli e video brevi che raccontano la tua attività com\'è davvero. Un piano chiaro, pronti ogni settimana sul telefono. Agenti Studio, Faenza.',
+    titolo: 'Creazione contenuti social a Faenza e Romagna | Agenti Studio',
+    descrizione: 'Post, caroselli, video brevi e piano editoriale con la cura dei grandi marchi, per le attività di Faenza e della Romagna. Contenuti veri, pronti ogni settimana.',
   },
-  h1: 'I tuoi social pieni di contenuti veri, senza che tu debba inventarli.',
+  h1: H1,
   poster: { src720: '/film/scene/prometheus-2-720.webp', src1080: '/film/scene/prometheus-2-1080.webp', alt: 'Prometheus, la mascotte di saette dei contenuti, con la fiammella' },
   percorso: percorsoServizio({
     id: 'contenuti',
     indice: '03 · Contenuti',
     materia: 'saette',
     servizio: 'Creazione contenuti',
-    h1: 'I tuoi social pieni di contenuti veri, senza che tu debba inventarli.',
-    sotto: 'Post, caroselli e video brevi sulla tua attività, con un piano chiaro. Ogni settimana li ricevi sul telefono e li approvi con un tocco.',
+    h1: H1,
+    sotto: "Post, caroselli e video con la cura dei grandi marchi, per le attività di Faenza e della Romagna. Un piano chiaro, testi con la tua voce, materiale vero: ogni settimana i contenuti sono pronti e li approvi con un tocco. Chi ti segue ti riconosce; chi non ti conosce si ferma.",
     nota: 'Senza impegno. Ti risponde Bruno entro un giorno lavorativo.',
     cartoline: [
       { nome: 'contenuti-1', alt: 'Un video di cucina girato col telefono sul treppiede' },
       { nome: 'contenuti-2', alt: 'Il telefono che riprende un prodotto in studio' },
     ],
-    problema: {
-      h2: "Il profilo c'è. L'ultimo post, qualche mese fa.",
-      righe: [
-        ["Lavori tutto il giorno. La sera non hai voglia di pensare cosa scrivere, che foto usare, a che ora pubblicare.", 'cosa scrivere'],
-        ['Un profilo fermo dice a chi ti cerca che forse non sei più aperto. Molti guardano i social prima di chiamare.', 'fermo'],
-        ["Il bello del tuo lavoro c'è già. Va solo mostrato, con regolarità.", 'mostrato'],
-      ],
-    },
     capacita: {
-      h2: 'Cosa trovi sul telefono ogni settimana.',
-      blocchi: [
-        { titolo: ['Un piano chiaro', 'piano'], riga: 'Cosa pubblicare, quando e dove. Non ti chiedi più «cosa posto oggi?».', gesto: { nome: 'lancia', lato: 'destro' } },
-        { titolo: ['La tua attività, com\'è davvero', 'davvero'], riga: 'Usiamo i tuoi prodotti, il tuo locale, le persone che lavorano con te. Niente immagini finte spacciate per vere.', gesto: { nome: 'lancia', lato: 'destro' } },
-        { titolo: ['Parole tue', 'tue'], riga: 'Scriviamo come parli tu, con il tuo tono e i tuoi modi di dire. Il profilo suona come te.', gesto: { nome: 'lancia', lato: 'destro' } },
-        { titolo: ['Pronti sul telefono', 'telefono'], riga: 'Ogni settimana ricevi i contenuti già pronti, li guardi quando hai un minuto.', gesto: { nome: 'lancia', lato: 'destro' } },
-        { titolo: ['Li approvi con un tocco', 'tocco'], riga: 'Ti va bene, dici sì. Qualcosa da cambiare, ce lo dici e lo sistemiamo.', gesto: { nome: 'lancia', lato: 'destro' } },
-        { titolo: ['Formati diversi', 'diversi'], riga: 'Post, caroselli, video brevi. La foto del piatto, il «come si fa», i quindici secondi dietro le quinte.', gesto: { nome: 'lancia', lato: 'destro' } },
-      ],
+      h2: 'Cosa creiamo per te.',
+      passo: 0.6,
+      blocchi: ELENCO,
       beneficio: [['Chi ti segue ti riconosce.', 'riconosce'], ['Chi non ti conosce si ferma.', 'si ferma']],
       gestoBeneficio: { nome: 'lancia', lato: 'destro' },
-      foto: { blocco: 2, src: F('cont-firma'), alt: 'Mani che dipingono una ceramica' },
     },
   }),
   gioco: {
-    h2: 'Cosa si racconta, per mestiere.',
+    h2: 'Cosa raccontare, per mestiere.',
     scelte: [
-      { id: 'ristorante', nome: 'Ristorante e bar', foto: F('cont-ristorante'), testo: "Il piatto del giorno, la cucina dietro le quinte, l'evento del sabato. Un video breve di chi impasta racconta più di una foto del menu." },
-      { id: 'bnb', nome: 'B&B e agriturismo', foto: F('cont-bnb'), testo: 'Le stagioni della tenuta, la colazione, gli eventi, i dintorni da visitare. Gli ospiti scelgono leggendo il profilo.' },
-      { id: 'negozio', nome: 'Negozio', foto: F('cont-negozio'), testo: 'Le novità in arrivo, il prodotto raccontato da chi lo vende, i consigli d\'uso.' },
-      { id: 'artigiano', nome: 'Artigiano e impresa', foto: F('cont-artigiano'), testo: 'Il prima e dopo di un lavoro, un passaggio al banco, la faccia di chi lo fa. La fiducia nasce vedendo come lavori.' },
-      { id: 'dentista', nome: 'Studio dentistico', foto: F('cont-dentisti'), testo: 'Contenuti informativi chiari su cosa si fa e come funziona una visita. Niente promesse di risultato né testimonianze di pazienti: nel settore sanitario non si usano.' },
-      { id: 'studio', nome: 'Studio professionale', foto: F('cont-studio'), testo: 'Pillole utili per i clienti: scadenze, documenti da preparare, domande frequenti.' },
+      { id: 'bnb', scena: 'c-bnb', nome: 'B&B e agriturismo', foto: F('cont-bnb'), testo: "Le stagioni della tenuta, la colazione, i dintorni da visitare: chi sceglie dove dormire guarda il profilo prima di scrivere. Un carosello curato porta la richiesta di disponibilità." },
+      { id: 'ristorante', scena: 'c-ristorante', nome: 'Ristorante e bar', foto: F('cont-ristorante'), testo: "Chi impasta, il piatto del giorno, la cucina dietro le quinte: un video breve racconta più di una foto del menu. Chi lo guarda ha già deciso dove prenotare." },
+      { id: 'negozio', scena: 'c-negozio', nome: 'Negozio', foto: F('cont-negozio'), testo: "Le novità in arrivo, il prodotto raccontato da chi lo vende, i consigli d'uso. Un post fatto bene porta le persone in negozio a ritirare." },
+      { id: 'artigiano', scena: 'c-artigiano', nome: 'Artigiano e impresa', foto: F('cont-artigiano'), testo: "Il prima e dopo di un lavoro, un passaggio al banco, la faccia di chi lo fa. La fiducia nasce vedendo come lavori, e chi si fida chiede un sopralluogo." },
+      { id: 'studio', scena: 'c-studio', nome: 'Studi e professionisti', foto: F('cont-studio'), testo: "Pillole utili per i clienti: scadenze, documenti da preparare, domande frequenti. Contenuti informativi e sobri, senza promesse di risultato né testimonianze." },
+      { id: 'eventi', scena: 'c-eventi', nome: 'Associazioni ed eventi', foto: F('cont-eventi'), testo: "La data, il luogo, le storie che raccontano l'evento e le condivisioni che lo fanno girare. Chi lo vede sa cosa fare: iscriversi." },
     ],
   },
   tappe: {
@@ -79,7 +91,7 @@ export const CONTENUTI: DatiPagina = {
       { d: 'Devo comparire io nei video?', r: 'No, se non vuoi. Si possono raccontare le mani, il prodotto, il locale, il lavoro. Se un giorno vorrai mostrarti, ti aiutiamo a farlo con naturalezza.' },
       { d: 'Su quali social lavorate?', r: 'Partiamo da quelli dove ci sono i tuoi clienti: Instagram e Facebook per la maggior parte delle attività, LinkedIn per studi e imprese, TikTok se il tuo pubblico c\'è. Lo decidiamo nella prima chiamata.' },
       { d: 'Usate immagini finte?', r: "No. Usiamo il materiale vero della tua attività. Se un'immagine è creata al computer, lo diciamo." },
-      { d: 'Rispondete anche ai messaggi dei clienti?', r: 'Ai messaggi può pensarci l\'assistente virtuale (lo trovi nella pagina Automazioni). Per i commenti ne parliamo nella prima chiamata.' },
+      { d: 'Chi pubblica?', r: 'Dopo il tuo sì, pubblichiamo noi, nei giorni e agli orari concordati. Ogni contenuto lo vedi prima di andare online.' },
       { d: 'Servono anche le pubblicità?', r: 'Non per forza. I contenuti ti fanno riconoscere da chi già ti segue. Se vuoi arrivare anche a chi non ti conosce, ci sono le campagne pubblicitarie, ma sono un passo a parte.' },
       { d: 'Quanto costa?', r: 'Dipende da quanti contenuti servono ogni settimana e su quali social. Dopo la chiamata ricevi una proposta scritta, con i costi chiari.' },
     ],

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { AUTOMAZIONI, VOCI_AUTOMAZIONI } from './dati/automazioni.ts'
 import { SITI_WEB, TIPI_SITO_TUTTI } from './dati/siti-web.ts'
-import { CONTENUTI } from './dati/contenuti.ts'
+import { CONTENUTI, TIPI_CONTENUTO_TUTTI } from './dati/contenuti.ts'
 import { CAMPAGNE } from './dati/campagne.ts'
 import { CHI_SIAMO } from './dati/chi-siamo.ts'
 import { REGIE_PAGINE } from './regie/pagine/indice.ts'
@@ -60,14 +60,14 @@ test('R7: «Lavori» non compare da nessuna parte (bacheca vuota)', () => {
 
 test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco; Chi siamo: due, 0 → 3,8); ogni battuta sta dentro il suo blocco', () => {
   for (const d of SERVIZI) {
-    const elenco = d.id === 'automazioni' || d.id === 'siti-web'
+    const elenco = d.id === 'automazioni' || d.id === 'siti-web' || d.id === 'contenuti'
     if (!elenco) assert.equal(d.percorso.lunghezza, 6)
     assert.deepEqual(d.percorso.blocchi.map((b) => b.id.slice(b.id.lastIndexOf('-') + 1)), elenco ? ['a', 'f'] : ['a', 'p', 'f'])
     d.percorso.blocchi.forEach((b, i) => { if (i > 0) assert.equal(b.da, d.percorso.blocchi[i - 1].a); for (const x of b.battute) assert.ok(x.da >= b.da - 1e-9 && x.a <= b.a + 1e-9 && x.a > x.da, `${d.id}/${b.id}/${x.ruolo}`) })
     const ruoli = (i: number) => d.percorso.blocchi[i].battute.map((x) => x.ruolo)
     for (let i = 0; i < d.percorso.blocchi.length; i++) assert.equal(new Set(ruoli(i)).size, ruoli(i).length, `${d.id}: ruoli doppi`)
     const f = d.percorso.blocchi[d.percorso.blocchi.length - 1]
-    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, d.id === 'automazioni' ? VOCI_AUTOMAZIONI.length + 1 : d.id === 'siti-web' ? TIPI_SITO_TUTTI.length : 6)
+    assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, d.id === 'automazioni' ? VOCI_AUTOMAZIONI.length + 1 : d.id === 'siti-web' ? TIPI_SITO_TUTTI.length : d.id === 'contenuti' ? TIPI_CONTENUTO_TUTTI.length : 6)
   }
   assert.equal(CHI_SIAMO.percorso.lunghezza, 3.8)
 })
@@ -189,4 +189,24 @@ test('Siti web v2: il film elenca i tipi di sito dal più leggero al più comple
   assert.ok(/app/i.test(TIPI_SITO_TUTTI[TIPI_SITO_TUTTI.length - 1].titolo[0]), 'si finisce dal più complesso')
   const sotto = SITI_WEB.percorso.blocchi[0].battute.find((x) => x.ruolo === 'sotto')!.testo
   assert.ok(/grandi marchi/i.test(sotto) && /piccole e medie imprese/i.test(sotto) && !/econom|low cost|a basso costo/i.test(sotto + SITI_WEB.h1))
+})
+
+test('Contenuti v2: il film elenca cosa creiamo (senza immagini e video creati al computer), ogni voce con vignetta e i due link; mestieri allineati a Siti web, ognuno con la sua scena', () => {
+  const f = CONTENUTI.percorso.blocchi.find((b) => b.id.endsWith('-f'))!
+  const voci = f.battute.filter((x) => x.tipo === 'blocco')
+  assert.equal(voci.length, TIPI_CONTENUTO_TUTTI.length)
+  assert.ok(voci.length >= 6)
+  TIPI_CONTENUTO_TUTTI.forEach((t, i) => {
+    assert.equal(voci[i].testo, t.titolo[0])
+    assert.ok(voci[i].azioni?.some((x) => x.href === '#preventivo'), t.slug)
+  })
+  assert.ok(!voci.some((x) => /computer|creati al/i.test(x.testo)), 'niente immagini e video creati al computer')
+  const vignette = f.battute.filter((x) => x.tipo === 'vignetta')
+  assert.equal(new Set(vignette.map((x) => x.vignetta)).size, voci.length - 0, 'ognuna diversa dalle altre dell\'elenco, salvo «su misura» condivisa')
+  assert.deepEqual(CONTENUTI.gioco.scelte.map((s) => s.id), SITI_WEB.gioco.scelte.map((s) => s.id), 'stessi mestieri di Siti web')
+  CONTENUTI.gioco.scelte.forEach((s) => assert.ok(s.scena === `c-${s.id}` && s.foto, s.id))
+  const disegni = readFileSync(new URL('./sezioni/ScenaMestiere.tsx', import.meta.url), 'utf8')
+  for (const s of CONTENUTI.gioco.scelte) assert.ok(disegni.includes(`'${s.scena}':`), `scena ${s.scena} registrata`)
+  assert.ok(!/dentist/i.test(CONTENUTI.gioco.scelte.map((s) => s.id + s.nome).join()), 'i dentisti hanno la loro pagina')
+  assert.ok(/grande marchio/i.test(CONTENUTI.h1))
 })
