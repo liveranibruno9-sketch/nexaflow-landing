@@ -57,7 +57,7 @@ const SITO = 'https://www.agentistudio.it'
 export const metadata: Metadata = {
   metadataBase: new URL(SITO),
   title: {
-    default: 'Agenzia AI a Faenza e in Romagna | Agenti Studio',
+    default: 'Agenti Studio | Agenzia AI a Faenza e in Romagna',
     template: '%s',
   },
   description:
@@ -68,13 +68,13 @@ export const metadata: Metadata = {
     locale: 'it_IT',
     url: SITO,
     siteName: 'Agenti Studio',
-    title: 'Agenzia AI a Faenza e in Romagna | Agenti Studio',
+    title: 'Agenti Studio | Agenzia AI a Faenza e in Romagna',
     description:
       'Automazioni, siti web, contenuti e campagne per le attività della Romagna. Agenti Studio, Faenza: richiedi un preventivo senza impegno.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Agenzia AI a Faenza e in Romagna | Agenti Studio',
+    title: 'Agenti Studio | Agenzia AI a Faenza e in Romagna',
     description:
       'Automazioni, siti web, contenuti e campagne per le attività della Romagna. Agenti Studio, Faenza: richiedi un preventivo senza impegno.',
   },
