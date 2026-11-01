@@ -44,7 +44,8 @@ export type MondoPagina = {
   ridimensiona(): void
   fuocoSchermo(): [number, number] | null
   /** il nome sotto i piedi di ogni mascotte: px CSS, quanto si vede */
-  piedi(): { id: Mascotte; x: number; y: number; luce: number }[]
+  /** `testa`: l'angolo in alto a sinistra della testa (px CSS), dove sul telefono sta il nome */
+  piedi(): { id: Mascotte; x: number; y: number; luce: number; testa: { x: number; y: number } }[]
   /** un gesto subito (il gioco, l'invito, i servizi di Chi siamo); senza `id` lo fa la mascotte della pagina */
   gesto(g: GestoPagina, id?: Mascotte): void
   impostaLivello(l: Livello): void
@@ -191,7 +192,7 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
   const gestiIn: Partial<Record<Mascotte, { g: GestoPagina; inizio: number }>> = {}
   const tPrima = new Map<string, number>()
   const vPiede = new Vector3()
-  const piedi = ids.map((id) => ({ id, x: 0, y: 0, luce: 0 }))
+  const piedi = ids.map((id) => ({ id, x: 0, y: 0, luce: 0, testa: { x: 0, y: 0 } }))
   // Chi siamo: la lampada cresce fino a diventare il cono di luce sopra Bruno (spec §13)
   const lamp = { ...LAMPADA }
   let fuocoPunto: [number, number] | null = null
@@ -386,6 +387,12 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
         vPiede.project(camera)
         pd.x = ((vPiede.x + 1) / 2) * larghezza
         pd.y = ((1 - vPiede.y) / 2) * altezza
+        // l'angolo in alto a sinistra della testa (D64: il nome sta lì sul telefono, staccato dalla testa)
+        vPiede.set(-0.3 * ALTEZZA_CREATURA, 0.3 * ALTEZZA_CREATURA, 0)
+        c.radice.localToWorld(vPiede)
+        vPiede.project(camera)
+        pd.testa.x = ((vPiede.x + 1) / 2) * larghezza
+        pd.testa.y = ((1 - vPiede.y) / 2) * altezza
         pd.luce = p.presenza * p.presenza
       } else pd.luce = 0
     })

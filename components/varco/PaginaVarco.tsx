@@ -139,6 +139,8 @@ export default function PaginaVarco({ dati, children }: Props) {
     const indiceNome = pa.querySelector<HTMLElement>('.indice-nome')
     const barraBlu = pa.querySelector<HTMLElement>('[data-seg="blu"]')
     const nomiEl = Array.from(pa.querySelectorAll<HTMLElement>('.nome-mascotte'))
+    // sul telefono, nelle pagine di un solo servizio, il nome sta accanto alla testa e non sotto i piedi
+    const nomeInAlto = dati.mascotte !== 'tutte' && window.innerWidth < 901
     const ID_TUTTE = ['atlas', 'janus', 'prometheus', 'hermes'] as const
 
     let inizio = 0
@@ -297,7 +299,17 @@ export default function PaginaVarco({ dati, children }: Props) {
         if (!p) { el.style.opacity = '0'; continue }
         const o = Math.round(p.luce * 100) / 100
         el.style.opacity = String(o)
-        if (o > 0) el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${(p.y + 10).toFixed(1)}px, 0) translate(-50%, 0)`
+        if (o <= 0) continue
+        if (nomeInAlto) {
+          // D64, telefono, pagine dei servizi: il nome sta in alto a sinistra, staccato dalla testa (sotto i piedi si sovrapponeva al paragrafo);
+          // sugli schermi stretti, se a sinistra non c'è posto, si rimpicciolisce fino all'80% prima di toccare il margine
+          const larghezzaNome = el.offsetWidth
+          const scala = Math.min(1, Math.max(0.8, (p.testa.x - 12 - 18) / Math.max(1, larghezzaNome)))
+          const x = Math.max(18, p.testa.x - 12 - larghezzaNome * scala)
+          const y = Math.max(96, p.testa.y)
+          el.style.transformOrigin = '0 0'
+          el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scala.toFixed(3)})`
+        } else el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${(p.y + 10).toFixed(1)}px, 0) translate(-50%, 0)`
       }
     }
 
