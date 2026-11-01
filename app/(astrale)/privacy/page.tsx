@@ -63,9 +63,12 @@ const SEZIONI: { id?: string; titolo: string; corpo: React.ReactNode }[] = [
       <p>
         I moduli inviano i dati al server di automazione di Agenti Studio (software n8n), ospitato da Hetzner
         Online GmbH in Germania, che li registra e li inoltra alla nostra casella email, gestita da Aruba S.p.A.
-        in Italia. Entrambi agiscono come responsabili del trattamento. Il sito è ospitato su Vercel Inc. e usa Vercel Analytics, che raccoglie statistiche di traffico
-        aggregate senza cookie e senza identificare i singoli visitatori. I caratteri tipografici sono serviti
-        dal nostro dominio: nessuna richiesta viene inviata a Google al caricamento della pagina.
+        in Italia. Entrambi agiscono come responsabili del trattamento. Il sito è ospitato su Vercel Inc., società
+        con sede negli Stati Uniti: il trasferimento dei dati tecnici di connessione avviene con le garanzie
+        previste dal GDPR per i trasferimenti fuori dall’Unione Europea. Il sito usa Vercel Analytics, che
+        raccoglie statistiche di traffico aggregate senza cookie e senza identificare i singoli visitatori. I
+        caratteri tipografici, le immagini e gli script sono serviti dal nostro dominio: all’apertura della
+        pagina il browser non contatta nessun altro sito (né Google né altri servizi di terzi).
       </p>
     ),
   },
@@ -132,8 +135,8 @@ export default function Privacy() {
           ← Torna al sito
         </a>
 
-        <h1 className="serif mt-8 text-s4">Privacy e cookie</h1>
-        <p className="mt-3 text-s-1 text-[var(--neutro)]">Ultimo aggiornamento: ottobre 2026</p>
+        <h1 className="serif mt-8 text-s4">Privacy policy</h1>
+        <p className="mt-3 text-s-1 text-[var(--neutro)]">Ultimo aggiornamento: novembre 2026</p>
         <div className="filetto mt-8" />
 
         <div className="mt-12 space-y-10">

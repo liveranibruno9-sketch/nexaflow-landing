@@ -1,0 +1,4 @@
+Contact: mailto:bruno.liverani@agentistudio.it
+Expires: 2027-10-31T23:59:00.000Z
+Preferred-Languages: it, en
+Canonical: https://www.agentistudio.it/.well-known/security.txt
