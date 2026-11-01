@@ -343,6 +343,16 @@ html.varco .film-radice .nome-luce-strato { position: absolute; inset: 0; z-inde
 .film-radice .valore[data-materia='cromo'] { --c: var(--cromo); }
 .film-radice .valore-parola { font-family: var(--titoli); font-stretch: 70%; font-weight: 500; font-size: 36px; line-height: 0.95; letter-spacing: -0.02em; color: var(--c); text-shadow: var(--ombra-grande); }
 .film-radice .valore-riga { font: 400 clamp(15.5px, 4vw, 17px)/1.5 var(--titoli); color: rgba(244, 241, 255, 0.88); max-width: 46ch; }
+/* «io»: dopo i valori; il nome nella luce calda (la lampada del mondo cresce dietro quando la sezione è al centro) */
+.film-radice .chi-nome-luce {
+  margin: 20px 0 0; font-family: var(--titoli); font-stretch: 70%; font-weight: 500; font-size: clamp(36px, 10.4vw, 52px); line-height: 0.95; letter-spacing: -0.02em;
+  color: #fff7e6; text-shadow: 0 0 24px rgba(242, 194, 122, 0.8), 0 0 60px rgba(242, 194, 122, 0.45), 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+.film-radice .chi-foto { margin: 24px 0 0; width: min(46vw, 260px); }
+.film-radice .chi-foto img { width: 100%; height: auto; -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 50%, transparent 100%); mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000 50%, transparent 100%); }
+.film-radice .chi-frasi { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; }
+.film-radice .chi-frase { margin: 0; font: 500 clamp(22px, 6vw, 28px)/1.12 var(--titoli); letter-spacing: -0.01em; max-width: 24ch; text-shadow: var(--ombra-grande); }
+.film-radice .chi-frase .accento { color: rgb(var(--luce)); }
 /* i quattro servizi */
 .film-radice .servizi-lista { list-style: none; margin: 32px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px 14px; }
 .film-radice .servizio-voce { display: flex; flex-direction: column; gap: 8px; --c: var(--accento-blocco); }
@@ -361,6 +371,8 @@ html:not(.varco) .film-radice .servizio-posto { display: none; }
 .film-radice .dove-lista a { display: inline-block; padding: 12px 0; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; text-decoration-color: rgba(244, 241, 255, 0.45); }
 .film-radice .dove-luogo { padding: 12px 0; color: rgba(244, 241, 255, 0.75); }
 @media (min-width: 901px) and (min-aspect-ratio: 1/1) {
+  .film-radice .chi-nome-luce { font-size: clamp(40px, 3.3vw, 62px); }
+  .film-radice .chi-frase { font-size: clamp(26px, 2.2vw, 38px); }
   .film-radice .chi-missione, .film-radice .chi-visione, .film-radice .chi-dove { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); column-gap: 64px; align-items: start; }
   .film-radice .chi-grande { font-size: clamp(32px, 2.6vw, 44px); margin-top: 0; max-width: 24ch; }
   .film-radice .chi-testo { font-size: 21px; margin-top: 0; }

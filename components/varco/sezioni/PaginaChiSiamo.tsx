@@ -1,13 +1,27 @@
-// La pagina Chi siamo (DESIGN_SPEC-pagine §13): il film (apertura, la persona), poi missione, visione, valori, i quattro servizi,
-// dove trovarci, invito e coda. Componente server: i testi vengono da dati/chi-siamo.ts.
+// La pagina Chi siamo (DESIGN_SPEC-pagine §13): il film (la sola apertura), poi missione, visione, valori, «io» (la persona), la squadra
+// (i quattro servizi), dove trovarci, invito e coda. Ordine deciso da Bruno il 1/11/2026. Componente server: i testi vengono da dati/chi-siamo.ts.
 import Coda from '../../film/Coda'
 import ModuloPreventivo from '../../film/ModuloPreventivo'
 import { CONTATTI, profiliSocial } from '../../film/dati/contatti'
 import PaginaVarco from '../PaginaVarco'
+import { posizioneAccento } from '../testo.ts'
 import type { DatiChiSiamo } from '../dati/chi-siamo.ts'
 import Invito from './Invito'
 import Rivela from './Rivela'
 import Servizi from './Servizi'
+
+/** la frase con la parola d'accento già «toccata» (fuori dal film non c'è la materia che la raggiunge) */
+function conAccento(testo: string, accento?: string) {
+  const i = posizioneAccento(testo, accento)
+  if (!accento || i < 0) return testo
+  return (
+    <>
+      {testo.slice(0, i)}
+      <em className="accento toccata">{accento}</em>
+      {testo.slice(i + accento.length)}
+    </>
+  )
+}
 
 export default function PaginaChiSiamo({ dati }: { dati: DatiChiSiamo }) {
   const social = profiliSocial()
@@ -33,6 +47,14 @@ export default function PaginaChiSiamo({ dati }: { dati: DatiChiSiamo }) {
                 </li>
               ))}
             </ul>
+          </section>
+          <section className="sezione chi-persona" data-modo="persona" aria-labelledby="persona-t">
+            <h2 id="persona-t" className="sezione-titolo cresce">{dati.persona.h2}</h2>
+            <p className="chi-nome-luce cresce">{dati.persona.nome}</p>
+            {CONTATTI.fotoBruno ? <figure className="chi-foto cresce"><img src={CONTATTI.fotoBruno} alt="Bruno Liverani" width={600} height={800} loading="lazy" decoding="async" style={{ filter: 'grayscale(1)' }} /></figure> : null}
+            <div className="chi-frasi">
+              {dati.persona.frasi.map(([testo, accento]) => <p className="chi-frase cresce" key={testo}>{conAccento(testo, accento)}</p>)}
+            </div>
           </section>
           <Servizi h2={dati.servizi.h2} voci={dati.servizi.voci} />
           <section className="sezione chi-dove" data-modo="quiete" aria-labelledby="dove-t">

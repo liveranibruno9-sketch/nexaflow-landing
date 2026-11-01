@@ -20,7 +20,7 @@ import { creaStrati } from './strati.ts'
 import { caricaMascotte } from './mascotte-glb.ts'
 import type { Creatura, Creature } from './creature.ts'
 
-export type ModoPagina = 'quiete' | 'gioco' | 'tappe' | 'invito' | 'servizi'
+export type ModoPagina = 'quiete' | 'gioco' | 'tappe' | 'invito' | 'servizi' | 'persona'
 /** quello che la pagina (il DOM) comunica al mondo a ogni fotogramma */
 export type StatoPagina = {
   modo: ModoPagina
@@ -185,6 +185,8 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
   let tMondo = 0
   let pesoAncora = 0
   let pesoMode = 0
+  // Chi siamo: quanto la sezione «io» sta al centro dello schermo (la lampada diventa la luce sopra Bruno)
+  let pesoPersona = 0
   // i gesti: uno solo alla volta; il nuovo riprende dalla posa in corso (la molla delle braccia) e non si accoda
   const gestiIn: Partial<Record<Mascotte, { g: GestoPagina; inizio: number }>> = {}
   const tPrima = new Map<string, number>()
@@ -230,7 +232,8 @@ export function creaMondoPagina(contenitore: HTMLElement, o: { percorso: Percors
     const larghezzaQuadro = imp.altezza * (9 / 16) * (2 * meta)
     if (tutte) {
       // la luce calda si rivela una persona: scorrendo cresce, va sopra Bruno (centro-destra sul computer, centro sul telefono) e torna a riposo dopo
-      const cresce = liscia(0.9, 2.4, uf) * (1 - liscia(0.1, 0.9, s.dopo))
+      pesoPersona += ((s.modo === 'persona' ? 1 : 0) - pesoPersona) * (1 - Math.exp(-passo * 3))
+      const cresce = Math.max(liscia(0.9, 2.4, uf) * (1 - liscia(0.1, 0.9, s.dopo)), pesoPersona)
       lamp.x = LAMPADA.x + ((imp.ritratto ? 0.5 : 0.62) - LAMPADA.x) * cresce
       lamp.y = LAMPADA.y + (-0.02 - LAMPADA.y) * cresce
       lamp.raggio = LAMPADA.raggio + 0.6 * cresce

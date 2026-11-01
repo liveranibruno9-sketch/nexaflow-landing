@@ -370,6 +370,13 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         const p = piedi?.find((x) => x.id === el.dataset.mascotte)
         const o = p ? Math.round(p.luce * 100) / 100 : 0
         el.style.opacity = String(o)
+        // il collegamento si tocca (e si raggiunge con Tab) solo quando il nome si vede
+        const attivo = o > 0.6 ? 'true' : 'false'
+        if (el.dataset.attivo !== attivo) {
+          el.dataset.attivo = attivo
+          const lk = el.querySelector<HTMLAnchorElement>('.nome-link')
+          if (lk) lk.tabIndex = attivo === 'true' ? 0 : -1
+        }
         // nella giostra il nome sta più staccato dai piedi; nei servizi subito sotto
         const stacco = bl.tipo === 'intro' ? 24 : 8
         if (p && o > 0) el.style.transform = `translate3d(${p.x.toFixed(1)}px, ${(p.y + stacco).toFixed(1)}px, 0) translate(-50%, 0) scale(${p.scala.toFixed(3)})`
@@ -608,9 +615,18 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
                 </div>
               ))}
             </div>
-            {/* D49: il nome di ogni mascotte, piccolo, sotto i piedi (giostra e servizi); segue il personaggio */}
-            <div className="nomi-mascotte solo-varco" aria-hidden="true">
-              {percorso.blocchi.filter((bl) => bl.tipo === 'mascotte').map((bl) => <span className="nome-mascotte" data-mascotte={bl.id} key={bl.id}>{bl.id.charAt(0).toUpperCase() + bl.id.slice(1)}</span>)}
+            {/* D49: il nome di ogni mascotte, piccolo, sotto i piedi (giostra e servizi); segue il personaggio. D63: a destra del nome il
+                collegamento alla pagina del servizio (sul telefono il testo del servizio non ha un collegamento tappabile) */}
+            <div className="nomi-mascotte solo-varco">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'mascotte').map((bl) => {
+                const href = bl.battute.find((b) => b.tipo === 'link')?.href
+                return (
+                  <span className="nome-mascotte" data-mascotte={bl.id} key={bl.id}>
+                    <span className="nome-testo" aria-hidden="true">{bl.id.charAt(0).toUpperCase() + bl.id.slice(1)}</span>
+                    {href ? <a className="nome-link" href={href} tabIndex={-1} aria-label={`Scopri ${bl.etichetta.replace(/^\d+ · /, '')}`}>Scopri</a> : null}
+                  </span>
+                )
+              })}
             </div>
             {/* D48: la domanda e la risposta della soglia, l'invito e il pulsante del finale: al centro, con il battito */}
             <div className="cuore-strato">

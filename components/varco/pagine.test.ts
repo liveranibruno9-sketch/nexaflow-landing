@@ -59,7 +59,7 @@ test('R7: «Lavori» non compare da nessuna parte (bacheca vuota)', () => {
   }
 })
 
-test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco; Chi siamo: due, 0 → 3,8); ogni battuta sta dentro il suo blocco', () => {
+test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco; Chi siamo: la sola apertura, 0 → 1); ogni battuta sta dentro il suo blocco', () => {
   for (const d of SERVIZI) {
     const elenco = d.id === 'automazioni' || d.id === 'siti-web' || d.id === 'contenuti' || d.id === 'campagne'
     if (!elenco) assert.equal(d.percorso.lunghezza, 6)
@@ -70,7 +70,8 @@ test('il film: tre blocchi contigui da 0 a 6 (Automazioni v2: apertura + elenco;
     const f = d.percorso.blocchi[d.percorso.blocchi.length - 1]
     assert.equal(f.battute.filter((x) => x.tipo === 'blocco').length, d.id === 'automazioni' ? VOCI_AUTOMAZIONI.length + 1 : d.id === 'siti-web' ? TIPI_SITO_TUTTI.length : d.id === 'contenuti' ? TIPI_CONTENUTO_TUTTI.length : d.id === 'campagne' ? TIPI_CAMPAGNA_TUTTI.length : 6)
   }
-  assert.equal(CHI_SIAMO.percorso.lunghezza, 3.8)
+  assert.equal(CHI_SIAMO.percorso.lunghezza, 1)
+  assert.deepEqual(CHI_SIAMO.percorso.blocchi.map((b) => b.id), ['chi-siamo-a'])
 })
 
 test('le parole d\'accento stanno nella loro frase come parola intera', () => {
@@ -107,7 +108,8 @@ test('Chi siamo: H1 ≤ 60, missione ≤ 190, visione ≤ 330, valori 5 (parola 
   assert.ok(d.h1.length <= 60 && d.missione.testo.length <= 190 && d.visione.testo.length <= 330)
   assert.equal(d.valori.voci.length, 5)
   d.valori.voci.forEach((v) => assert.ok(v.parola.length <= 14 && v.riga.length <= 170, v.parola))
-  d.percorso.blocchi[1].battute.filter((x) => /^f\d$/.test(x.ruolo)).forEach((x) => assert.ok(x.testo.length <= 70, x.testo))
+  assert.equal(d.persona.frasi.length, 5)
+  d.persona.frasi.forEach(([testo]) => assert.ok(testo.length <= 70, testo))
   assert.equal(d.servizi.voci.length, 4)
 })
 
