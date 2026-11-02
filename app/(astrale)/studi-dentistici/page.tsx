@@ -16,6 +16,8 @@ const DESCRIZIONE =
 export const metadata: Metadata = {
   title: { absolute: 'Automazioni AI per studi dentistici | Agenti Studio' },
   description: DESCRIZIONE,
+  // Fuori dai motori di ricerca: la pagina si raggiunge solo dal suo link diretto
+  robots: { index: false, follow: true },
   alternates: { canonical: '/studi-dentistici' },
   openGraph: {
     images: [ANTEPRIMA],
