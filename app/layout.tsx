@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { ANTEPRIMA } from '@/lib/anteprima'
 import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/react'
 import './globals.css'
@@ -64,6 +65,7 @@ export const metadata: Metadata = {
     'Automazioni, siti web, contenuti e campagne per le attività della Romagna. Agenti Studio, Faenza: richiedi un preventivo senza impegno.',
   authors: [{ name: 'Bruno Liverani' }],
   openGraph: {
+    images: [ANTEPRIMA],
     type: 'website',
     locale: 'it_IT',
     url: SITO,
@@ -73,6 +75,7 @@ export const metadata: Metadata = {
       'Automazioni, siti web, contenuti e campagne per le attività della Romagna. Agenti Studio, Faenza: richiedi un preventivo senza impegno.',
   },
   twitter: {
+    images: [ANTEPRIMA.url],
     card: 'summary_large_image',
     title: 'Agenti Studio | Agenzia AI a Faenza e in Romagna',
     description:

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ANTEPRIMA } from '@/lib/anteprima'
 import Nav from '@/components/Nav'
 import Volo from '@/components/volo/Volo'
 import MappaCielo from '@/components/MappaCielo'
@@ -10,13 +11,14 @@ import Verifica from '@/components/Verifica'
 import Footer from '@/components/Footer'
 
 const DESCRIZIONE =
-  'Recuperiamo il fatturato che il suo studio dentistico sta già perdendo: chiamate senza risposta, preventivi fermi, pazienti che non tornano, recensioni ferme. Misurato prima e dopo.'
+  'Recuperiamo il fatturato che il suo studio dentistico perde: chiamate senza risposta, preventivi fermi, pazienti che non tornano. Misurato prima e dopo.'
 
 export const metadata: Metadata = {
   title: { absolute: 'Automazioni AI per studi dentistici | Agenti Studio' },
   description: DESCRIZIONE,
   alternates: { canonical: '/studi-dentistici' },
   openGraph: {
+    images: [ANTEPRIMA],
     type: 'website',
     locale: 'it_IT',
     url: '/studi-dentistici',
@@ -26,6 +28,7 @@ export const metadata: Metadata = {
       'Chiamate senza risposta, preventivi fermi, pazienti che non tornano. Misuriamo quanto le costano oggi, poi lo recuperiamo.',
   },
   twitter: {
+    images: [ANTEPRIMA.url],
     card: 'summary_large_image',
     title: 'Agenti Studio — automazioni AI per studi dentistici',
     description:

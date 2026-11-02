@@ -47,7 +47,7 @@ export const AUTOMAZIONI: DatiPagina = {
   materia: 'polvere',
   seo: {
     titolo: 'Automazioni aziendali a Faenza e Romagna | Agenti Studio',
-    descrizione: 'Risposte a messaggi e chiamate, preventivi ricontattati, accoglienza dei nuovi clienti, fatture e solleciti: automazioni per attività e PMI di Faenza e della Romagna.',
+    descrizione: 'Risposte a messaggi e chiamate, preventivi ricontattati, nuovi clienti accolti, fatture e solleciti: automazioni per le PMI di Faenza e della Romagna.',
   },
   h1: H1,
   poster: {

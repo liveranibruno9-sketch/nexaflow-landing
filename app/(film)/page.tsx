@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ANTEPRIMA } from '@/lib/anteprima'
 import DatiStrutturati from '@/components/DatiStrutturati'
 import Coda from '@/components/film/Coda'
 import Varco from '@/components/varco/Varco'
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
   title: { absolute: TITOLO },
   description: DESCRIZIONE,
   alternates: { canonical: '/' },
-  openGraph: { type: 'website', locale: 'it_IT', url: '/', siteName: 'Agenti Studio', title: TITOLO, description: DESCRIZIONE },
-  twitter: { card: 'summary_large_image', title: TITOLO, description: DESCRIZIONE },
+  openGraph: { type: 'website', locale: 'it_IT', url: '/', siteName: 'Agenti Studio', title: TITOLO, description: DESCRIZIONE, images: [ANTEPRIMA] },
+  twitter: { card: 'summary_large_image', title: TITOLO, description: DESCRIZIONE, images: [ANTEPRIMA.url] },
 }
 
 // La home: il varco in sette blocchi (apertura, soglia, quattro tratti, finale). In fondo la coda: preventivo, Bruno, contatti, informazioni.
