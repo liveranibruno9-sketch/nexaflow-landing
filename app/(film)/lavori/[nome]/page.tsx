@@ -10,8 +10,9 @@ export function generateStaticParams() {
   return LAVORI.filter(pubblicabile).map((l) => ({ nome: l.slug }))
 }
 
-export default function PaginaLavoro({ params }: { params: { nome: string } }) {
-  const lavoro = LAVORI.find((l) => l.slug === params.nome && pubblicabile(l))
+export default async function PaginaLavoro({ params }: { params: Promise<{ nome: string }> }) {
+  const { nome } = await params
+  const lavoro = LAVORI.find((l) => l.slug === nome && pubblicabile(l))
   if (!lavoro) notFound()
   // finché non c'è il film del lavoro, anche un lavoro pubblicabile non ha una pagina
   notFound()

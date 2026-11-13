@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, errore: 'Richiesta non valida' }, { status: 400 })
   }
 
-  const indirizzo = req.ip || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'locale'
+  // Next 15+ non ha più req.ip: su Vercel l'IP del visitatore è in x-real-ip (Vercel riscrive l'intestazione, non si può falsificare)
+  const indirizzo = req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'locale'
   const ip = await hash(`${chiave}:${indirizzo}`)
   const controllo = await chiamaN8n('accesso', { azione: 'controlla', ip })
   if (!controllo.ok) return NextResponse.json({ ok: false, errore: controllo.errore }, { status: 503 })

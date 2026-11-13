@@ -1,5 +1,5 @@
 // Firma del cookie d'accesso alla demo: HMAC-SHA256 del codice con la chiave condivisa con n8n.
-// Usa solo Web Crypto, così funziona sia nel middleware (edge) sia nelle route (node).
+// Usa solo Web Crypto, così funziona sia nel proxy sia nelle route.
 // Se il codice cambia su Vercel, i cookie vecchi smettono di valere da soli.
 
 export const COOKIE_DEMO = 'demo_accesso'

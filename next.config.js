@@ -27,6 +27,8 @@ const CSP = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // Next 16 accetta solo le qualità elencate (predefinita [75]): Volo.tsx usa 70 per l'immagine dell'esplosione.
+  images: { qualities: [70, 75] },
   async headers() {
     return [
       {

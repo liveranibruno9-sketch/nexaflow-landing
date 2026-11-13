@@ -94,7 +94,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it" className={`${sans.variable} ${display.variable} ${titoli.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="it" data-scroll-behavior="smooth" className={`${sans.variable} ${display.variable} ${titoli.variable} ${mono.variable}`} suppressHydrationWarning>
       <body>
         <a
           href="#contenuto"

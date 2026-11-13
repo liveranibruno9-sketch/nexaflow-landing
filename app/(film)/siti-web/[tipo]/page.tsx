@@ -11,13 +11,15 @@ export function generateStaticParams() {
   return PAGINE_DEDICATE.filter((p) => p.servizio === 'siti-web').map((p) => ({ tipo: p.slug }))
 }
 
-export function generateMetadata({ params }: { params: { tipo: string } }): Metadata {
-  const v = trovaDedicata('siti-web', params.tipo)
+export async function generateMetadata({ params }: { params: Promise<{ tipo: string }> }): Promise<Metadata> {
+  const { tipo } = await params
+  const v = trovaDedicata('siti-web', tipo)
   if (!v) return {}
   return { title: { absolute: `${v.titolo} | ${SERVIZI_DEDICATI['siti-web'].nome} | Agenti Studio` }, description: v.riga, robots: { index: false, follow: true } }
 }
 
-export default function Pagina({ params }: { params: { tipo: string } }) {
-  if (!trovaDedicata('siti-web', params.tipo)) notFound()
-  return <PaginaDedicata servizio="siti-web" slug={params.tipo} />
+export default async function Pagina({ params }: { params: Promise<{ tipo: string }> }) {
+  const { tipo } = await params
+  if (!trovaDedicata('siti-web', tipo)) notFound()
+  return <PaginaDedicata servizio="siti-web" slug={tipo} />
 }
