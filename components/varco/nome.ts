@@ -1,11 +1,18 @@
 // Il nome dell'apertura (home v2.5, 13/11/2026, brief di Bruno: «il vortice e il nome dell'agenzia con i servizi compaiano appena si
-// apre, non legati allo scroll»). «Agenti Studio» si compone DA SOLO, a tempo, una lettera alla volta, ogni lettera fatta dalle scaglie
-// del vortice che le volano dentro; subito dopo i servizi in breve. Poi, con lo scroll: il nome torna nel vortice, nel cerchio compare
-// l'invito, il vortice si apre in quattro correnti, una per materia, che escono dallo schermo. Funzioni pure: `npm test`.
+// apre, non legati allo scroll»). «Agenti Studio» si compone DA SOLO, una lettera alla volta, con un'animazione CSS che parte al primo
+// disegno della pagina (varco.css, `lettera-entra`): non aspetta il 3D, così anche su un telefono lento il nome c'è subito (il collaudo
+// del 13/11 misurava 12,8 s quando il nome aspettava il vortice). Le scaglie del vortice seguono lo stesso orologio e volano dentro le
+// lettere mentre compaiono; se il 3D arriva tardi, trovano il nome già scritto. Poi, con lo scroll: il nome torna nel vortice, nel cerchio
+// compare l'invito, il vortice si apre in quattro correnti, una per materia, che escono dallo schermo. Funzioni pure: `npm test`.
+
+/** l'entrata CSS delle lettere, in secondi (gli stessi numeri sono in varco.css, `.lettera-nome`): la lettera i comincia a
+ *  comparire a inizio + i × passo e dura `durata`. Se cambiano qui, si cambiano anche là */
+export const ENTRATA_CSS = { inizio: 0.25, passo: 0.09, durata: 0.35 }
 
 export const APERTURA = {
-  /** l'ingresso a tempo: le lettere arrivano fra questi due istanti, in SECONDI dalla nascita del vortice (non dipende dallo scroll) */
-  ingresso: [0.5, 1.9] as const,
+  /** l'ingresso delle scaglie nelle lettere, in SECONDI dall'inizio dell'animazione CSS del nome (non dipende dallo scroll):
+   *  calcolato perché ogni lettera HTML si accenda quando la sua animazione CSS comincia (prova in nome.test.ts) */
+  ingresso: [0.07, 1.31] as const,
   /** da qui in giù, schermate dall'inizio dell'apertura. Il nome torna nel vortice */
   scioglie: [0.3, 0.55] as const,
   /** il vortice si apre in quattro correnti che escono dallo schermo (prima, nel cerchio, c'è l'invito) */
@@ -22,7 +29,7 @@ const liscia = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t)
 }
 
-/** quanto è avanti l'ingresso del nome, 0..1, dai secondi passati dalla nascita del vortice (negativi = non ancora nato) */
+/** quanto è avanti l'ingresso del nome, 0..1, dai secondi passati dall'inizio dell'animazione CSS del nome (negativi = non ancora cominciata) */
 export const ingressoNome = (secondi: number) => clamp01((secondi - APERTURA.ingresso[0]) / (APERTURA.ingresso[1] - APERTURA.ingresso[0]))
 
 /**

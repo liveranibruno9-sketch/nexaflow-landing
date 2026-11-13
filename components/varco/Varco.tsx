@@ -11,7 +11,7 @@ import { creaTocco } from './tocco.ts'
 import { letteraVisibile } from '../film/materia-calcoli.ts'
 import type { Battuta, Blocco, Percorso } from './tipi.ts'
 import type { Mondo } from './mondo/mondo'
-import { APERTURA, ingressoNome, lucelettera, portataVia, voloLettere } from './nome.ts'
+import { lucelettera, portataVia, voloLettere } from './nome.ts'
 
 /**
  * Il varco.
@@ -102,9 +102,11 @@ function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
         ? (
           <p className={`${classe} nome-apertura`} aria-hidden="true" {...dati}>
             <span>
-              {b.testo.split(' ').map((parola, i) => (
-                <span className="parola-nome" key={i}>{Array.from(parola).map((c, j) => <span className="lettera-nome" key={j}>{c}</span>)}</span>
-              ))}
+              {b.testo.split(' ').map((parola, i, parole) => {
+                // --i = l'indice della lettera nel nome (spazi esclusi): il ritardo della sua entrata CSS (varco.css, nome.ts ENTRATA_CSS)
+                const prima = parole.slice(0, i).join('').length
+                return <span className="parola-nome" key={i}>{Array.from(parola).map((c, j) => <span className="lettera-nome" style={{ ['--i' as string]: prima + j }} key={j}>{c}</span>)}</span>
+              })}
             </span>
           </p>
         )
@@ -439,21 +441,20 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         }
         el.style.setProperty('--via', via.toFixed(3))
       })
-      // 13/11: il nome si compone da solo, a tempo, una lettera alla volta, quando le scaglie del vortice ci arrivano dentro (nome.ts);
-      // lo scroll lo fa solo tornare nel vortice
-      const voli = voloLettere(u, lettereNome.length, ingressoNome(secondi))
-      lettereNome.forEach((el, i) => {
-        const o = Math.round(lucelettera(voli[i]) * 100) / 100
-        if (el.dataset.o !== String(o)) {
-          el.dataset.o = String(o)
-          el.style.opacity = String(o)
-          el.style.transform = o < 1 ? `translate3d(0, ${(1 - o) * 0.12}em, 0) scale(${0.85 + 0.15 * o})` : ''
+      // 13/11: le lettere entrano da sole con l'animazione CSS (varco.css); lo scroll fa tornare il nome nel vortice: si spegne il
+      // contenitore, non le lettere, così l'animazione resta intatta tornando su
+      if (nomeDentro) {
+        const o = Math.round(lucelettera(voloLettere(u, 1)[0]) * 100) / 100
+        if (nomeDentro.dataset.o !== String(o)) {
+          nomeDentro.dataset.o = String(o)
+          nomeDentro.style.opacity = String(o)
         }
-      })
+      }
     }
 
     /* ----- l'apertura: le lettere del nome (compaiono con lo scroll anche senza il mondo: dipendono solo da u) ----- */
     const lettereNome = Array.from(pa.querySelectorAll<HTMLElement>('.nome-apertura .lettera-nome'))
+    const nomeDentro = pa.querySelector<HTMLElement>('.nome-apertura > span')
     const nomiMascotte = Array.from(pa.querySelectorAll<HTMLElement>('.nome-mascotte'))
     const paroleResto = Array.from(pa.querySelectorAll<HTMLElement>('.parola-resto'))
     const domandaDa = percorso.blocchi.find((b) => b.tipo === 'soglia')?.battute.find((b) => b.ruolo === '1')?.da ?? Infinity
@@ -461,11 +462,12 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const finale = bloccoFinale ? { da: bloccoFinale.da, uno: bloccoFinale.battute.find((b) => b.ruolo === '1')?.da ?? Infinity, due: bloccoFinale.battute.find((b) => b.ruolo === '2')?.da ?? Infinity } : null
     let senzaMondo = false
     const salvagente = window.setTimeout(() => { if (!mondo) senzaMondo = true }, 8000)
-    /* ----- l'orologio dell'ingresso (13/11): i secondi dalla nascita del vortice. Se il mondo tarda più di tre secondi (rete lenta) o
-       non arriva, il nome e i servizi compaiono lo stesso: l'orologio di riserva parte tre secondi dopo l'avvio ----- */
+    /* ----- l'orologio dell'apertura (13/11): i secondi dall'inizio dell'animazione CSS del nome, che parte al primo disegno. Lo seguono
+       le battute a tempo (servizi, «Scorri») e le scaglie del vortice. Se il browser non dà l'istante dell'animazione, vale adesso ----- */
     const avvio = performance.now()
-    const ATTESA_MONDO = 3
-    const secondiIngresso = (ora: number) => Math.max(mondo ? mondo.secondiVortice() : -1, (ora - avvio) / 1000 - ATTESA_MONDO + APERTURA.ingresso[0])
+    const animazioneNome = lettereNome[0]?.getAnimations?.()[0]
+    const inizioNome = (typeof animazioneNome?.startTime === 'number' ? animazioneNome.startTime : avvio) / 1000
+    const secondiIngresso = (ora: number) => ora / 1000 - inizioNome
 
     /* ----- il mondo, caricato quando il browser è libero ----- */
     let mondo: Mondo | null = null
@@ -493,7 +495,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       tocco?.svuota()
       for (const a of accenti) a.el.classList.remove('toccata')
       for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
-      for (const el of lettereNome) { el.style.opacity = ''; el.style.transform = '' }
+      if (nomeDentro) { nomeDentro.style.opacity = ''; delete nomeDentro.dataset.o }
       delete html.dataset.tratti
       html.classList.remove('varco', 'in-orbita', 'porte')
     }
@@ -504,6 +506,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
           if (chiuso) return
           try {
             mondo = creaMondo(contenitore, { percorso, livello, regie: REGIE, onPerso: passaAllaPagina })
+            mondo.orologioNome(inizioNome)
             contenitore.dataset.pronto = 'true'
             avvia()
           } catch {
@@ -633,7 +636,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       tocco?.dispose()
       for (const m of motti) { m.el.classList.remove('materia-accesa'); m.lettere.forEach((l) => l.classList.add('scritta')) }
       for (const a of accenti) a.el.classList.remove('toccata')
-      for (const el of lettereNome) { el.style.opacity = ''; el.style.transform = '' }
+      if (nomeDentro) { nomeDentro.style.opacity = ''; delete nomeDentro.dataset.o }
       mondo?.distruggi()
     }
   }, [percorso, corrente])

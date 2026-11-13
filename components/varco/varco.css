@@ -439,8 +439,11 @@ html.varco .film-radice .varco-puntino {
 @media (min-width: 901px) and (min-aspect-ratio: 1/1) { .film-radice { --nome-font: min(176px, 16vh); } }
 html.varco .film-radice .nome-apertura { font-size: var(--nome-font); }
 html.varco .film-radice .parola-nome { display: inline-block; white-space: nowrap; }
-/* ogni lettera la accende Varco quando le scaglie ci arrivano dentro (nome.ts) */
-html.varco .film-radice .lettera-nome { display: inline-block; opacity: 0; }
+/* 13/11: ogni lettera entra da sola, una alla volta, con un'animazione che parte al primo disegno e non aspetta il 3D (così il nome c'è
+   subito anche sui telefoni lenti). Gli stessi numeri sono in nome.ts (ENTRATA_CSS): le scaglie del vortice ci volano dentro con lo
+   stesso orologio. Solo opacità: le scaglie misurano la posizione delle lettere, che non deve muoversi */
+html.varco .film-radice .lettera-nome { display: inline-block; animation: lettera-entra 0.35s ease-out calc(0.25s + var(--i, 0) * 0.09s) both; }
+@keyframes lettera-entra { from { opacity: 0; } to { opacity: 1; } }
 
 /* i servizi in breve, sotto il nome: piccoli, una parola alla volta, ognuna col colore della sua materia */
 html.varco .film-radice .apertura-strato .battuta[data-ruolo='servizi'] {

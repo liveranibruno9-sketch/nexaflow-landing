@@ -84,7 +84,9 @@ test('apertura a tempo (13/11): nome, servizi, riquadro e «Scorri» ci sono gi�
   assert.ok(ap.a <= 0.6, 'l\'apertura dura poco più di mezza schermata: non serve scorrere per leggerla')
   for (const r of ['servizi', 'luogo', 'scorri']) assert.equal(battuta(ap, r).da, 0, `${r} non aspetta lo scroll`)
   const dopo = (r: string) => battuta(ap, r).dopo ?? 0
-  assert.ok(dopo('nome') === 0 && dopo('servizi') > 0 && dopo('servizi') < dopo('luogo') && dopo('luogo') < dopo('scorri'), 'prima il nome, poi i servizi, il riquadro, «Scorri»')
+  assert.ok(dopo('nome') === 0 && dopo('servizi') > 0 && dopo('servizi') < dopo('scorri'), 'prima il nome, poi i servizi, poi «Scorri»')
+  // il riquadro con l'H1 c'è dal primo disegno: a tempo, su un telefono lento, il primo testo arrivava dopo 12,8 s (collaudo 13/11)
+  assert.equal(battuta(ap, 'luogo').dopo, undefined, 'il riquadro non aspetta il vortice')
   assert.ok(dopo('scorri') <= 3.5, 'tutta l\'apertura è a schermo entro tre secondi e mezzo dalla nascita del vortice')
   assert.ok(battuta(ap, 'servizi').a < ap.a && battuta(ap, 'luogo').a < ap.a)
   assert.equal(battuta(ap, 'servizi').testo, 'Automazioni · Siti web · Social · Pubblicità')

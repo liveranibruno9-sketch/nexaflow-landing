@@ -21,8 +21,9 @@ export type Scaglie = {
   posa(o: { cx: number; cy: number; raggio: number; aspetto: number; fov: number }): void
   /** giro: 1 = vortice pieno */
   aggiorna(u: number, tempo: number, dt: number, giro: number): void
-  /** secondi passati dalla nascita del vortice (-1 = non ancora nato): l'orologio dell'ingresso a tempo del nome */
-  secondi(): number
+  /** l'istante (in secondi, stesso orologio di `tempo`) in cui è cominciata l'animazione CSS del nome: le scaglie volano nelle lettere
+   *  con quell'orologio, così arrivano mentre la lettera compare (nome.ts) */
+  orologioNome(inizio: number): void
   dispose(): void
 }
 
@@ -161,7 +162,7 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
   let metaH = DIST * Math.tan((25 * Math.PI) / 180)
   let metaW = metaH
   let nascita = -1
-  let adesso = -1
+  let inizioNome = -1
   let nLettere = 12
   const m4 = new Matrix4()
   const q = new Quaternion()
@@ -224,7 +225,7 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
     },
     aggiorna(u, tempo, dt, giro) {
       if (nascita < 0) nascita = tempo
-      adesso = tempo
+      if (inizioNome < 0) inizioNome = tempo
       // il big bang: dal punto al vortice in 1,8 s, con una spirale in più che si scioglie
       const b = clamp01((tempo - nascita) / 1.8)
       const esce = 1 - (1 - b) * (1 - b) * (1 - b)
@@ -232,8 +233,8 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
       gruppo.visible = c < 0.999
       for (const [l, forza] of luci) l.intensity = forza * (1 - c)
       if (!gruppo.visible) return
-      // 13/11: le lettere arrivano da sole, a tempo, appena il vortice è nato; lo scroll le fa solo tornare nel vortice
-      const voli = voloLettere(u, nLettere, ingressoNome(tempo - nascita))
+      // 13/11: le scaglie arrivano nelle lettere con l'orologio dell'animazione CSS del nome; lo scroll le fa solo tornare nel vortice
+      const voli = voloLettere(u, nLettere, ingressoNome(tempo - inizioNome))
       const ruota = Math.cos(INCLINA)
       const conto = [0, 0, 0, 0]
       for (let i = 0; i < N; i++) {
@@ -278,7 +279,9 @@ export function creaScaglie(renderer: WebGLRenderer, quante: number): Scaglie {
       }
       for (const im of mesh) im.instanceMatrix.needsUpdate = true
     },
-    secondi: () => (nascita < 0 ? -1 : adesso - nascita),
+    orologioNome(inizio) {
+      inizioNome = inizio
+    },
     dispose() {
       gruppo.removeFromParent()
       for (const g of geometrie) g.dispose()

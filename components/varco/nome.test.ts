@@ -1,18 +1,29 @@
 // npm test  ·  il nome dell'apertura che si compone da solo (a tempo), il ritorno nel vortice con lo scroll, l'invito nel cerchio, la consegna in quattro correnti
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { APERTURA, consegna, ingressoNome, lucelettera, portataVia, voloLettere } from './nome.ts'
+import { APERTURA, ENTRATA_CSS, consegna, ingressoNome, lucelettera, portataVia, voloLettere } from './nome.ts'
 import { HOME } from './dati/home.ts'
 
 const N = 12 // «AgentiStudio»
 
-test('ingresso a tempo: prima che il vortice nasca nessuna lettera; a fine ingresso ci sono tutte, senza scorrere', () => {
-  assert.equal(ingressoNome(-1), 0, 'il vortice non è ancora nato')
+test('ingresso a tempo: prima che cominci l’animazione nessuna lettera; a fine ingresso ci sono tutte, senza scorrere', () => {
+  assert.equal(ingressoNome(-1), 0, 'l’animazione non è ancora cominciata')
   assert.equal(ingressoNome(APERTURA.ingresso[0]), 0)
   assert.equal(ingressoNome(APERTURA.ingresso[1]), 1)
   assert.ok(voloLettere(0, N, ingressoNome(0)).every((p) => p === 0))
   assert.ok(voloLettere(0, N, ingressoNome(APERTURA.ingresso[1])).every((p) => p === 1), 'a u = 0 il nome è intero')
-  assert.ok(APERTURA.ingresso[1] <= 2.5, 'il nome è completo entro due secondi e mezzo dalla nascita del vortice')
+  assert.ok(APERTURA.ingresso[1] <= 2.5, 'il nome è completo entro due secondi e mezzo dal primo disegno')
+})
+
+test('stesso orologio: le scaglie arrivano in ogni lettera quando comincia la sua entrata CSS (varco.css, ENTRATA_CSS)', () => {
+  for (let i = 0; i < N; i++) {
+    let t = 0
+    while (t < 3 && lucelettera(voloLettere(0, N, ingressoNome(t))[i]) <= 0) t += 0.005
+    const css = ENTRATA_CSS.inizio + i * ENTRATA_CSS.passo
+    assert.ok(Math.abs(t - css) < 0.06, `lettera ${i}: scaglie a ${t.toFixed(2)} s, entrata CSS a ${css.toFixed(2)} s`)
+  }
+  const fine = ENTRATA_CSS.inizio + (N - 1) * ENTRATA_CSS.passo + ENTRATA_CSS.durata
+  assert.ok(fine <= 2, `il nome è intero entro 2 s dal primo disegno (ora ${fine.toFixed(2)} s)`)
 })
 
 test('una lettera alla volta: la prima parte per prima, in ordine, e a metà ingresso le ultime non sono ancora partite', () => {

@@ -27,7 +27,9 @@ const APERTURA: Blocco = {
   battute: [
     { tipo: 'nome', testo: 'Agenti Studio', ruolo: 'nome', da: 0, a: 0.6 },
     { tipo: 'etichetta', testo: 'Automazioni · Siti web · Social · Pubblicità', ruolo: 'servizi', da: 0, a: 0.4, dopo: 1.7 },
-    { tipo: 'etichetta', testo: 'Faenza, Romagna', ruolo: 'luogo', da: 0, a: 0.45, dopo: 2.0 },
+    // il riquadro (chi siamo = l'H1, dove siamo) c'è dal primo disegno, senza aspettare il vortice: è il primo testo che vede chi apre,
+    // e su un telefono lento è quello che Google misura come caricamento della pagina (LCP: 0,9 s; a tempo era 12,8 s, collaudo 13/11)
+    { tipo: 'etichetta', testo: 'Faenza, Romagna', ruolo: 'luogo', da: 0, a: 0.45 },
     { tipo: 'scorri', testo: 'Scorri', ruolo: 'scorri', da: 0, a: 0.25, dopo: 2.6 },
   ],
 }
