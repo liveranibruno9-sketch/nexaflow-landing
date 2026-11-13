@@ -5,6 +5,7 @@ import Coda from '../../film/Coda'
 import Domande from './Domande'
 import Vignetta from './Vignetta'
 import { NOMI_MESTIERE, SERVIZI_DEDICATI, trovaDedicata } from '../dati/dedicate'
+import { INVITO } from '../../film/dati/contatti'
 import type { Servizio } from '../../film/dati/contatti'
 
 export default function PaginaDedicata({ servizio, slug }: { servizio: keyof typeof SERVIZI_DEDICATI; slug: string }) {
@@ -21,7 +22,7 @@ export default function PaginaDedicata({ servizio, slug }: { servizio: keyof typ
           <h1>{v.titolo}</h1>
           <p className="dedicata-riga">{v.cosa}</p>
           <div className="dedicata-azioni">
-            <a className="pulsante" href="#preventivo" data-richiesta={richiesta}>Chiedi un preventivo</a>
+            <a className="pulsante" href="#preventivo" data-richiesta={richiesta}>{INVITO}</a>
             <a className="dedicata-indietro" href={s.indietro.href}>{s.indietro.testo}</a>
           </div>
         </div>

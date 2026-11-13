@@ -25,6 +25,8 @@ export const soglia: Regia = (t, f, k) => {
     k.luce(`rientra-${m}`, { a, raggio: 0.22, colore: m }, 0.45 * liscia(0, 0.3, t['2']))
   }
   k.onda('noi', { a: CENTRO, raggio: 0.45, colore: 'blu' }, t['2'])
+  // 13/11 · l'invito sotto «Noi.»: una luce bassa dove sta il collegamento
+  k.luce('info', { a: [0.5, 0.9], raggio: 0.34, colore: 'blu' }, 0.1 * liscia(0, 0.4, t.info ?? 0))
 
   const fuoco = (p: number, dove: Vec2) => {
     if (p > 0.05 && p < 1) k.fuoco(dove)

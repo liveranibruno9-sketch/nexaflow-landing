@@ -4,7 +4,7 @@
 // Computer: niente pulsante, le voci stanno in linea nella testata (lo decide il CSS; il <nav> è sempre lo stesso).
 // Il <nav> è nel DOM anche da chiuso (Google legge i collegamenti), con `hidden`.
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { CONTATTI, VOCI_MENU } from './dati/contatti'
+import { CONTATTI, INVITO, INVITO_BREVE, VOCI_MENU } from './dati/contatti'
 import type { PaginaCorrente } from './dati/contatti'
 import FermaMovimento from './FermaMovimento'
 
@@ -85,8 +85,8 @@ export default function Menu({ corrente }: { corrente: PaginaCorrente }) {
           </li>
         </ul>
         <a className="menu-preventivo" href="#preventivo" onClick={() => imposta(false)}>
-          <span className="solo-telefono">Richiedi un preventivo</span>
-          <span className="solo-computer">Preventivo</span>
+          <span className="solo-telefono">{INVITO}</span>
+          <span className="solo-computer">{INVITO_BREVE}</span>
         </a>
         <a className="menu-riga" href={CONTATTI.whatsapp} target="_blank" rel="noopener">
           WhatsApp · {CONTATTI.telefonoLeggibile}

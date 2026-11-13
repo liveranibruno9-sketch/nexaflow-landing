@@ -2,6 +2,7 @@
 // I testi stanno nei file di dati di ogni pagina (automazioni.ts, siti-web.ts, ...), mai nel codice dei componenti: cambiare un
 // testo non tocca il codice. Modulo puro: lo importano anche i test di Node (solo TypeScript «cancellabile»).
 import type { Mascotte } from '../coreografia.ts'
+import { INVITO } from '../../film/dati/contatti.ts'
 import type { Azione, Battuta, Blocco, GestoPagina, Materia, Percorso } from '../tipi.ts'
 
 /** una frase: [testo, parola d'accento?] */
@@ -84,7 +85,7 @@ export function percorsoServizio(d: DefFilm): Percorso {
       f('servizio', 'titolo', d.servizio, 0, A),
       f('h1', 'h1', d.h1, 0, A),
       f('sotto', 'paragrafo', d.sotto, 0, A),
-      f('pulsante', 'pulsante', 'Richiedi un preventivo', 0, A, { href: '#preventivo', nota: d.nota }),
+      f('pulsante', 'pulsante', INVITO, 0, A, { href: '#preventivo', nota: d.nota }),
       ...d.cartoline.map((c, i) => f(`foto-${i + 1}`, 'foto', c.alt, 0.05 + 0.15 * i, A - 0.05, { src: `/film/cartoline/${c.nome}.webp` })),
     ],
   }

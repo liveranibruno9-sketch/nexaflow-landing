@@ -31,6 +31,8 @@ export type Mondo = {
   piediMascotte(): { id: string; x: number; y: number; scala: number; luce: number }[]
   /** il vortice di scaglie dell'apertura è in scena: il puntino e il poster possono sparire */
   anelloPronto(): boolean
+  /** secondi dalla nascita del vortice dell'apertura (-1 = non ancora nato o non c'è): l'orologio dell'ingresso a tempo */
+  secondiVortice(): number
   /** il vortice non si è potuto creare: torna il poster */
   anelloFallito(): boolean
   impostaLivello(l: Livello): void
@@ -443,6 +445,7 @@ export function creaMondo(contenitore: HTMLElement, o: { percorso: Percorso; liv
     fuocoSchermo,
     arcoInAlto: () => null,
     anelloPronto: () => scaglie !== null,
+    secondiVortice: () => (scaglie ? scaglie.secondi() : -1),
     anelloFallito: () => scaglieFallite,
     piediMascotte: () => piedi,
     impostaLivello: (l) => {

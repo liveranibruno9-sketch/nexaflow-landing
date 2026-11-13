@@ -11,7 +11,7 @@ import { creaTocco } from './tocco.ts'
 import { letteraVisibile } from '../film/materia-calcoli.ts'
 import type { Battuta, Blocco, Percorso } from './tipi.ts'
 import type { Mondo } from './mondo/mondo'
-import { lucelettera, portataVia, voloLettere } from './nome.ts'
+import { APERTURA, ingressoNome, lucelettera, portataVia, voloLettere } from './nome.ts'
 
 /**
  * Il varco.
@@ -59,11 +59,27 @@ function conAccento(testo: string, accento?: string): ReactNode {
 }
 
 function VoceBattuta({ b, apertura }: { b: Battuta; apertura: boolean }) {
-  const dati = { 'data-da': b.da, 'data-a': b.a, 'data-ruolo': b.ruolo }
+  // `data-dopo`: la battuta compare da sola, quei secondi dopo la nascita del vortice (apertura a tempo, 13/11)
+  const dati = { 'data-da': b.da, 'data-a': b.a, 'data-ruolo': b.ruolo, ...(b.dopo ? { 'data-dopo': b.dopo } : {}) }
   const classe = `battuta battuta-${b.tipo}`
   switch (b.tipo) {
     case 'link':
-      return <a className={classe} href={b.href} {...dati}>{b.testo}</a>
+      // l'invito di sezione («Richiedi informazioni») è una pillola a filo; il collegamento alla pagina resta sottolineato
+      return <a className={b.ruolo === 'info' ? `${classe} battuta-info` : classe} href={b.href} {...dati}>{b.testo}</a>
+    case 'scorciatoie':
+      // per chi lavoriamo: una riga per servizio, con il numero e il colore del menu e una riga che dice cosa si ottiene
+      return (
+        <nav className={classe} aria-label={b.testo} {...dati}>
+          {(b.azioni ?? []).map((a) => (
+            <a className="scorciatoia" href={a.href} data-materia={a.materia} key={a.href}>
+              <span className="scorciatoia-num" aria-hidden="true">{a.num}</span>
+              <span className="scorciatoia-nome">{a.testo}</span>
+              {a.nota ? <span className="scorciatoia-riga">{a.nota}</span> : null}
+              <span className="scorciatoia-freccia" aria-hidden="true">→</span>
+            </a>
+          ))}
+        </nav>
+      )
     case 'cartolina':
       return (
         <a className={`${classe} cartolina`} href={b.href} {...dati}>
@@ -182,7 +198,7 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
       <div className="blocco" data-id={bl.id} data-tipo={bl.tipo}>
         <VoceBattuta b={di('nome')} apertura />
         <VoceBattuta b={di('servizi')} apertura />
-        <div className="battuta riquadro-apertura" data-da={luogo.da} data-a={luogo.a} data-ruolo="riquadro">
+        <div className="battuta riquadro-apertura" data-da={luogo.da} data-a={luogo.a} data-ruolo="riquadro" {...(luogo.dopo ? { 'data-dopo': luogo.dopo } : {})}>
           <p className="riquadro-etichetta">Chi siamo</p>
           <h1 className="riquadro-h1">{h1}</h1>
           <p className="riquadro-etichetta">Dove siamo</p>
@@ -192,7 +208,34 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
       </div>
     )
   }
+  if (bl.tipo === 'invito') {
+    // 13/11: l'invito sta nel cerchio del vortice, dove prima c'era il nome
+    return (
+      <div className="blocco" data-id={bl.id} data-tipo={bl.tipo}>
+        <p className="solo-statico etichetta-blocco">{bl.etichetta}</p>
+        <div className="invito-cerchio">
+          {bl.battute.map((b) => <VoceBattuta key={b.ruolo} b={b} apertura={false} />)}
+        </div>
+      </div>
+    )
+  }
+  if (bl.tipo === 'chi') {
+    // 13/11: a chi ci rivolgiamo e cosa portiamo; a destra (sul telefono: sotto) le scorciatoie ai quattro servizi
+    const testo = bl.battute.filter((b) => b.tipo !== 'scorciatoie')
+    const voci = bl.battute.filter((b) => b.tipo === 'scorciatoie')
+    return (
+      <div className="blocco" data-id={bl.id} data-tipo={bl.tipo}>
+        <div className="chi-colonne">
+          <div className="chi-testo">{testo.map((b) => <VoceBattuta key={b.ruolo} b={b} apertura={false} />)}</div>
+          <div className="chi-voci">{voci.map((b) => <VoceBattuta key={b.ruolo} b={b} apertura={false} />)}</div>
+        </div>
+      </div>
+    )
+  }
   const mascotte = (bl.immagini ?? [])[0]
+  // nella colonna del testo (giostra e servizi) i collegamenti stanno in una riga sola: la pagina del servizio e l'invito
+  const inRiga = bl.tipo === 'mascotte' || bl.tipo === 'intro'
+  const collegamenti = inRiga ? bl.battute.filter((b) => b.tipo === 'link') : []
   return (
     <div className="blocco" data-id={bl.id} data-tipo={bl.tipo} data-materia={bl.materia}>
       {bl.tipo !== 'intro' ? <p className="solo-statico etichetta-blocco">{bl.etichetta}</p> : null}
@@ -201,7 +244,7 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
           {(bl.immagini ?? []).map((nome) => <Immagine nome={nome} alt="" key={nome} />)}
         </div>
       ) : null}
-      {bl.battute.map((b) => b.tipo === 'foto' ? (
+      {bl.battute.filter((b) => !collegamenti.includes(b)).map((b) => b.tipo === 'foto' ? (
         <figure className="solo-statico statico-cartolina" key={b.ruolo}><img src={b.src} alt={b.testo} width={560} height={700} loading="lazy" decoding="async" /></figure>
       ) : (
         <Fragment key={b.ruolo}>
@@ -211,6 +254,7 @@ function VoceBlocco({ bl, h1 }: { bl: Blocco; h1: string }) {
           {bl.tipo === 'mascotte' && b.ruolo === 'titolo' && mascotte ? <Immagine nome={mascotte} alt={`La mascotte di ${b.testo.toLowerCase()}`} /> : null}
         </Fragment>
       ))}
+      {collegamenti.length ? <div className="riga-collegamenti">{collegamenti.map((b) => <VoceBattuta key={b.ruolo} b={b} apertura={false} />)}</div> : null}
       {bl.parole ? <ParoleResto parole={bl.parole} /> : null}
     </div>
   )
@@ -234,7 +278,8 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const frasi = Array.from(pa.querySelectorAll<HTMLElement>('.battuta')).map((el) => {
       const a = Number(el.dataset.a)
       // una battuta che arriva alla fine del percorso (il pulsante del finale) resta accesa: niente uscita sull'ultimo tratto
-      return { el, da: Number(el.dataset.da), a: a >= L ? L + 1 : a, o: -1, t: '' }
+      // `dopo` > 0: battuta a tempo dell'apertura, compare quei secondi dopo la nascita del vortice
+      return { el, da: Number(el.dataset.da), a: a >= L ? L + 1 : a, dopo: Number(el.dataset.dopo ?? 0), o: -1, t: '' }
     })
     const indiceNum = pa.querySelector<HTMLElement>('.indice-num')
     const indiceNome = pa.querySelector<HTMLElement>('.indice-nome')
@@ -277,10 +322,12 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     }))
     for (const m of motti) m.el.classList.add('materia-accesa')
     /* ----- le battute: opacità, salita e sfocatura dalla stessa u ----- */
-    const aggiornaFrasi = (u: number) => {
+    const aggiornaFrasi = (u: number, secondi: number) => {
       for (const q of frasi) {
         const s = statoFrase(q, u)
-        const o = Math.round(s.o * 100) / 100
+        // l'apertura a tempo: il cancello si apre in mezzo secondo quando arriva il momento della battuta
+        const cancello = q.dopo > 0 ? liscia(q.dopo, q.dopo + 0.5, secondi) : 1
+        const o = Math.round(s.o * cancello * 100) / 100
         if (o !== q.o) {
           q.el.style.opacity = String(o)
           q.el.style.visibility = o > 0 ? 'visible' : 'hidden'
@@ -338,7 +385,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     /* ----- testata: indice, barra di avanzamento; stato della pagina ----- */
     let bloccoPrima = ''
     let trattiPrima = ''
-    const aggiornaTestata = (u: number) => {
+    const aggiornaTestata = (u: number, secondi: number) => {
       const bl = percorso.blocchi[bloccoAl(percorso, u)]
       if (bl.id !== bloccoPrima) {
         bloccoPrima = bl.id
@@ -392,8 +439,9 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
         }
         el.style.setProperty('--via', via.toFixed(3))
       })
-      // D47: il nome si compone una lettera alla volta, quando le scaglie del vortice ci arrivano dentro (nome.ts)
-      const voli = voloLettere(u, lettereNome.length)
+      // 13/11: il nome si compone da solo, a tempo, una lettera alla volta, quando le scaglie del vortice ci arrivano dentro (nome.ts);
+      // lo scroll lo fa solo tornare nel vortice
+      const voli = voloLettere(u, lettereNome.length, ingressoNome(secondi))
       lettereNome.forEach((el, i) => {
         const o = Math.round(lucelettera(voli[i]) * 100) / 100
         if (el.dataset.o !== String(o)) {
@@ -413,6 +461,11 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const finale = bloccoFinale ? { da: bloccoFinale.da, uno: bloccoFinale.battute.find((b) => b.ruolo === '1')?.da ?? Infinity, due: bloccoFinale.battute.find((b) => b.ruolo === '2')?.da ?? Infinity } : null
     let senzaMondo = false
     const salvagente = window.setTimeout(() => { if (!mondo) senzaMondo = true }, 8000)
+    /* ----- l'orologio dell'ingresso (13/11): i secondi dalla nascita del vortice. Se il mondo tarda più di tre secondi (rete lenta) o
+       non arriva, il nome e i servizi compaiono lo stesso: l'orologio di riserva parte tre secondi dopo l'avvio ----- */
+    const avvio = performance.now()
+    const ATTESA_MONDO = 3
+    const secondiIngresso = (ora: number) => Math.max(mondo ? mondo.secondiVortice() : -1, (ora - avvio) / 1000 - ATTESA_MONDO + APERTURA.ingresso[0])
 
     /* ----- il mondo, caricato quando il browser è libero ----- */
     let mondo: Mondo | null = null
@@ -480,9 +533,10 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
       uLiscio += (obiettivo - uLiscio) * (1 - Math.exp(-dt * INERZIA))
       if (Math.abs(obiettivo - uLiscio) < 0.002) uLiscio = obiettivo
       if (inVista) {
-        aggiornaFrasi(uLiscio)
+        const secondi = secondiIngresso(ora)
+        aggiornaFrasi(uLiscio, secondi)
         aggiornaMateria(uLiscio)
-        aggiornaTestata(uLiscio)
+        aggiornaTestata(uLiscio, secondi)
       }
 
       if (mondo) {
@@ -522,7 +576,7 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     const osservatore = new IntersectionObserver(
       ([voce]) => {
         inVista = voce.isIntersecting
-        if (!inVista) aggiornaTestata(uCorrente())
+        if (!inVista) aggiornaTestata(uCorrente(), secondiIngresso(performance.now()))
         avvia()
       },
       { rootMargin: '10% 0px 10% 0px' },
@@ -559,9 +613,9 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
     document.addEventListener('visibilitychange', allaVisibilita)
     document.addEventListener('click', alClic, true)
     // il primo disegno è già lo stato di u: nessun salto quando parte il ciclo
-    aggiornaFrasi(uIniziale ?? uCorrente())
+    aggiornaFrasi(uIniziale ?? uCorrente(), secondiIngresso(avvio))
     aggiornaMateria(uIniziale ?? uCorrente())
-    aggiornaTestata(uIniziale ?? uCorrente())
+    aggiornaTestata(uIniziale ?? uCorrente(), secondiIngresso(avvio))
     avvia()
 
     return () => {
@@ -604,8 +658,15 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
             <div className="apertura-strato">
               {percorso.blocchi.filter((bl) => bl.tipo === 'apertura').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
+            {/* 13/11: l'invito nel cerchio del vortice (subito dopo il nome) e «per chi lavoriamo» con le scorciatoie ai servizi */}
+            <div className="invito-strato">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'invito').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+            </div>
+            <div className="chi-strato">
+              {percorso.blocchi.filter((bl) => bl.tipo === 'chi').map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+            </div>
             <div className="fascia">
-              {percorso.blocchi.filter((bl) => !['apertura', 'squadra', 'soglia', 'finale'].includes(bl.tipo)).map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
+              {percorso.blocchi.filter((bl) => !['apertura', 'invito', 'chi', 'squadra', 'soglia', 'finale'].includes(bl.tipo)).map((bl) => <VoceBlocco key={bl.id} bl={bl} h1={h1} />)}
             </div>
             {/* le cartoline dei servizi: volano accanto alla mascotte una alla volta */}
             <div className="cartoline-strato solo-varco">
@@ -619,11 +680,13 @@ export default function Varco({ percorso, h1, corrente, poster, children }: Prop
                 collegamento alla pagina del servizio (sul telefono il testo del servizio non ha un collegamento tappabile) */}
             <div className="nomi-mascotte solo-varco">
               {percorso.blocchi.filter((bl) => bl.tipo === 'mascotte').map((bl) => {
-                const href = bl.battute.find((b) => b.tipo === 'link')?.href
+                const href = bl.battute.find((b) => b.tipo === 'link' && b.ruolo === 'link')?.href
+                // 13/11: sotto il nome, il servizio che la mascotte rappresenta; è il collegamento alla sua pagina
+                const servizio = bl.etichetta.replace(/^\d+ · /, '')
                 return (
                   <span className="nome-mascotte" data-mascotte={bl.id} key={bl.id}>
                     <span className="nome-testo" aria-hidden="true">{bl.id.charAt(0).toUpperCase() + bl.id.slice(1)}</span>
-                    {href ? <a className="nome-link" href={href} tabIndex={-1} aria-label={`Scopri ${bl.etichetta.replace(/^\d+ · /, '')}`}>Scopri</a> : null}
+                    {href ? <a className="nome-link" href={href} tabIndex={-1} aria-label={`Scopri ${servizio}`}>{servizio}</a> : <span className="nome-link">{servizio}</span>}
                   </span>
                 )
               })}

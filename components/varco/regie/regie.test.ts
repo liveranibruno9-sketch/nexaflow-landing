@@ -56,15 +56,15 @@ test('R18: ogni blocco della home ha la sua regia e passa il controllo', () => {
   assert.deepEqual(controllaR18(HOME, REGIE), [])
 })
 
-test('apertura (D47): il cuore del vortice si scalda mentre arrivano le lettere e si abbassa quando il nome torna nel vortice', () => {
+test('apertura a tempo (13/11): il cuore del vortice è già caldo senza scorrere e si abbassa quando il nome torna nel vortice', () => {
   const cuore = (nome: number) => {
     const { kit, chiamate } = kitFinto()
     REGIE.apertura!({ nome, luogo: 0, servizi: 0, scorri: 0 }, { locale: nome, composto: 1, forma: 0, foto: [0, 0, 0], uscita: 0 }, kit)
     return chiamate.find((c) => c.metodo === 'luce' && c.id === 'cuore')!.valori[3]
   }
-  assert.equal(cuore(0), 0)
-  assert.ok(cuore(0.5) > 0.2)
-  assert.ok(cuore(0.9) < cuore(0.5) / 2)
+  assert.ok(cuore(0) > 0.2, 'a u = 0 il nome c\'è già')
+  assert.ok(cuore(0.3) > 0.2)
+  assert.ok(cuore(0.95) < cuore(0.3) / 2)
 })
 
 test('soglia (D47): con «Noi.» le quattro materie rientrano dagli angoli verso il centro', () => {

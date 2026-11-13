@@ -3,13 +3,13 @@ import { ANTEPRIMA } from '@/lib/anteprima'
 import DatiStrutturati from '@/components/DatiStrutturati'
 import Coda from '@/components/film/Coda'
 import Varco from '@/components/varco/Varco'
-import { HOME } from '@/components/varco/dati/home'
+import { HOME, INFO } from '@/components/varco/dati/home'
 
 // Titolo, descrizione e H1 da testi.md §6 (lettera per lettera). Il nome grande è decorativo: l'H1 è la riga piccola.
 // SEO (2/11/2026): il nome dell'agenzia viene prima nel titolo e l'H1 dice «di Faenza», così chi cerca «agenti studio faenza» trova la home.
 const TITOLO = 'Agenti Studio | Agenzia AI a Faenza e in Romagna'
 const DESCRIZIONE =
-  'Automazioni, siti web, contenuti e campagne per le attività della Romagna. Agenti Studio, Faenza: richiedi un preventivo senza impegno.'
+  'Automazioni, siti web, contenuti e campagne per le attività della Romagna. Agenti Studio, Faenza: richiedi informazioni, senza impegno.'
 
 export const metadata: Metadata = {
   title: { absolute: TITOLO },
@@ -19,7 +19,8 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: TITOLO, description: DESCRIZIONE, images: [ANTEPRIMA.url] },
 }
 
-// La home: il varco in sette blocchi (apertura, soglia, quattro tratti, finale). In fondo la coda: preventivo, Bruno, contatti, informazioni.
+// La home chiara (13/11): apertura a tempo, invito, per chi lavoriamo, soglia, giostra, quattro servizi, squadra, finale. In fondo la coda:
+// il modulo (con lo stesso invito del film), Bruno, contatti, informazioni.
 export default function Home() {
   return (
     <main id="contenuto">
@@ -34,7 +35,7 @@ export default function Home() {
           alt: "Anello di polvere di stelle, vetro, saette e cromo attorno al buio: l'apertura del sito di Agenti Studio",
         }}
       >
-        <Coda conBruno />
+        <Coda conBruno titolo={INFO} />
       </Varco>
     </main>
   )

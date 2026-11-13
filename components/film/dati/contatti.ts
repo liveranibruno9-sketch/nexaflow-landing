@@ -2,6 +2,11 @@
 
 export type Servizio = 'automazioni' | 'siti-web' | 'contenuti' | 'campagne'
 
+/** l'invito all'azione, uguale in tutto il sito (13/11/2026: «Richiedi informazioni» al posto di «Richiedi un preventivo»: chiede meno e ha
+ *  un nome solo); la forma breve sta nella testata del computer. Se l'offerta cambia, si cambia qui */
+export const INVITO = 'Richiedi informazioni'
+export const INVITO_BREVE = 'Informazioni'
+
 export const CONTATTI = {
   telefono: '+393500164456',
   telefonoLeggibile: '+39 350 016 4456',

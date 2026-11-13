@@ -4,11 +4,13 @@ import { fasiBlocco } from '../percorso.ts'
 import type { Regia, Tempi } from '../kit.ts'
 import type { Battuta, Percorso } from '../tipi.ts'
 import { apertura } from './apertura.ts'
-import { CENTRI, finale, intro, mascotte, squadra } from './sezioni.ts'
+import { CENTRI, chi, finale, intro, invito, mascotte, squadra } from './sezioni.ts'
 import { soglia } from './soglia.ts'
 
 export const REGIE: Partial<Record<string, Regia>> = {
   apertura,
+  invito,
+  chi,
   soglia,
   servizi: intro,
   atlas: mascotte('polvere', CENTRI.atlas),

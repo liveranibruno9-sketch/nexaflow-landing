@@ -5,6 +5,7 @@
 import { useEffect, useRef } from 'react'
 import type { Frase } from '../dati/pagine.ts'
 import { posizioneAccento } from '../testo.ts'
+import { INVITO } from '../../film/dati/contatti'
 
 function conAccento(testo: string, accento?: string) {
   const i = posizioneAccento(testo, accento)
@@ -41,7 +42,7 @@ export default function Invito({ frasi, nota, senzaAncora }: { frasi: Frase[]; n
         {frasi.map((f) => <span className="invito-riga" key={f[0]}>{conAccento(f[0], f[1])}</span>)}
       </p>
       <div className="invito-pulsante" data-scena="invito" data-scala="3.2">
-        <a className="pulsante" href="#preventivo">Richiedi un preventivo</a>
+        <a className="pulsante" href="#preventivo">{INVITO}</a>
         <p className="pulsante-sotto">{nota}</p>
       </div>
     </section>

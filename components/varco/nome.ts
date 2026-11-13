@@ -1,17 +1,17 @@
-// Il nome dell'apertura (home v2.4, D47): «Agenti Studio» si compone allo scroll una lettera alla volta, ogni lettera fatta dalle
-// scaglie del vortice che le volano dentro; poi i servizi in breve; poi la consegna: il nome torna nel vortice, il vortice si apre
-// in quattro correnti, una per materia, che escono dallo schermo (il resto lo fanno gli agenti). Funzioni pure: `npm test`.
+// Il nome dell'apertura (home v2.5, 13/11/2026, brief di Bruno: «il vortice e il nome dell'agenzia con i servizi compaiano appena si
+// apre, non legati allo scroll»). «Agenti Studio» si compone DA SOLO, a tempo, una lettera alla volta, ogni lettera fatta dalle scaglie
+// del vortice che le volano dentro; subito dopo i servizi in breve. Poi, con lo scroll: il nome torna nel vortice, nel cerchio compare
+// l'invito, il vortice si apre in quattro correnti, una per materia, che escono dallo schermo. Funzioni pure: `npm test`.
 
-/** in schermate dall'inizio dell'apertura */
 export const APERTURA = {
-  /** le lettere arrivano fra questi due punti dello scroll */
-  nome: [0.05, 0.85] as const,
-  /** il nome torna nel vortice */
-  scioglie: [1.35, 1.6] as const,
-  /** il vortice si apre in quattro correnti che escono dallo schermo */
-  consegna: [1.5, 2.2] as const,
+  /** l'ingresso a tempo: le lettere arrivano fra questi due istanti, in SECONDI dalla nascita del vortice (non dipende dallo scroll) */
+  ingresso: [0.5, 1.9] as const,
+  /** da qui in giù, schermate dall'inizio dell'apertura. Il nome torna nel vortice */
+  scioglie: [0.3, 0.55] as const,
+  /** il vortice si apre in quattro correnti che escono dallo schermo (prima, nel cerchio, c'è l'invito) */
+  consegna: [1.3, 2.0] as const,
   /** D50: con «Noi.» (soglia, battuta 2) le correnti rientrano a metà dagli angoli e riescono portandosi via le parole del resto */
-  spazzata: [3.0, 3.6] as const,
+  spazzata: [4.3, 4.9] as const,
 }
 /** quanto dura il volo di una lettera, in frazione del tratto del nome (le lettere si accavallano un po') */
 const VOLO = 0.2
@@ -22,9 +22,15 @@ const liscia = (a: number, b: number, x: number) => {
   return t * t * (3 - 2 * t)
 }
 
-/** per ogni lettera, 0 = ancora nel vortice, 1 = arrivata al suo posto (spazi esclusi: n = lettere vere) */
-export function voloLettere(u: number, n: number): number[] {
-  const x = clamp01((u - APERTURA.nome[0]) / (APERTURA.nome[1] - APERTURA.nome[0]))
+/** quanto è avanti l'ingresso del nome, 0..1, dai secondi passati dalla nascita del vortice (negativi = non ancora nato) */
+export const ingressoNome = (secondi: number) => clamp01((secondi - APERTURA.ingresso[0]) / (APERTURA.ingresso[1] - APERTURA.ingresso[0]))
+
+/**
+ * Per ogni lettera, 0 = ancora nel vortice, 1 = arrivata al suo posto (spazi esclusi: n = lettere vere). `ingresso` 0..1 è il tempo
+ * (ingressoNome): le lettere arrivano da sole; `u` le fa solo tornare nel vortice quando si scorre.
+ */
+export function voloLettere(u: number, n: number, ingresso = 1): number[] {
+  const x = clamp01(ingresso)
   const torna = liscia(APERTURA.scioglie[0], APERTURA.scioglie[1], u)
   return Array.from({ length: n }, (_, i) => {
     const parte = n > 1 ? (i / (n - 1)) * (1 - VOLO) : 0
