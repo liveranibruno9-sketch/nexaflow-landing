@@ -7,7 +7,7 @@ import { AUTOMAZIONI, VOCI_AUTOMAZIONI } from './dati/automazioni.ts'
 import { SITI_WEB, TIPI_SITO_TUTTI } from './dati/siti-web.ts'
 import { CONTENUTI, TIPI_CONTENUTO_TUTTI } from './dati/contenuti.ts'
 import { CAMPAGNE, TIPI_CAMPAGNA_TUTTI } from './dati/campagne.ts'
-import { NOMI_MESTIERE, PAGINE_DEDICATE } from './dati/dedicate.ts'
+import { NOMI_MESTIERE, PAGINE_DEDICATE, descrizioneDedicata } from './dati/dedicate.ts'
 import { CHI_SIAMO } from './dati/chi-siamo.ts'
 import { REGIE_PAGINE } from './regie/pagine/indice.ts'
 import { controllaR18 } from './regie/indice.ts'
@@ -265,4 +265,11 @@ test('Pagine dedicate: ogni voce con «Come funziona» ha la sua pagina (le voci
     ;(p.esempi ?? []).forEach((e) => assert.ok(e.href.startsWith('https://') && e.immagine && e.alt && e.fantasia && (!e.video || e.video.mp4.endsWith('.mp4')), `${dove}: esempio ${e.nome} (demo con attività di fantasia)`))
   }
   assert.ok(PAGINE_DEDICATE.every((p) => !p.esempi?.length || p.esempi.every((e) => !/oltre frontiera/i.test(e.nome))), 'Lavoro Oltre Frontiera non è tra gli esempi (decisione di Bruno 31/10)')
+})
+
+test('pagine dedicate su Google (14/11, Bruno: «Tutte e 26»): ogni descrizione è unica, fra 70 e 160 caratteri, fatta di frasi intere', () => {
+  const d = PAGINE_DEDICATE.map((p) => descrizioneDedicata(p))
+  assert.equal(d.length, 26)
+  assert.equal(new Set(d).size, d.length, 'descrizioni uniche')
+  d.forEach((x, i) => assert.ok(x.length >= 70 && x.length <= 160 && /[.!?]$/.test(x), `${PAGINE_DEDICATE[i].servizio}/${PAGINE_DEDICATE[i].slug}: ${x.length} «${x}»`))
 })

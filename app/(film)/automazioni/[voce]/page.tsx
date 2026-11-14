@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import PaginaDedicata from '@/components/varco/sezioni/PaginaDedicata'
-import { PAGINE_DEDICATE, SERVIZI_DEDICATI, trovaDedicata } from '@/components/varco/dati/dedicate'
+import { PAGINE_DEDICATE, trovaDedicata } from '@/components/varco/dati/dedicate'
+import { metadatiDedicata } from '@/lib/metadati-dedicata'
 
-// Pagina dedicata a una voce di /automazioni («Come funziona»): modello unico v1, dati in dati/dedicate.ts. Fuori da Google finché Bruno non la approva (noindex).
+// Pagina dedicata a una voce di /automazioni («Come funziona»): modello unico v1, dati in dati/dedicate.ts. Su Google dal 14/11/2026 (Bruno: «Tutte e 26»); metadati in lib/metadati-dedicata.ts.
 
 export const dynamicParams = false
 
@@ -13,9 +14,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ voce: string }> }): Promise<Metadata> {
   const { voce } = await params
-  const v = trovaDedicata('automazioni', voce)
-  if (!v) return {}
-  return { title: { absolute: `${v.titolo} | ${SERVIZI_DEDICATI['automazioni'].nome} | Agenti Studio` }, description: v.riga, robots: { index: false, follow: true } }
+  return metadatiDedicata('automazioni', voce)
 }
 
 export default async function Pagina({ params }: { params: Promise<{ voce: string }> }) {

@@ -146,7 +146,7 @@ const CONTENUTO: Record<string, ContenutoDedicato> = {
     passi: ["Ci racconti la tua attività e i tuoi profili di oggi.", "Ricevi la proposta con piano, frequenza e resoconto.", "Contenuti ogni settimana, pubblicati dopo il tuo sì."],
     faq: [{ d: "Chi ha accesso ai miei profili?", r: "I profili restano tuoi: ci dai gli accessi per pubblicare e li revochi quando vuoi." }, { d: "Rispondete ai commenti e ai messaggi?", r: "Ai messaggi può pensare un assistente virtuale (pagina Automazioni). Dei commenti parliamo nella prima chiamata." }],
   },
-  'contenuti/su-misura': { ...CHIAMATA_SU_MISURA },
+  'contenuti/su-misura': { ...CHIAMATA_SU_MISURA, cosa: "Se i contenuti che ti servono non sono nell'elenco, li progettiamo insieme: una serie, un formato nuovo, un evento da raccontare. Ti diciamo cosa si può fare e da dove partire." },
   /* ---------- Campagne ---------- */
   'campagne/lancio-e-promozioni': {
     cosa: "Un evento, un'apertura, una promozione: un annuncio a tempo per le persone giuste attorno a te, con un budget deciso prima. Alla fine sai cosa è successo.",
@@ -184,7 +184,7 @@ const CONTENUTO: Record<string, ContenutoDedicato> = {
     passi: ["Ci racconti se fai già pubblicità e con quali risultati.", "Ricevi la proposta scritta: cosa controlliamo e ogni quanto.", "Ogni settimana spostiamo il budget dove funziona."],
     faq: [{ d: "Chi paga le piattaforme?", r: "Tu, dal tuo account. Il nostro lavoro e il budget sono due voci separate." }, { d: "Posso fermarmi quando voglio?", r: "Sì: l'account è tuo e il budget lo fermi tu." }],
   },
-  'campagne/su-misura': { ...CHIAMATA_SU_MISURA },
+  'campagne/su-misura': { ...CHIAMATA_SU_MISURA, cosa: "Se la campagna che ti serve non è nell'elenco, la progettiamo insieme: un obiettivo, una zona, un periodo preciso. Ti diciamo cosa si può fare, con quale budget e da dove partire." },
 }
 
 const liste: [ServizioDedicato, { slug: string; titolo: [string, string?]; vignetta: string; riga: string }[]][] = [
@@ -199,3 +199,16 @@ export const PAGINE_DEDICATE: VoceDedicata[] = liste.flatMap(([servizio, voci]) 
   }))
 
 export const trovaDedicata = (servizio: string, slug: string) => PAGINE_DEDICATE.find((p) => p.servizio === servizio && p.slug === slug)
+
+/** la descrizione per Google (14/11/2026): le frasi intere di «cosa è» che stanno in 155 caratteri; se la prima non ci sta, la riga breve
+ *  dell'elenco. Sotto i 70 caratteri si aggiunge chi siamo e dove, perché Google mostra fino a ~155 caratteri */
+export function descrizioneDedicata(v: { cosa: string; riga: string }): string {
+  const frasi = v.cosa.match(/[^.!?]+[.!?]+/g) ?? [v.cosa]
+  let d = ''
+  for (const f of frasi) {
+    if ((d + f).trim().length > 155) break
+    d += f
+  }
+  d = d.trim() || v.riga
+  return d.length < 70 ? `${d} Agenti Studio, Faenza e Romagna.` : d
+}
